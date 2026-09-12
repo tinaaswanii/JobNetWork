@@ -31,7 +31,7 @@ supabase/schema.sql -> tables for your own jobs, email subscribers, scraped pric
 2. Create a free Supabase project, run `supabase/schema.sql` in its SQL editor.
 3. Copy `.env.example` to `.env.local` and fill in real values.
 4. `npm run dev` locally, then push to GitHub and import into Vercel for a live URL (Vercel gives you `yourproject.vercel.app` immediately; add a custom domain in Vercel's dashboard whenever you buy one).
-5. Add the two cron jobs in `vercel.json` (included) so Vercel calls your digest and price-scrape endpoints on a schedule automatically — no server to babysit.
+5. Add the two cron jobs in `vercel.json` (included) so Vercel calls your digest and price-scrape endpoints on a schedule automatically — no server to babysit. **Vercel's free Hobby plan only allows cron jobs to run once per day each** — both are already set to once-daily (`0 8 * * *` and `0 9 * * *`). If you upgrade to Pro later you can run price-scrape more often.
 
 ## Where the artha.link token lives
 
