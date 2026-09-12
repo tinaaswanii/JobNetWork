@@ -67,7 +67,7 @@ export class ArthaApiError extends Error {
   }
 }
 
-const BASE_URL = process.env.ARTHA_BASE_URL ?? "https://api.artha.link/api/v1";
+const BASE_URL = process.env.ARTHA_BASE_URL ?? "https://api-india.artha.link/api/v1";
 
 function authHeaders(): HeadersInit {
   const key = process.env.ARTHA_API_KEY;
