@@ -3,13 +3,20 @@ import { Resend } from "resend";
 import { fetchJobs } from "@/lib/artha";
 import { supabaseAdmin } from "@/lib/supabase";
 
-const resend = new Resend(process.env.RESEND_API_KEY);
-
 export async function GET(req: NextRequest) {
   const auth = req.headers.get("authorization");
   if (auth !== `Bearer ${process.env.CRON_SECRET}`) {
     return NextResponse.json({ success: false, error: "unauthorized" }, { status: 401 });
   }
+
+  if (!process.env.RESEND_API_KEY) {
+    console.error("[email-digest] RESEND_API_KEY not set — skipping run");
+    return NextResponse.json(
+      { success: false, error: { code: "MISSING_CONFIG", message: "RESEND_API_KEY not set." } },
+      { status: 500 }
+    );
+  }
+  const resend = new Resend(process.env.RESEND_API_KEY);
 
   const db = supabaseAdmin();
   const { data: subscribers, error } = await db

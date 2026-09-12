@@ -19,8 +19,8 @@ const config: Config = {
         denim: "#2C5F8A",
       },
       fontFamily: {
-        display: ["var(--font-fraunces)", "serif"],
-        body: ["var(--font-plex)", "sans-serif"],
+        display: ["Fraunces", "serif"],
+        body: ["IBM Plex Sans", "sans-serif"],
       },
     },
   },
