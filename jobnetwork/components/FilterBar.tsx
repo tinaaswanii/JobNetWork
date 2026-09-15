@@ -1,3 +1,4 @@
+```tsx
 "use client";
 
 import { useEffect, useState } from "react";
@@ -54,12 +55,6 @@ export default function FilterBar({
       />
 
       <div className="flex flex-wrap gap-3">
-        <Select
-          label="Country"
-          value={value.location}
-          onChange={(v) => set({ location: v })}
-          options={options?.countries}
-        />
         <Select
           label="Type"
           value={value.job_type}
@@ -118,3 +113,4 @@ function Select({
     </select>
   );
 }
+```
