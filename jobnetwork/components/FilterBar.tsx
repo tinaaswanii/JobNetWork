@@ -1,4 +1,3 @@
-```tsx
 "use client";
 
 import { useEffect, useState } from "react";
@@ -61,18 +60,21 @@ export default function FilterBar({
           onChange={(v) => set({ job_type: v })}
           options={options?.job_types}
         />
+
         <Select
           label="Work mode"
           value={value.work_mode}
           onChange={(v) => set({ work_mode: v })}
           options={options?.work_modes}
         />
+
         <Select
           label="Experience"
           value={value.exp_level}
           onChange={(v) => set({ exp_level: v })}
           options={options?.experience_levels}
         />
+
         <select
           value={value.sort_by}
           onChange={(e) => set({ sort_by: e.target.value })}
@@ -105,6 +107,7 @@ function Select({
       className="bg-paper border border-ink/20 px-3 py-1.5 text-sm text-ink"
     >
       <option value="">{label}: any</option>
+
       {options?.map((opt) => (
         <option key={opt.value} value={opt.value}>
           {opt.value} ({opt.count})
@@ -113,4 +116,3 @@ function Select({
     </select>
   );
 }
-```
