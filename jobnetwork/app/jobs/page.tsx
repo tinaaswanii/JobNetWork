@@ -73,7 +73,7 @@ export default function JobsPage() {
         <div className="max-w-5xl mx-auto flex flex-col gap-2">
           <h1 className="font-display text-3xl md:text-4xl">JobNetWork</h1>
           <p className="text-paper/80 max-w-md">
-            Internships and entry-level roles, updated in real time — plus a few we posted ourselves.
+            Internships, jobs, and placement resources for students, working professionals or recent grads all at one place updated in real time.
           </p>
         </div>
       </header>
