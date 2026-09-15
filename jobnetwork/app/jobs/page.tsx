@@ -70,13 +70,22 @@ export default function JobsPage() {
   return (
     <main className="min-h-screen bg-paper">
       <header className="bg-board text-paper px-6 py-10 md:px-12">
-        <div className="max-w-5xl mx-auto flex flex-col gap-2">
-          <h1 className="font-display text-3xl md:text-4xl">JobNetWork</h1>
-          <p className="text-paper/80 max-w-md">
-            Internships, jobs, and placement resources for students, working professionals or recent grads all at one place updated in real time.
-          </p>
-        </div>
-      </header>
+  <div className="max-w-5xl mx-auto flex flex-col gap-3">
+    <div className="flex items-center gap-4">
+      <img
+        src="/Logo.png"
+        alt="JobNetWork"
+        className="w-20 h-20 object-contain rounded-full bg-white"
+      />
+      <h1 className="font-display text-3xl md:text-4xl">JobNetWork</h1>
+    </div>
+
+    <p className="text-paper/80 max-w-md">
+      Internships, jobs, and placement resources for students, working
+      professionals or recent grads all at one place updated in real time.
+    </p>
+  </div>
+</header>
 
       <div className="max-w-5xl mx-auto px-6 md:px-12 -mt-6">
         <FilterBar value={filters} onChange={setFilters} />
