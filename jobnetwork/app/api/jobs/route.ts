@@ -61,7 +61,19 @@ export async function GET(req: NextRequest) {
       query.offset === 0 ? fetchOwnJobs(query) : Promise.resolve([]),
     ]);
 
-    const merged = [...ownRows.map(normalizeOwnJob), ...arthaResult.items];
+    const ownAsJobs = ownRows.map(normalizeOwnJob);
+    const sortBy = query.sort_by ?? "newest";
+
+    let merged: PublicJob[];
+    if (sortBy === "newest") {
+      merged = [...ownAsJobs, ...arthaResult.items].sort(
+        (a, b) => new Date(b.posted_date).getTime() - new Date(a.posted_date).getTime()
+      );
+    } else {
+      // For relevance/priority sorting, artha.link's own ranking should show first;
+      // your manually-added jobs go at the end instead of always leading.
+      merged = [...arthaResult.items, ...ownAsJobs];
+    }
 
     return NextResponse.json({
       success: true,
@@ -98,7 +110,7 @@ async function fetchOwnJobs(query: JobsQuery) {
   if (query.work_mode) q = q.eq("work_mode", query.work_mode);
   if (query.company) q = q.ilike("company", `%${query.company}%`);
 
-  const { data, error } = await q.order("posted_date", { ascending: false }).limit(3);
+  const { data, error } = await q.order("posted_date", { ascending: false }).limit(20);
   if (error) {
     console.error("[api/jobs] supabase error", error);
     return [];
