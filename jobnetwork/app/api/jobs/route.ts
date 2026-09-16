@@ -98,7 +98,7 @@ async function fetchOwnJobs(query: JobsQuery) {
   if (query.work_mode) q = q.eq("work_mode", query.work_mode);
   if (query.company) q = q.ilike("company", `%${query.company}%`);
 
-  const { data, error } = await q.order("posted_date", { ascending: false }).limit(20);
+  const { data, error } = await q.order("posted_date", { ascending: false }).limit(3);
   if (error) {
     console.error("[api/jobs] supabase error", error);
     return [];
