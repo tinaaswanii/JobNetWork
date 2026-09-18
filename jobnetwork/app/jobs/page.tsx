@@ -1,61 +1,68 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import type { PublicJob } from "@/lib/types";
 import JobCard from "@/components/JobCard";
-import FilterBar, { emptyFilters, type Filters } from "../../components/FilterBar"
+import FilterBar, { emptyFilters, type Filters } from "../../components/FilterBar";
 import Pagination from "@/components/Pagination";
 import EmailSignup from "@/components/EmailSignup";
 
 const LIMIT = 12;
+// How many jobs to pull from the server in one go, so client-side search
+// actually has a real pool to search over — not just the current page.
+const FETCH_POOL_SIZE = 200;
 
 export default function JobsPage() {
   const [filters, setFilters] = useState<Filters>(emptyFilters);
   const [offset, setOffset] = useState(0);
-  const [jobs, setJobs] = useState<PublicJob[]>([]);
-  const [total, setTotal] = useState(0);
-  const [state, setState] = useState<"loading" | "ready" | "empty" | "error" | "rate_limited">(
+  const [allJobs, setAllJobs] = useState<PublicJob[]>([]);
+  const [fetchState, setFetchState] = useState<"loading" | "ready" | "error" | "rate_limited">(
     "loading"
   );
   const [errorMessage, setErrorMessage] = useState("");
 
+  // Reset to page 1 whenever ANY filter changes, including the search text.
   useEffect(() => {
     setOffset(0);
   }, [filters]);
 
+  // Fetch from the server using only the filters it can actually apply
+  // (type / work mode / experience / sort). We deliberately do NOT send
+  // "q" here — free-text search is applied client-side below, against
+  // whatever jobs are already loaded in the UI, so it never depends on
+  // Artha's own search matching.
   useEffect(() => {
     let cancelled = false;
 
     async function load() {
-      setState("loading");
-      const params = new URLSearchParams({ limit: String(LIMIT), offset: String(offset) });
-      Object.entries(filters).forEach(([k, v]) => {
+      setFetchState("loading");
+      const params = new URLSearchParams({ limit: String(FETCH_POOL_SIZE), offset: "0" });
+      const { q, ...serverFilters } = filters;
+      Object.entries(serverFilters).forEach(([k, v]) => {
         if (v) params.set(k, v);
       });
 
       try {
         const res = await fetch(`/api/jobs?${params.toString()}`);
         const body = await res.json();
-
         if (cancelled) return;
 
         if (res.status === 429) {
-          setState("rate_limited");
+          setFetchState("rate_limited");
           setErrorMessage("Job listings are refreshing — try again in a moment.");
           return;
         }
         if (!body.success) {
-          setState("error");
+          setFetchState("error");
           setErrorMessage(body.error?.message ?? "Couldn't load jobs.");
           return;
         }
 
-        setJobs(body.data.items);
-        setTotal(body.data.total);
-        setState(body.data.items.length === 0 ? "empty" : "ready");
+        setAllJobs(body.data.items);
+        setFetchState("ready");
       } catch {
         if (!cancelled) {
-          setState("error");
+          setFetchState("error");
           setErrorMessage("Couldn't reach the server — check your connection.");
         }
       }
@@ -65,34 +72,53 @@ export default function JobsPage() {
     return () => {
       cancelled = true;
     };
-  }, [filters, offset]);
+    // Re-fetch only when a *server-side* filter changes — not on every
+    // keystroke in the search box, and not on pagination (that's now local).
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [filters.job_type, filters.work_mode, filters.exp_level, filters.sort_by, filters.location]);
+
+  // Client-side text search over whatever's already in the UI.
+  const filteredJobs = useMemo(() => {
+    const q = filters.q.trim().toLowerCase();
+    if (!q) return allJobs;
+    return allJobs.filter((job) => {
+      const haystack = [job.title, job.company, job.city]
+        .filter(Boolean)
+        .join(" ")
+        .toLowerCase();
+      return haystack.includes(q);
+    });
+  }, [allJobs, filters.q]);
+
+  const pageJobs = filteredJobs.slice(offset, offset + LIMIT);
+  const total = filteredJobs.length;
+  const isEmpty = fetchState === "ready" && filteredJobs.length === 0;
 
   return (
     <main className="min-h-screen bg-paper">
       <header className="bg-board text-paper px-6 py-10 md:px-12">
-  <div className="max-w-5xl mx-auto flex flex-col gap-3">
-    <div className="flex items-center gap-4">
-      <img
-        src="/Logo.png"
-        alt="JobNetWork"
-        className="w-20 h-20 object-contain rounded-full bg-white"
-      />
-      <h1 className="font-display text-3xl md:text-4xl">JobNetWork</h1>
-    </div>
-
-    <p className="text-paper/80 max-w-md">
-      Internships, jobs, and placement resources for students, working
-      professionals or recent grads all at one place updated in real time.
-    </p>
-  </div>
-</header>
+        <div className="max-w-5xl mx-auto flex flex-col gap-3">
+          <div className="flex items-center gap-4">
+            <img
+              src="/Logo.png"
+              alt="JobNetWork"
+              className="w-20 h-20 object-contain rounded-full bg-white"
+            />
+            <h1 className="font-display text-3xl md:text-4xl">JobNetWork</h1>
+          </div>
+          <p className="text-paper/80 max-w-md">
+            Internships, jobs, and placement resources for students, working
+            professionals or recent grads all at one place updated in real time.
+          </p>
+        </div>
+      </header>
 
       <div className="max-w-5xl mx-auto px-6 md:px-12 -mt-6">
         <FilterBar value={filters} onChange={setFilters} />
       </div>
 
       <section className="max-w-5xl mx-auto px-6 md:px-12 py-10">
-        {state === "loading" && (
+        {fetchState === "loading" && (
           <div className="space-y-4" aria-live="polite">
             {Array.from({ length: 4 }).map((_, i) => (
               <div key={i} className="pinned-card p-5 pl-6 h-24 animate-pulse bg-ink/5" />
@@ -100,21 +126,21 @@ export default function JobsPage() {
           </div>
         )}
 
-        {state === "error" && (
+        {fetchState === "error" && (
           <div className="pinned-card p-6 pl-7">
             <p className="font-display text-lg">Couldn't load listings</p>
             <p className="text-sm text-ink/60 mt-1">{errorMessage}</p>
           </div>
         )}
 
-        {state === "rate_limited" && (
+        {fetchState === "rate_limited" && (
           <div className="pinned-card p-6 pl-7">
             <p className="font-display text-lg">One moment</p>
             <p className="text-sm text-ink/60 mt-1">{errorMessage}</p>
           </div>
         )}
 
-        {state === "empty" && (
+        {isEmpty && (
           <div className="pinned-card p-6 pl-7">
             <p className="font-display text-lg">No matches yet</p>
             <p className="text-sm text-ink/60 mt-1">
@@ -123,10 +149,10 @@ export default function JobsPage() {
           </div>
         )}
 
-        {state === "ready" && (
+        {fetchState === "ready" && !isEmpty && (
           <>
             <div className="grid gap-4 md:grid-cols-2">
-              {jobs.map((job) => (
+              {pageJobs.map((job) => (
                 <JobCard key={job.id} job={job} />
               ))}
             </div>
