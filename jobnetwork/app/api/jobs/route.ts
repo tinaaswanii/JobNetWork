@@ -54,11 +54,16 @@ export async function GET(req: NextRequest) {
   };
 
   try {
-    const [arthaResult, ownRows] = await Promise.all([
+    const [arthaResult, ownRows, ownTotal] = await Promise.all([
       fetchJobs(query),
       // Only pull your own jobs on the first page so they don't repeat on every page —
       // simplest correct approach for a small self-added-jobs table.
       query.offset === 0 ? fetchOwnJobs(query) : Promise.resolve([]),
+      // But always get the REAL matching count (regardless of page), so pagination
+      // math (`total`, `has_more`, "Page X of Y") stays correct on every page —
+      // not just page 1, where it used to accidentally work because ownRows.length
+      // happened to equal the count.
+      fetchOwnJobsCount(query),
     ]);
 
     const ownAsJobs = ownRows.map(normalizeOwnJob);
@@ -75,14 +80,17 @@ export async function GET(req: NextRequest) {
       merged = [...arthaResult.items, ...ownAsJobs];
     }
 
+    const combinedTotal = arthaResult.total + ownTotal;
+    const hasMore = arthaResult.offset + arthaResult.limit < combinedTotal;
+
     return NextResponse.json({
       success: true,
       data: {
         items: merged,
-        total: arthaResult.total + ownRows.length,
+        total: combinedTotal,
         limit: arthaResult.limit,
         offset: arthaResult.offset,
-        has_more: arthaResult.has_more,
+        has_more: hasMore,
       },
     });
   } catch (err) {
@@ -100,15 +108,19 @@ export async function GET(req: NextRequest) {
   }
 }
 
+function applyOwnJobFilters(q: ReturnType<ReturnType<typeof supabaseAdmin>["from"]>, query: JobsQuery) {
+  let scoped = q;
+  if (query.q) scoped = scoped.ilike("title", `%${query.q}%`);
+  if (query.location) scoped = scoped.eq("country", query.location);
+  if (query.job_type) scoped = scoped.eq("job_type", query.job_type);
+  if (query.work_mode) scoped = scoped.eq("work_mode", query.work_mode);
+  if (query.company) scoped = scoped.ilike("company", `%${query.company}%`);
+  return scoped;
+}
+
 async function fetchOwnJobs(query: JobsQuery) {
   const db = supabaseAdmin();
-  let q = db.from("own_jobs").select("*").eq("is_active", true);
-
-  if (query.q) q = q.ilike("title", `%${query.q}%`);
-  if (query.location) q = q.eq("country", query.location);
-  if (query.job_type) q = q.eq("job_type", query.job_type);
-  if (query.work_mode) q = q.eq("work_mode", query.work_mode);
-  if (query.company) q = q.ilike("company", `%${query.company}%`);
+  const q = applyOwnJobFilters(db.from("own_jobs").select("*").eq("is_active", true), query);
 
   const { data, error } = await q.order("posted_date", { ascending: false }).limit(20);
   if (error) {
@@ -116,4 +128,19 @@ async function fetchOwnJobs(query: JobsQuery) {
     return [];
   }
   return data ?? [];
+}
+
+async function fetchOwnJobsCount(query: JobsQuery) {
+  const db = supabaseAdmin();
+  const q = applyOwnJobFilters(
+    db.from("own_jobs").select("*", { count: "exact", head: true }).eq("is_active", true),
+    query
+  );
+
+  const { count, error } = await q;
+  if (error) {
+    console.error("[api/jobs] supabase count error", error);
+    return 0;
+  }
+  return count ?? 0;
 }
