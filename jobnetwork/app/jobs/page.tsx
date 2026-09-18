@@ -104,7 +104,6 @@ export default function JobsPage() {
       return haystack.includes(q);
     });
   }, [allJobs, filters.q]);
-  ]);
   // Client-side text search over whatever's already in the UI.
   const filteredJobs = useMemo(() => {
     const q = filters.q.trim().toLowerCase();
