@@ -22,27 +22,27 @@ export default function JobsPage() {
   const [errorMessage, setErrorMessage] = useState("");
 
   // Reset to page 1 whenever ANY filter changes, including the search text.
-  useEffect(() => {
-    setOffset(0);
-  }, [filters]);
-
-  useEffect(() => {
+    useEffect(() => {
     let cancelled = false;
 
     async function load() {
       setFetchState("loading");
+
       const params = new URLSearchParams({
         limit: String(FETCH_POOL_SIZE),
         offset: "0",
       });
 
-      Object.entries(filters).forEach(([k, v]) => {
-        if (v) params.set(k, v);
+      Object.entries(filters).forEach(([key, value]) => {
+        if (value) {
+          params.set(key, value);
+        }
       });
 
       try {
         const res = await fetch(`/api/jobs?${params.toString()}`);
         const body = await res.json();
+
         if (cancelled) return;
 
         if (res.status === 429) {
@@ -50,6 +50,7 @@ export default function JobsPage() {
           setErrorMessage("Job listings are refreshing — try again in a moment.");
           return;
         }
+
         if (!body.success) {
           setFetchState("error");
           setErrorMessage(body.error?.message ?? "Couldn't load jobs.");
@@ -67,12 +68,10 @@ export default function JobsPage() {
     }
 
     load();
+
     return () => {
       cancelled = true;
     };
-    // Re-fetch only when a *server-side* filter changes — not on every
-    // keystroke in the search box, and not on pagination (that's now local).
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     filters.q,
     filters.job_type,
@@ -80,6 +79,31 @@ export default function JobsPage() {
     filters.exp_level,
     filters.sort_by,
     filters.location,
+  ]);
+
+  const filteredJobs = useMemo(() => {
+    const q = filters.q.trim().toLowerCase();
+
+    if (!q) return allJobs;
+
+    return allJobs.filter((job) => {
+      const haystack = [
+        job.title,
+        job.company,
+        job.description,
+        job.location,
+        job.city,
+        job.state,
+        job.country,
+        ...(Array.isArray(job.skills) ? job.skills : [job.skills]),
+      ]
+        .filter(Boolean)
+        .join(" ")
+        .toLowerCase();
+
+      return haystack.includes(q);
+    });
+  }, [allJobs, filters.q]);
   ]);
   // Client-side text search over whatever's already in the UI.
   const filteredJobs = useMemo(() => {
