@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import type { PublicJob } from "@/lib/types";
 import JobCard from "@/components/JobCard";
-import FilterBar, { emptyFilters, type Filters } from "../../components/FilterBar";
+import FilterBar, { emptyFilters, type Filters } from "@/components/FilterBar";
 import Pagination from "@/components/Pagination";
 import EmailSignup from "@/components/EmailSignup";
 
