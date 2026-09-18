@@ -108,7 +108,12 @@ export async function GET(req: NextRequest) {
   }
 }
 
-function applyOwnJobFilters(q: ReturnType<ReturnType<typeof supabaseAdmin>["from"]>, query: JobsQuery) {
+// Typed as `any` deliberately: lib/supabase.ts's createClient() isn't given a
+// Database generic, so the .from()/.select() chain has no concrete row type to
+// narrow to here, and the two callers below apply .select() differently
+// (one for rows, one for a count-only head request), so they don't share an
+// exact builder type anyway.
+function applyOwnJobFilters(q: any, query: JobsQuery) {
   let scoped = q;
   if (query.q) scoped = scoped.ilike("title", `%${query.q}%`);
   if (query.location) scoped = scoped.eq("country", query.location);
