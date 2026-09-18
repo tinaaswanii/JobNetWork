@@ -115,7 +115,13 @@ export async function GET(req: NextRequest) {
 // exact builder type anyway.
 function applyOwnJobFilters(q: any, query: JobsQuery) {
   let scoped = q;
-  if (query.q) scoped = scoped.ilike("title", `%${query.q}%`);
+if (query.q) {
+  const search = query.q.trim();
+
+  scoped = scoped.or(
+    `title.ilike.%${search}%,company.ilike.%${search}%,description.ilike.%${search}%,location.ilike.%${search}%,city.ilike.%${search}%,state.ilike.%${search}%,country.ilike.%${search}%`
+  );
+}
   if (query.location) scoped = scoped.eq("country", query.location);
   if (query.job_type) scoped = scoped.eq("job_type", query.job_type);
   if (query.work_mode) scoped = scoped.eq("work_mode", query.work_mode);
