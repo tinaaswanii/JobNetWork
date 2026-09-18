@@ -10,7 +10,7 @@ import EmailSignup from "@/components/EmailSignup";
 const LIMIT = 12;
 // How many jobs to pull from the server in one go, so client-side search
 // actually has a real pool to search over — not just the current page.
-const FETCH_POOL_SIZE = 200;
+const FETCH_POOL_SIZE = 50;
 
 export default function JobsPage() {
   const [filters, setFilters] = useState<Filters>(emptyFilters);
