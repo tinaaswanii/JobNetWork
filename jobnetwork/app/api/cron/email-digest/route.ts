@@ -43,14 +43,33 @@ export async function GET(req: NextRequest) {
 
       if (items.length === 0) continue; // don't email an empty digest
 
-      await resend.emails.send({
+      const { data, error: sendError } = await resend.emails.send({
         from: process.env.EMAIL_FROM!,
         to: sub.email,
         subject: `${items.length} new job${items.length > 1 ? "s" : ""} matching your filters`,
         html: renderDigestHtml(items),
       });
 
-      await db.from("subscribers").update({ last_sent_at: new Date().toISOString() }).eq("id", sub.id);
+      if (sendError) {
+        console.error(`[email-digest] Resend failed for ${sub.email}`, sendError);
+        continue;
+      }
+
+      if (!data?.id) {
+        console.error(`[email-digest] Resend returned no email ID for ${sub.email}`);
+        continue;
+      }
+
+      const { error: updateError } = await db
+        .from("subscribers")
+        .update({ last_sent_at: new Date().toISOString() })
+        .eq("id", sub.id);
+
+      if (updateError) {
+        console.error(`[email-digest] failed to update last_sent_at for ${sub.email}`, updateError);
+        continue;
+      }
+
       sent++;
     } catch (err) {
       console.error(`[email-digest] failed for ${sub.email}`, err);
