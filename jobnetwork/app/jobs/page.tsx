@@ -26,19 +26,17 @@ export default function JobsPage() {
     setOffset(0);
   }, [filters]);
 
-  // Fetch from the server using only the filters it can actually apply
-  // (type / work mode / experience / sort). We deliberately do NOT send
-  // "q" here — free-text search is applied client-side below, against
-  // whatever jobs are already loaded in the UI, so it never depends on
-  // Artha's own search matching.
   useEffect(() => {
     let cancelled = false;
 
     async function load() {
       setFetchState("loading");
-      const params = new URLSearchParams({ limit: String(FETCH_POOL_SIZE), offset: "0" });
-      const { q, ...serverFilters } = filters;
-      Object.entries(serverFilters).forEach(([k, v]) => {
+      const params = new URLSearchParams({
+        limit: String(FETCH_POOL_SIZE),
+        offset: "0",
+      });
+
+      Object.entries(filters).forEach(([k, v]) => {
         if (v) params.set(k, v);
       });
 
@@ -75,8 +73,14 @@ export default function JobsPage() {
     // Re-fetch only when a *server-side* filter changes — not on every
     // keystroke in the search box, and not on pagination (that's now local).
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [filters.job_type, filters.work_mode, filters.exp_level, filters.sort_by, filters.location]);
-
+  }, [
+    filters.q,
+    filters.job_type,
+    filters.work_mode,
+    filters.exp_level,
+    filters.sort_by,
+    filters.location,
+  ]);
   // Client-side text search over whatever's already in the UI.
   const filteredJobs = useMemo(() => {
     const q = filters.q.trim().toLowerCase();
