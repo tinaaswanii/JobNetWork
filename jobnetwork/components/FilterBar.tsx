@@ -30,6 +30,26 @@ export default function FilterBar({
 }) {
   const [options, setOptions] = useState<ArthaFilters | null>(null);
 
+  // Local, uncommitted text so every keystroke doesn't trigger a fetch.
+  // Only pushed up to `onChange` (and from there to the API call) after
+  // the user pauses typing for a bit.
+  const [qDraft, setQDraft] = useState(value.q);
+
+  // Keep the draft in sync if the parent resets filters (e.g. "Clear filters").
+  useEffect(() => {
+    setQDraft(value.q);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [value.q]);
+
+  useEffect(() => {
+    if (qDraft === value.q) return;
+    const timeout = setTimeout(() => {
+      set({ q: qDraft });
+    }, 400);
+    return () => clearTimeout(timeout);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [qDraft]);
+
   useEffect(() => {
     fetch("/api/jobs/filters")
       .then((r) => r.json())
@@ -48,8 +68,8 @@ export default function FilterBar({
       <input
         type="text"
         placeholder="Search job titles, skills, companies..."
-        value={value.q}
-        onChange={(e) => set({ q: e.target.value })}
+        value={qDraft}
+        onChange={(e) => setQDraft(e.target.value)}
         className="w-full bg-transparent border-b border-ink/20 pb-2 font-body text-ink placeholder:text-ink/40 focus:border-mustard outline-none"
       />
 
