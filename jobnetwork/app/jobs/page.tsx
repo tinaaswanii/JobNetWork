@@ -80,30 +80,6 @@ export default function JobsPage() {
     filters.sort_by,
     filters.location,
   ]);
-
-  const filteredJobs = useMemo(() => {
-    const q = filters.q.trim().toLowerCase();
-
-    if (!q) return allJobs;
-
-    return allJobs.filter((job) => {
-      const haystack = [
-        job.title,
-        job.company,
-        job.description,
-        job.location,
-        job.city,
-        job.state,
-        job.country,
-        ...(Array.isArray(job.skills) ? job.skills : [job.skills]),
-      ]
-        .filter(Boolean)
-        .join(" ")
-        .toLowerCase();
-
-      return haystack.includes(q);
-    });
-  }, [allJobs, filters.q]);
   // Client-side text search over whatever's already in the UI.
   const filteredJobs = useMemo(() => {
     const q = filters.q.trim().toLowerCase();
