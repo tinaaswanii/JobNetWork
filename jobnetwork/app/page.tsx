@@ -8,6 +8,7 @@ import Pagination from "@/components/Pagination";
 import EmailSignup from "@/components/EmailSignup";
 
 const LIMIT = 12;
+
 // How many jobs to pull from the server in one go, so client-side search
 // actually has a real pool to search over — not just the current page.
 const FETCH_POOL_SIZE = 50;
@@ -16,13 +17,24 @@ export default function JobsPage() {
   const [filters, setFilters] = useState<Filters>(emptyFilters);
   const [offset, setOffset] = useState(0);
   const [allJobs, setAllJobs] = useState<PublicJob[]>([]);
-  const [fetchState, setFetchState] = useState<"loading" | "ready" | "error" | "rate_limited">(
-    "loading"
-  );
+  const [fetchState, setFetchState] = useState<
+    "loading" | "ready" | "error" | "rate_limited"
+  >("loading");
   const [errorMessage, setErrorMessage] = useState("");
 
   // Reset to page 1 whenever ANY filter changes, including the search text.
-    useEffect(() => {
+  useEffect(() => {
+    setOffset(0);
+  }, [
+    filters.q,
+    filters.job_type,
+    filters.work_mode,
+    filters.exp_level,
+    filters.sort_by,
+    filters.location,
+  ]);
+
+  useEffect(() => {
     let cancelled = false;
 
     async function load() {
@@ -47,7 +59,9 @@ export default function JobsPage() {
 
         if (res.status === 429) {
           setFetchState("rate_limited");
-          setErrorMessage("Job listings are refreshing — try again in a moment.");
+          setErrorMessage(
+            "Job listings are refreshing — try again in a moment."
+          );
           return;
         }
 
@@ -62,7 +76,9 @@ export default function JobsPage() {
       } catch {
         if (!cancelled) {
           setFetchState("error");
-          setErrorMessage("Couldn't reach the server — check your connection.");
+          setErrorMessage(
+            "Couldn't reach the server — check your connection."
+          );
         }
       }
     }
@@ -80,15 +96,19 @@ export default function JobsPage() {
     filters.sort_by,
     filters.location,
   ]);
+
   // Client-side text search over whatever's already in the UI.
   const filteredJobs = useMemo(() => {
     const q = filters.q.trim().toLowerCase();
+
     if (!q) return allJobs;
+
     return allJobs.filter((job) => {
       const haystack = [job.title, job.company, job.city]
         .filter(Boolean)
         .join(" ")
         .toLowerCase();
+
       return haystack.includes(q);
     });
   }, [allJobs, filters.q]);
@@ -107,15 +127,17 @@ export default function JobsPage() {
               alt="JobNetWork"
               className="w-20 h-20 object-contain rounded-full bg-white"
             />
-            <h1 className="font-display text-3xl md:text-4xl">JobNetWork</h1>
+            <h1 className="font-display text-3xl md:text-4xl">
+              JobNetWork
+            </h1>
           </div>
+
           <p className="text-paper/80 max-w-md">
             Internships, jobs, and placement resources for students, working
-            professionals or recent grads all at one place updated in real time.
+            professionals or recent grads all at one place updated in real
+            time.
           </p>
-        </div><div className="mt-4 inline-flex items-center rounded-lg border border-paper/20 bg-paper/10 px-3 py-2 text-sm text-paper/90">
-  No registration fees to access JobNetWork listings.
-</div>
+        </div>
       </header>
 
       <div className="max-w-5xl mx-auto px-6 md:px-12 -mt-6">
@@ -126,7 +148,10 @@ export default function JobsPage() {
         {fetchState === "loading" && (
           <div className="space-y-4" aria-live="polite">
             {Array.from({ length: 4 }).map((_, i) => (
-              <div key={i} className="pinned-card p-5 pl-6 h-24 animate-pulse bg-ink/5" />
+              <div
+                key={i}
+                className="pinned-card p-5 pl-6 h-24 animate-pulse bg-ink/5"
+              />
             ))}
           </div>
         )}
@@ -161,12 +186,20 @@ export default function JobsPage() {
                 <JobCard key={job.id} job={job} />
               ))}
             </div>
-            <Pagination offset={offset} limit={LIMIT} total={total} onChange={setOffset} />
+
+            <Pagination
+              offset={offset}
+              limit={LIMIT}
+              total={total}
+              onChange={setOffset}
+            />
           </>
         )}
 
         <div className="mt-10 pt-6 border-t border-ink/10">
-          <p className="font-display text-lg mb-2">Get new matches by email</p>
+          <p className="font-display text-lg mb-2">
+            Get new matches by email
+          </p>
           <EmailSignup filters={filters} />
         </div>
       </section>
