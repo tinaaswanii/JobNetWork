@@ -113,7 +113,9 @@ export default function JobsPage() {
             Internships, jobs, and placement resources for students, working
             professionals or recent grads all at one place updated in real time.
           </p>
-        </div>
+        </div><div className="mt-4 inline-flex items-center rounded-lg border border-paper/20 bg-paper/10 px-3 py-2 text-sm text-paper/90">
+  No registration fees to access JobNetWork listings.
+</div>
       </header>
 
       <div className="max-w-5xl mx-auto px-6 md:px-12 -mt-6">
