@@ -202,6 +202,30 @@ export default function JobsPage() {
           </p>
           <EmailSignup filters={filters} />
         </div>
+        <div className="mt-12 border-t border-ink/10 pt-8">
+  <h2 className="font-display text-2xl">
+    About JobNetWork
+  </h2>
+
+  <p className="mt-3 max-w-3xl leading-7 text-ink/70">
+    JobNetWork brings jobs, internships and career opportunities together
+    in one place for students, freshers, working professionals and recent
+    graduates.
+  </p>
+
+  <p className="mt-3 max-w-3xl leading-7 text-ink/70">
+    We regularly add opportunities from different companies and sources,
+    making it easier to search, filter and find roles that match your
+    interests and experience.
+  </p>
+
+  <a
+    href="/about"
+    className="mt-5 inline-block rounded-lg border border-ink/20 bg-paper px-4 py-2 text-sm font-medium text-ink transition hover:bg-ink/5"
+  >
+    Learn more about JobNetWork
+  </a>
+</div>
       </section>
     </main>
   );
