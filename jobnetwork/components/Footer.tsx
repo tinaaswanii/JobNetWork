@@ -5,6 +5,12 @@ export default function Footer() {
         <h3 className="text-sm font-semibold">Connect With Us</h3>
 
         <div className="mt-4 flex flex-wrap items-center justify-center gap-3">
+          <a
+  href="/about"
+  className="rounded-lg border border-ink/20 bg-paper px-4 py-2 text-sm font-medium text-ink transition hover:bg-ink/5"
+>
+  About
+</a>
 <a
   href="https://www.linkedin.com/in/tinaaswanii/"
   target="_blank"
