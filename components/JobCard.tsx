@@ -93,6 +93,15 @@ export default function JobCard({ job }: { job: PublicJob }) {
   >
     Apply
   </a>
+<div className="mt-3 flex flex-wrap gap-2">
+  <a
+    href={job.url}
+    target="_blank"
+    rel="noopener noreferrer"
+    className="inline-block rounded-lg bg-denim text-paper px-3 py-2 text-sm font-medium hover:opacity-90"
+  >
+    Apply
+  </a>
 
   <Link
     href={matchHref}
@@ -101,5 +110,4 @@ export default function JobCard({ job }: { job: PublicJob }) {
     Match My Resume
   </Link>
 </div>
-  );
 }
