@@ -3,13 +3,13 @@
 import { Suspense, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import type { ResumeMatchResult } from "@/lib/resume-match";
-
 type JobForMatch = {
   title: string;
   description: string;
   skills: string[];
   exp_min: number | null;
   exp_max: number | null;
+  url: string;
 };
 
 export default function MatchPage() {
