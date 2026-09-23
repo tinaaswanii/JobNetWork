@@ -222,5 +222,8 @@ if (availableWeight === 0) {
   score: Math.min(100, Math.max(0, score)),
   level,
   matchedSkills,
-  };
+  missingSkills,
+  experienceRequired: job.exp_min,
+  experienceDetected,
+};
 }
