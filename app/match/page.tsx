@@ -110,62 +110,50 @@ function MatchPageContent() {
       )}
 
       {state === "error" && <p className="mt-4 text-sm text-red-600">{errorMessage}</p>}
-
     {state === "done" && result && (
-  <div className="mt-6 pinned-card p-5">
-    <p className="font-display text-3xl text-ink">
-      {result.level === "strong"
-        ? "Strong Match"
-        : result.level === "moderate"
-        ? "Moderate Match"
-        : result.level === "weak"
-        ? "Weak Match"
-        : "Limited Match Data"}
-    </p>
-
-    <p className="text-sm text-ink/60">match result</p>
-
-    {result.matchedSkills.length > 0 && (
-      <div className="mt-4">
-        <p className="text-sm font-medium text-ink">Matched skills</p>
-        <p className="text-sm text-ink/70">
-          {result.matchedSkills.join(", ")}
+      <div className="mt-6 pinned-card p-5">
+        <p className="font-display text-3xl text-ink">
+          {result.level === "strong"
+            ? "Strong Match"
+            : result.level === "moderate"
+            ? "Moderate Match"
+            : result.level === "weak"
+            ? "Weak Match"
+            : "Limited Match Data"}
         </p>
+
+        <p className="text-sm text-ink/60">match result</p>
+
+        {result.matchedSkills.length > 0 && (
+          <div className="mt-4">
+            <p className="text-sm font-medium text-ink">Matched skills</p>
+            <p className="text-sm text-ink/70">
+              {result.matchedSkills.join(", ")}
+            </p>
+          </div>
+        )}
+
+        {result.missingSkills.length > 0 && (
+          <div className="mt-3">
+            <p className="text-sm font-medium text-ink">Missing skills</p>
+            <p className="text-sm text-ink/70">
+              {result.missingSkills.join(", ")}
+            </p>
+          </div>
+        )}
+
+        {job.url && (
+          <a
+            href={job.url}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="mt-5 inline-block bg-mustard text-ink px-5 py-2 font-medium"
+          >
+            Apply for this job
+          </a>
+        )}
       </div>
     )}
-
-    {result.missingSkills.length > 0 && (
-      <div className="mt-3">
-        <p className="text-sm font-medium text-ink">Missing skills</p>
-        <p className="text-sm text-ink/70">
-          {result.missingSkills.join(", ")}
-        </p>
-      </div>
-    )}
-
-    {job.url && (
-      <a
-        href={job.url}
-        target="_blank"
-        rel="noopener noreferrer"
-        className="mt-5 inline-block bg-mustard text-ink px-5 py-2 font-medium"
-      >
-        Apply for this job
-      </a>
-    )}
-  </div>
-)}
-            </div>
-          )}
-
-          {result.missingSkills.length > 0 && (
-            <div className="mt-3">
-              <p className="text-sm font-medium text-ink">Missing skills</p>
-              <p className="text-sm text-ink/70">{result.missingSkills.join(", ")}</p>
-            </div>
-          )}
-        </div>
-      )}
     </main>
   );
 }
