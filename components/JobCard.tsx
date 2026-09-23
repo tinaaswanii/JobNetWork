@@ -1,3 +1,4 @@
+import Link from "next/link";
 import type { PublicJob } from "@/lib/types";
 
 function formatSalary(job: PublicJob) {
@@ -22,18 +23,28 @@ function timeAgo(dateStr: string) {
 export default function JobCard({ job }: { job: PublicJob }) {
   const salary = formatSalary(job);
 
-  const matchParams = new URLSearchParams({
-    title: job.title,
-    company: job.company,
-    description: job.description,
-    skills: job.skills.join(","),
-    ...(job.exp_min !== null ? { exp_min: String(job.exp_min) } : {}),
-    ...(job.exp_max !== null ? { exp_max: String(job.exp_max) } : {}),
-  });
+  // NOTE: this must stay a single JSON "job" param — app/match/page.tsx
+  // reads searchParams.get("job") and JSON.parses it. Sending separate
+  // title/company/skills params here (as a previous edit did) breaks the
+  // match page silently, since it will never find a "job" key.
+  const matchHref = `/match?job=${encodeURIComponent(
+    JSON.stringify({
+      title: job.title,
+      description: job.description,
+      skills: job.skills,
+      exp_min: job.exp_min,
+      exp_max: job.exp_max,
+    })
+  )}`;
 
   return (
     <div className="pinned-card p-5 pl-6 hover:border-mustard transition-colors">
-      <div className="flex items-start gap-4">
+      <a
+        href={job.url}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="flex items-start gap-4"
+      >
         {job.logo ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img
@@ -69,16 +80,15 @@ export default function JobCard({ job }: { job: PublicJob }) {
           <p className="mt-2 text-xs text-ink/50">
             {timeAgo(job.posted_date)}
           </p>
-
-          <a
-            href={`/match?${matchParams.toString()}`}
-            className="inline-block mt-3 rounded-lg bg-mustard px-3 py-2 text-sm font-medium text-ink hover:opacity-90"
-            onClick={(e) => e.stopPropagation()}
-          >
-            Match My Resume
-          </a>
         </div>
-      </div>
+      </a>
+
+      <Link
+        href={matchHref}
+        className="inline-block mt-3 rounded-lg bg-mustard px-3 py-2 text-sm font-medium text-ink hover:opacity-90"
+      >
+        Match My Resume
+      </Link>
     </div>
   );
 }
