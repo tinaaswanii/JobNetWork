@@ -27,15 +27,16 @@ export default function JobCard({ job }: { job: PublicJob }) {
   // reads searchParams.get("job") and JSON.parses it. Sending separate
   // title/company/skills params here (as a previous edit did) breaks the
   // match page silently, since it will never find a "job" key.
-  const matchHref = `/match?job=${encodeURIComponent(
-    JSON.stringify({
-      title: job.title,
-      description: job.description,
-      skills: job.skills,
-      exp_min: job.exp_min,
-      exp_max: job.exp_max,
-    })
-  )}`;
+ const matchHref = `/match?job=${encodeURIComponent(
+  JSON.stringify({
+    title: job.title,
+    description: job.description,
+    skills: job.skills,
+    exp_min: job.exp_min,
+    exp_max: job.exp_max,
+    url: job.url,
+  })
+)}`;
 
   return (
     <div className="pinned-card p-5 pl-6 hover:border-mustard transition-colors">
