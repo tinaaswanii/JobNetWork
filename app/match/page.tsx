@@ -111,9 +111,9 @@ function MatchPageContent() {
 
       {state === "error" && <p className="mt-4 text-sm text-red-600">{errorMessage}</p>}
 
-      {state === "done" && result && (
-        <div className="mt-6 pinned-card p-5">
-          <p className="font-display text-3xl text-ink">
+    {state === "done" && result && (
+  <div className="mt-6 pinned-card p-5">
+    <p className="font-display text-3xl text-ink">
       {result.level === "strong"
         ? "Strong Match"
         : result.level === "moderate"
@@ -123,11 +123,25 @@ function MatchPageContent() {
         : "Limited Match Data"}
     </p>
 
-    <p className="text-sm text-ink/60">match score</p>
+    <p className="text-sm text-ink/60">match result</p>
 
-    {/* Matched skills */}
+    {result.matchedSkills.length > 0 && (
+      <div className="mt-4">
+        <p className="text-sm font-medium text-ink">Matched skills</p>
+        <p className="text-sm text-ink/70">
+          {result.matchedSkills.join(", ")}
+        </p>
+      </div>
+    )}
 
-    {/* Missing skills */}
+    {result.missingSkills.length > 0 && (
+      <div className="mt-3">
+        <p className="text-sm font-medium text-ink">Missing skills</p>
+        <p className="text-sm text-ink/70">
+          {result.missingSkills.join(", ")}
+        </p>
+      </div>
+    )}
 
     {job.url && (
       <a
@@ -139,6 +153,8 @@ function MatchPageContent() {
         Apply for this job
       </a>
     )}
+  </div>
+)}
             </div>
           )}
 
