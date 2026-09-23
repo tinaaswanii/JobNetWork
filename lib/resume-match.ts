@@ -206,6 +206,17 @@ export function calculateResumeMatch(
   // no basis to score this match at all — return 0 rather than a
   // misleading 100%.
   const score = availableWeight > 0 ? Math.round((earnedPoints / availableWeight) * 100) : 0;
+  let level: ResumeMatchLevel;
+
+if (availableWeight === 0) {
+  level = "limited";
+} else if (score >= 70) {
+  level = "strong";
+} else if (score >= 40) {
+  level = "moderate";
+} else {
+  level = "weak";
+}
 
   return {
     score: Math.min(100, Math.max(0, score)),
