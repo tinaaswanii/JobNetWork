@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { PDFParse } from "pdf-parse";
+import { getDocumentProxy, extractText } from "unpdf";
 import {
   calculateResumeMatch,
   type ResumeMatchResult,
@@ -69,13 +69,12 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const buffer = Buffer.from(await resume.arrayBuffer());
+    const buffer = new Uint8Array(await resume.arrayBuffer());
 
-    const parser = new PDFParse({ data: buffer });
-    const parsed = await parser.getText();
-    await parser.destroy();
+    const pdf = await getDocumentProxy(buffer);
+    const { text } = await extractText(pdf, { mergePages: true });
 
-    if (!parsed.text?.trim()) {
+    if (!text?.trim()) {
       return NextResponse.json(
         {
           success: false,
@@ -87,7 +86,7 @@ export async function POST(req: NextRequest) {
     }
 
     const result: ResumeMatchResult = calculateResumeMatch(
-      parsed.text,
+      text,
       {
         title: String(job.title ?? ""),
         description: String(job.description ?? ""),
