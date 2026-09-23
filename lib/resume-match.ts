@@ -166,37 +166,39 @@ export function calculateResumeMatch(
 
   const experienceDetected = extractExperience(resumeText);
 
-  let score = 0;
+  // Only count a category toward the score if there's actually something to
+  // compare against. Previously, missing job data (no skills, no exp_min)
+  // silently awarded full marks for that category "so as not to penalize"
+  // the candidate — but that meant any lightly-detailed job listing (no
+  // tagged skills, no stated experience requirement) scored a guaranteed
+  // 100% for every resume, regardless of actual fit. Instead, weight only
+  // the signals we genuinely have, and rescale to 100 based on that.
+  let earnedPoints = 0;
+  let availableWeight = 0;
 
-  // Skills = 80 points.
   if (jobSkills.length > 0) {
-    score += Math.round(
-      (matchedSkills.length / jobSkills.length) * 80
-    );
-  } else {
-    // Don't penalize someone because the listing has no
-    // usable skills information.
-    score += 80;
+    availableWeight += 80;
+    earnedPoints += (matchedSkills.length / jobSkills.length) * 80;
   }
 
-  // Experience = 20 points.
   if (job.exp_min !== null) {
+    availableWeight += 20;
     if (experienceDetected !== null) {
       if (experienceDetected >= job.exp_min) {
-        score += 20;
+        earnedPoints += 20;
       } else {
-        const ratio = Math.max(
-          0,
-          Math.min(experienceDetected / job.exp_min, 1)
-        );
-
-        score += Math.round(ratio * 20);
+        const ratio = Math.max(0, Math.min(experienceDetected / job.exp_min, 1));
+        earnedPoints += ratio * 20;
       }
     }
-  } else {
-    // No experience requirement = don't penalize.
-    score += 20;
+    // experienceDetected === null: no credit for this category — we simply
+    // couldn't tell, which is different from meeting the requirement.
   }
+
+  // If neither skills nor experience gave us anything to compare, we have
+  // no basis to score this match at all — return 0 rather than a
+  // misleading 100%.
+  const score = availableWeight > 0 ? Math.round((earnedPoints / availableWeight) * 100) : 0;
 
   return {
     score: Math.min(100, Math.max(0, score)),
