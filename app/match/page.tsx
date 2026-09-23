@@ -142,7 +142,7 @@ function MatchPageContent() {
           </div>
         )}
 
-        {job.url && (
+        {job?.url && (
           <a
             href={job.url}
             target="_blank"
