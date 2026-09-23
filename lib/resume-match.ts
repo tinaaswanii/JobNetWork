@@ -60,13 +60,25 @@ function normalize(text: string): string {
     .trim();
 }
 
+function escapeRegExp(str: string): string {
+  return str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
 function containsTerm(text: string, terms: string[]): boolean {
   return terms.some((term) => {
     const normalizedTerm = normalize(term);
 
     if (!normalizedTerm) return false;
 
-    return text.includes(normalizedTerm);
+    // Plain `text.includes(term)` was matching short aliases like "ai" or
+    // "ml" *inside* unrelated words ("detail", "training", "email"), which
+    // meant a listing that only had "ai" as its derived skill would match
+    // almost any resume, forcing a guaranteed 100% skill score. Require the
+    // term to sit on a word boundary instead of appearing anywhere as a
+    // substring.
+    const escaped = escapeRegExp(normalizedTerm);
+    const pattern = new RegExp(`(?<![a-z0-9_])${escaped}(?![a-z0-9_])`, "i");
+    return pattern.test(text);
   });
 }
 
