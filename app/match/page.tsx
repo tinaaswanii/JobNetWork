@@ -113,8 +113,15 @@ function MatchPageContent() {
 
       {state === "done" && result && (
         <div className="mt-6 pinned-card p-5">
-          <p className="font-display text-3xl text-ink">{result.score}%</p>
-          <p className="text-sm text-ink/60">match score</p>
+<p className="font-display text-3xl text-ink">
+  {result.level === "strong"
+    ? "Strong Match"
+    : result.level === "moderate"
+    ? "Moderate Match"
+    : result.level === "weak"
+    ? "Weak Match"
+    : "Limited Match Data"}
+</p>          <p className="text-sm text-ink/60">match score</p>
 
           {result.matchedSkills.length > 0 && (
             <div className="mt-4">
