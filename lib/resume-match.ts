@@ -1,5 +1,12 @@
+export type ResumeMatchLevel =
+  | "strong"
+  | "moderate"
+  | "weak"
+  | "limited";
+
 export type ResumeMatchResult = {
   score: number;
+  level: ResumeMatchLevel;
   matchedSkills: string[];
   missingSkills: string[];
   experienceRequired: number | null;
