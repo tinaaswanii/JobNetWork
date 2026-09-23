@@ -5,9 +5,11 @@ function formatSalary(job: PublicJob) {
   if (!job.salary_min && !job.salary_max) return null;
   const curr = job.salary_curr ?? "USD";
   const fmt = (n: number) => new Intl.NumberFormat("en-US").format(n);
+
   if (job.salary_min && job.salary_max) {
     return `${curr} ${fmt(job.salary_min)}-${fmt(job.salary_max)}`;
   }
+
   return `${curr} ${fmt(job.salary_min ?? job.salary_max!)}+`;
 }
 
@@ -15,28 +17,26 @@ function timeAgo(dateStr: string) {
   const days = Math.floor(
     (Date.now() - new Date(dateStr).getTime()) / 86400000
   );
+
   if (days <= 0) return "Posted today";
   if (days === 1) return "Posted yesterday";
+
   return `Posted ${days} days ago`;
 }
 
 export default function JobCard({ job }: { job: PublicJob }) {
   const salary = formatSalary(job);
 
-  // NOTE: this must stay a single JSON "job" param — app/match/page.tsx
-  // reads searchParams.get("job") and JSON.parses it. Sending separate
-  // title/company/skills params here (as a previous edit did) breaks the
-  // match page silently, since it will never find a "job" key.
- const matchHref = `/match?job=${encodeURIComponent(
-  JSON.stringify({
-    title: job.title,
-    description: job.description,
-    skills: job.skills,
-    exp_min: job.exp_min,
-    exp_max: job.exp_max,
-    url: job.url,
-  })
-)}`;
+  const matchHref = `/match?job=${encodeURIComponent(
+    JSON.stringify({
+      title: job.title,
+      description: job.description,
+      skills: job.skills,
+      exp_min: job.exp_min,
+      exp_max: job.exp_max,
+      url: job.url,
+    })
+  )}`;
 
   return (
     <div className="pinned-card p-5 pl-6 hover:border-mustard transition-colors">
@@ -68,11 +68,13 @@ export default function JobCard({ job }: { job: PublicJob }) {
 
           <div className="mt-2 flex flex-wrap gap-x-3 gap-y-1 text-sm text-ink/60">
             {job.location && <span>{job.location}</span>}
+
             {job.job_type && (
               <span className="capitalize">
                 {job.job_type.replace("-", " ")}
               </span>
             )}
+
             {salary && (
               <span className="text-denim font-medium">{salary}</span>
             )}
@@ -83,6 +85,7 @@ export default function JobCard({ job }: { job: PublicJob }) {
           </p>
         </div>
       </a>
+
       <div className="mt-3 flex flex-wrap gap-2">
         <a
           href={job.url}
