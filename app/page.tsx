@@ -181,8 +181,8 @@ export default function JobsPage() {
 
         {fetchState === "ready" && !isEmpty && (
           <>
-            <div className="grid gap-4 md:grid-cols-2">
-              {pageJobs.map((job) => (
+              <div className="grid min-w-0 grid-cols-1 gap-4 md:grid-cols-2">
+                {pageJobs.map((job) => (
                 <JobCard key={job.id} job={job} />
               ))}
             </div>
