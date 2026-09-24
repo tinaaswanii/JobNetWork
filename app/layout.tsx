@@ -1,10 +1,14 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import Footer from "@/components/Footer";
-
 export const metadata: Metadata = {
+  metadataBase: new URL("https://job-net-work.vercel.app"),
   title: "JobNetWork — jobs & internships for students",
-  description: "Real internships, part-time and entry-level roles, updated in real time.",
+  description:
+    "Real internships, part-time and entry-level roles, updated in real time.",
+  alternates: {
+    canonical: "/",
+  },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
