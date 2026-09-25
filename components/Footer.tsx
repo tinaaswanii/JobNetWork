@@ -60,7 +60,7 @@ const socialLinks = [
   },
   {
     name: "Product Hunt",
-    href: "https://www.producthunt.com/products/jobnetwork?utm_source=other&utm_medium=social",
+    href: "https://www.producthunt.com/products/jobnetwork",
     icon: (
       <svg
         viewBox="0 0 24 24"
@@ -74,12 +74,53 @@ const socialLinks = [
   },
 ];
 
+const exploreLinks = [
+  { name: "Jobs", href: "/" },
+  { name: "About", href: "/about" },
+];
+
 export default function Footer() {
   return (
     <footer className="mt-12 border-t px-4 py-10 sm:px-6">
       <div className="mx-auto max-w-6xl">
-        <div className="flex flex-col items-center text-center">
-          <h3 className="text-sm font-semibold">Connect With Us</h3>
+        <div className="grid gap-10 md:grid-cols-[1fr_auto]">
+          {/* Brand */}
+          <div className="text-center md:text-left">
+            <h2 className="font-display text-2xl">JobNetWork</h2>
+
+            <p className="mt-3 max-w-md text-sm leading-6 text-muted-foreground md:max-w-sm">
+              Jobs, internships and career opportunities for students,
+              freshers and early-career job seekers.
+            </p>
+
+            <p className="mt-4 text-sm font-medium">
+              Stay calm. Start applying.
+            </p>
+          </div>
+
+          {/* Explore */}
+          <div className="text-center md:text-left">
+            <h3 className="text-sm font-semibold">Explore</h3>
+
+            <div className="mt-4 flex flex-col gap-3 text-sm">
+              {exploreLinks.map((link) => (
+                <a
+                  key={link.name}
+                  href={link.href}
+                  className="text-muted-foreground transition hover:text-ink"
+                >
+                  {link.name}
+                </a>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* Social links */}
+        <div className="mt-10 border-t pt-8">
+          <h3 className="text-center text-sm font-semibold">
+            Connect With Us
+          </h3>
 
           <div className="mt-5 flex flex-wrap items-center justify-center gap-2 sm:gap-3">
             {socialLinks.map((link) => (
@@ -97,6 +138,7 @@ export default function Footer() {
               </a>
             ))}
 
+            {/* Feedback */}
             <a
               href="https://wa.me/916262158299"
               target="_blank"
@@ -118,6 +160,7 @@ export default function Footer() {
               <span>Feedback</span>
             </a>
 
+            {/* Email */}
             <a
               href="mailto:thedigitalldreamerr@gmail.com"
               aria-label="Email JobNetWork"
@@ -138,13 +181,11 @@ export default function Footer() {
               <span>Email</span>
             </a>
           </div>
+        </div>
 
-          <p className="mt-6 max-w-md text-xs leading-5 text-muted-foreground">
-            Jobs, internships and career opportunities for students and
-            freshers.
-          </p>
-
-          <p className="mt-4 text-xs text-muted-foreground">
+        {/* Copyright */}
+        <div className="mt-8 border-t pt-6 text-center">
+          <p className="text-xs text-muted-foreground">
             © {new Date().getFullYear()} JobNetWork. All rights reserved.
           </p>
         </div>
