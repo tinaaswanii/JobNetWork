@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import Footer from "@/components/Footer";
+import { Analytics } from '@vercel/analytics/next';
 export const metadata: Metadata = {
   metadataBase: new URL("https://job-net-work.vercel.app"),
   title: "JobNetWork — jobs & internships for students",
@@ -40,6 +41,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body className="font-body bg-paper text-ink">
         {children}
         <Footer />
+        <Analytics />
       </body>
     </html>
   );
