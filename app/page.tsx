@@ -2,12 +2,10 @@ import type { Metadata } from "next";
 import { getJobsPage } from "@/lib/jobs";
 import JobsBoard from "@/components/JobsBoard";
 
-// Re-fetch the server-rendered first page at most every 5 minutes, so
-// search engine crawlers and first-time visitors always see recent,
-// real job content in the initial HTML instead of a stale or empty shell.
 export const revalidate = 300;
 
 const SITE_URL = "https://job-net-work.vercel.app";
+const WHATSAPP_URL = "https://chat.whatsapp.com/L9DG89VrT4V2UFjFkpv0Ok";
 
 export const metadata: Metadata = {
   title:
@@ -71,6 +69,7 @@ export default async function HomePage() {
 
   return (
     <main className="min-h-screen bg-paper">
+      {/* Structured data */}
       {/* eslint-disable-next-line react/no-danger */}
       <script
         type="application/ld+json"
@@ -120,7 +119,6 @@ export default async function HomePage() {
           </div>
 
           <div className="mt-10 grid gap-6 md:grid-cols-3">
-            {/* Find opportunities */}
             <div className="rounded-xl border p-6">
               <div className="text-2xl">🔎</div>
 
@@ -134,7 +132,6 @@ export default async function HomePage() {
               </p>
             </div>
 
-            {/* WhatsApp */}
             <div className="rounded-xl border p-6">
               <div className="text-2xl">📲</div>
 
@@ -148,7 +145,6 @@ export default async function HomePage() {
               </p>
             </div>
 
-            {/* Students & freshers */}
             <div className="rounded-xl border p-6">
               <div className="text-2xl">🎓</div>
 
@@ -160,6 +156,36 @@ export default async function HomePage() {
                 We focus on opportunities that are relevant to students,
                 recent graduates and people starting their careers.
               </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* WhatsApp Community CTA */}
+      <section className="px-6 pb-16 md:px-12">
+        <div className="mx-auto max-w-5xl">
+          <div className="pinned-card rounded-xl p-7 pl-10 md:p-10 md:pl-12">
+            <div className="max-w-2xl">
+              <div className="text-3xl">📲</div>
+
+              <h2 className="mt-4 font-display text-3xl md:text-4xl">
+                Get Jobs Directly on WhatsApp
+              </h2>
+
+              <p className="mt-4 leading-7 text-ink/70">
+                New opportunities are regularly shared with our community.
+                Join us to receive jobs, internships and fresher opportunities
+                directly on WhatsApp.
+              </p>
+
+              <a
+                href={WHATSAPP_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="mt-6 inline-flex items-center rounded-lg border border-[#25D366] bg-[#25D366] px-5 py-3 text-sm font-semibold text-white transition hover:bg-[#1da851]"
+              >
+                Join WhatsApp Community →
+              </a>
             </div>
           </div>
         </div>
