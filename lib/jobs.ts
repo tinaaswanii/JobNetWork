@@ -95,15 +95,28 @@ export async function getJobsPage(query: JobsQuery): Promise<JobsPageResult> {
   ]);
 
   const ownAsJobs = ownRows.map(normalizeOwnJob);
-  const sortBy = query.sort_by ?? "newest";
 
-  let merged: PublicJob[];
-  if (sortBy === "newest") {
-    merged = [...ownAsJobs, ...arthaResult.items].sort(
-      (a, b) => new Date(b.posted_date).getTime() - new Date(a.posted_date).getTime()
-    );
-  } else {
-    merged = [...arthaResult.items, ...ownAsJobs];
+  // Interleave own_jobs evenly through the Artha feed instead of sorting by
+  // date and concatenating. A pure date-sort clusters all own_jobs into one
+  // block at the top whenever they share a posted_date (e.g. right after a
+  // bulk CSV import), which looks like "my jobs first, then everything
+  // else" rather than a genuine mix — even though it's technically sorted.
+  const merged: PublicJob[] = [];
+  const artha = [...arthaResult.items];
+  const own = [...ownAsJobs];
+  // Roughly one of your own jobs per this many Artha jobs, so a handful of
+  // own_jobs doesn't get diluted across a huge Artha page, and a large
+  // own_jobs batch doesn't dominate a small Artha page either.
+  const INTERVAL = own.length > 0 ? Math.max(1, Math.round(artha.length / own.length)) : Infinity;
+
+  let arthaIdx = 0;
+  while (arthaIdx < artha.length || own.length > 0) {
+    for (let i = 0; i < INTERVAL && arthaIdx < artha.length; i++) {
+      merged.push(artha[arthaIdx++]);
+    }
+    if (own.length > 0) {
+      merged.push(own.shift()!);
+    }
   }
 
   const combinedTotal = arthaResult.total + ownTotal;
