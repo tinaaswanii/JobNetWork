@@ -126,7 +126,7 @@ async function fetchOwnJobs(query: JobsQuery) {
 
   // No .limit() here — we want every matching row so pagination across
   // your full own-jobs list works correctly.
-  const { data, error } = await q.order("posted_date", { { ascending: false, nullsFirst: false });
+  const { data, error } = await q.order("posted_date", { ascending: false, nullsFirst: false });
   if (error) {
     console.error("[api/jobs] supabase error", error);
     return [];
