@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 import { getJobsPage } from "@/lib/jobs";
 import JobsBoard from "@/components/JobsBoard";
 
@@ -101,7 +102,9 @@ export default async function HomePage() {
       </header>
 
       {/* Jobs */}
-      <JobsBoard initialJobs={initial.items} />
+      <Suspense fallback={null}>
+        <JobsBoard initialJobs={initial.items} />
+      </Suspense>
 
       {/* Why JobNetWork */}
       <section className="border-t px-6 py-16 md:px-12">
