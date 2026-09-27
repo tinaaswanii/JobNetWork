@@ -45,7 +45,7 @@ export const metadata: Metadata = {
 };
 
 export default async function HomePage() {
-  const initial = await getJobsPage({ limit: 50, offset: 0 }).catch(() => ({
+  const initial = await getJobsPage({ limit: 50, offset: 0, sort_by: "newest" }).catch(() => ({
     items: [],
     total: 0,
     limit: 50,
