@@ -44,10 +44,15 @@ function normalizeOwnJob(row: any): PublicJob {
 function applyOwnJobFilters(q: any, query: JobsQuery) {
   let scoped = q;
   if (query.q) {
-    const search = query.q.trim();
-    scoped = scoped.or(
-      `title.ilike.%${search}%,company.ilike.%${search}%,description.ilike.%${search}%,location.ilike.%${search}%,city.ilike.%${search}%,state.ilike.%${search}%,country.ilike.%${search}%`
-    );
+    // Require EVERY word in the search to appear somewhere in title or
+    // company (AND across words, not one big substring across every field).
+    // This is what makes "kalp corporate" match a company literally named
+    // "Kalp Corporate" precisely, instead of loosely matching anywhere a
+    // generic word like "corporate" happens to appear in a long description.
+    const words = query.q.trim().split(/\s+/).filter(Boolean);
+    for (const word of words) {
+      scoped = scoped.or(`title.ilike.%${word}%,company.ilike.%${word}%`);
+    }
   }
   if (query.location) scoped = scoped.eq("country", query.location);
   if (query.job_type) scoped = scoped.eq("job_type", query.job_type);
