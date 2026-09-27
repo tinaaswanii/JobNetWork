@@ -1,6 +1,29 @@
 import Link from "next/link";
 import type { PublicJob } from "@/lib/types";
 
+// The client/brand handle this account publishes under on artha.link —
+// consistent across every job we've seen from the API (clientName=getyourjob
+// in every r.artha.link redirect URL). Only matters for the canonical-URL
+// rebuild below; if the Artha account's handle ever changes, update this.
+const ARTHA_CLIENT_HANDLE = "getyourjob";
+
+// Artha's public API's own `url` field is sometimes a *signed, time-limited*
+// redirect (r.artha.link/redirect/...?expires=...&signature=...) and
+// sometimes a stable direct link straight to the employer's own careers
+// page. Only the signed ones expire (we've confirmed real ones expiring
+// ~8 days after being issued) — direct employer links don't need touching.
+const SIGNED_REDIRECT_PATTERN = /^https:\/\/r\.artha\.link\/redirect\//;
+
+function getApplyHref(job: PublicJob): string {
+  if (SIGNED_REDIRECT_PATTERN.test(job.url) && job.slug) {
+    // The canonical, non-expiring artha.link job page — lets the user read
+    // the full listing there first instead of landing straight on a raw
+    // signed redirect that may already be dead by the time they click it.
+    return `https://artha.link/@${ARTHA_CLIENT_HANDLE}/jobs/${job.slug}`;
+  }
+  return job.url;
+}
+
 function formatSalary(job: PublicJob) {
   if (!job.salary_min && !job.salary_max) return null;
   const curr = job.salary_curr ?? "USD";
@@ -22,6 +45,9 @@ function timeAgo(dateStr: string) {
 
 export default function JobCard({ job }: { job: PublicJob }) {
   const salary = formatSalary(job);
+  const applyHref = getApplyHref(job);
+  const visibleSkills = (job.skills ?? []).slice(0, 4);
+  const extraSkillCount = (job.skills ?? []).length - visibleSkills.length;
 
   // NOTE: this must stay a single JSON "job" param — app/match/page.tsx
   // reads searchParams.get("job") and JSON.parses it. Sending separate
@@ -40,7 +66,7 @@ export default function JobCard({ job }: { job: PublicJob }) {
   return (
     <div className="pinned-card p-5 pl-6 hover:border-mustard transition-colors">
       <a
-        href={job.url}
+        href={applyHref}
         target="_blank"
         rel="noopener noreferrer"
         className="flex items-start gap-4"
@@ -76,6 +102,24 @@ export default function JobCard({ job }: { job: PublicJob }) {
               <span className="text-denim font-medium">{salary}</span>
             )}
           </div>
+
+          {visibleSkills.length > 0 && (
+            <div className="mt-2 flex flex-wrap gap-1.5">
+              {visibleSkills.map((skill) => (
+                <span
+                  key={skill}
+                  className="rounded-full bg-board/10 px-2 py-0.5 text-xs text-ink/70"
+                >
+                  {skill}
+                </span>
+              ))}
+              {extraSkillCount > 0 && (
+                <span className="rounded-full bg-board/10 px-2 py-0.5 text-xs text-ink/50">
+                  +{extraSkillCount} more
+                </span>
+              )}
+            </div>
+          )}
 
           <p className="mt-2 text-xs text-ink/50">
             {timeAgo(job.posted_date)}
