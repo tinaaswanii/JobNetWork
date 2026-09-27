@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import type { PublicJob } from "@/lib/types";
 import JobCard from "@/components/JobCard";
 import FilterBar, { emptyFilters, type Filters } from "@/components/FilterBar";
@@ -13,28 +14,99 @@ const LIMIT = 12;
 // actually has a real pool to search over — not just the current page.
 const FETCH_POOL_SIZE = 50;
 
+const FILTER_KEYS = [
+  "q",
+  "job_type",
+  "work_mode",
+  "exp_level",
+  "sort_by",
+  "location",
+] as const;
+
+function filtersFromSearchParams(sp: URLSearchParams): Filters {
+  const out = { ...emptyFilters };
+  for (const key of FILTER_KEYS) {
+    const v = sp.get(key);
+    if (v) out[key] = v;
+  }
+  return out;
+}
+
 export default function JobsBoard({
   initialJobs,
 }: {
   initialJobs: PublicJob[];
 }) {
-  const [filters, setFilters] = useState<Filters>(emptyFilters);
-  const [offset, setOffset] = useState(0);
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+
+  // On the very first mount, if the URL already carries non-default filters
+  // (e.g. the user hit Back after changing sort, reloaded, or opened a
+  // bookmarked/shared link), trust the URL over the SSR default — the
+  // server always renders with default filters, so URL params mean the
+  // client needs to re-sync rather than skip its first fetch.
+  const urlHasFilters = useMemo(
+    () => FILTER_KEYS.some((k) => searchParams.get(k)),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    []
+  );
+
+  const [filters, setFiltersState] = useState<Filters>(() =>
+    urlHasFilters ? filtersFromSearchParams(searchParams) : emptyFilters
+  );
+  const [offset, setOffsetState] = useState(() => {
+    const o = parseInt(searchParams.get("offset") ?? "0", 10);
+    return Number.isFinite(o) && o >= 0 ? o : 0;
+  });
   const [allJobs, setAllJobs] = useState<PublicJob[]>(initialJobs);
   const [fetchState, setFetchState] = useState<
     "loading" | "ready" | "error" | "rate_limited"
   >(initialJobs.length > 0 ? "ready" : "loading");
   const [errorMessage, setErrorMessage] = useState("");
 
-  // The homepage already fetched the default (unfiltered) first page on the
-  // server for SEO — skip the very first client-side fetch on mount so we
-  // don't redundantly refetch the same data a moment after paint. Any real
-  // filter change after that fetches normally.
-  const skipNextFetch = useRef(initialJobs.length > 0);
+  // Skip the very first client-side fetch only when the URL matched the
+  // server's default render — otherwise (URL had real filters) we need a
+  // real fetch on mount to actually apply them, since the SSR homepage
+  // always renders the default "newest" view regardless of URL params.
+  const skipNextFetch = useRef(initialJobs.length > 0 && !urlHasFilters);
+
+  // Keep the URL in sync with the current filters/offset (shallow — no
+  // reload, no server round trip) so Back/Forward and reloads restore
+  // exactly what was showing, instead of resetting to defaults.
+  const syncUrl = useCallback(
+    (nextFilters: Filters, nextOffset: number) => {
+      const params = new URLSearchParams();
+      for (const key of FILTER_KEYS) {
+        const v = nextFilters[key];
+        if (v && v !== emptyFilters[key]) params.set(key, v);
+      }
+      if (nextOffset > 0) params.set("offset", String(nextOffset));
+      const qs = params.toString();
+      router.replace(qs ? `${pathname}?${qs}` : pathname, { scroll: false });
+    },
+    [router, pathname]
+  );
+
+  const setFilters = useCallback(
+    (f: Filters) => {
+      setFiltersState(f);
+      syncUrl(f, 0); // any filter change resets to page 1
+    },
+    [syncUrl]
+  );
+
+  const setOffset = useCallback(
+    (o: number) => {
+      setOffsetState(o);
+      syncUrl(filters, o);
+    },
+    [filters, syncUrl]
+  );
 
   // Reset to page 1 whenever ANY filter changes, including the search text.
   useEffect(() => {
-    setOffset(0);
+    setOffsetState(0);
   }, [
     filters.q,
     filters.job_type,
