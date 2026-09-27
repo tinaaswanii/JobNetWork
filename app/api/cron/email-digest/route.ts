@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from "next/server";
-import { Resend } from "resend";
 import { fetchJobs } from "@/lib/artha";
 import { supabaseAdmin } from "@/lib/supabase";
 
@@ -9,14 +8,13 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ success: false, error: "unauthorized" }, { status: 401 });
   }
 
-  if (!process.env.RESEND_API_KEY) {
-    console.error("[email-digest] RESEND_API_KEY not set — skipping run");
+  if (!process.env.BREVO_API_KEY) {
+    console.error("[email-digest] BREVO_API_KEY not set — skipping run");
     return NextResponse.json(
-      { success: false, error: { code: "MISSING_CONFIG", message: "RESEND_API_KEY not set." } },
+      { success: false, error: { code: "MISSING_CONFIG", message: "BREVO_API_KEY not set." } },
       { status: 500 }
     );
   }
-  const resend = new Resend(process.env.RESEND_API_KEY);
 
   const db = supabaseAdmin();
   const { data: subscribers, error } = await db
@@ -43,33 +41,26 @@ export async function GET(req: NextRequest) {
 
       if (items.length === 0) continue; // don't email an empty digest
 
-      const { data, error: sendError } = await resend.emails.send({
-        from: process.env.EMAIL_FROM!,
-        to: sub.email,
-        subject: `${items.length} new job${items.length > 1 ? "s" : ""} matching your filters`,
-        html: renderDigestHtml(items),
+      const res = await fetch("https://api.brevo.com/v3/smtp/email", {
+        method: "POST",
+        headers: {
+          "api-key": process.env.BREVO_API_KEY,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          sender: parseFromHeader(process.env.EMAIL_FROM ?? "JobNetWork <jobs@example.com>"),
+          to: [{ email: sub.email }],
+          subject: `${items.length} new job${items.length > 1 ? "s" : ""} matching your filters`,
+          htmlContent: renderDigestHtml(items),
+        }),
       });
 
-      if (sendError) {
-        console.error(`[email-digest] Resend failed for ${sub.email}`, sendError);
-        continue;
+      if (!res.ok) {
+        const body = await res.text();
+        throw new Error(`Brevo send failed (${res.status}): ${body}`);
       }
 
-      if (!data?.id) {
-        console.error(`[email-digest] Resend returned no email ID for ${sub.email}`);
-        continue;
-      }
-
-      const { error: updateError } = await db
-        .from("subscribers")
-        .update({ last_sent_at: new Date().toISOString() })
-        .eq("id", sub.id);
-
-      if (updateError) {
-        console.error(`[email-digest] failed to update last_sent_at for ${sub.email}`, updateError);
-        continue;
-      }
-
+      await db.from("subscribers").update({ last_sent_at: new Date().toISOString() }).eq("id", sub.id);
       sent++;
     } catch (err) {
       console.error(`[email-digest] failed for ${sub.email}`, err);
@@ -78,6 +69,15 @@ export async function GET(req: NextRequest) {
   }
 
   return NextResponse.json({ success: true, sent });
+}
+
+// Turns "JobNetWork <jobs@example.com>" into Brevo's {name, email} shape.
+function parseFromHeader(value: string): { name?: string; email: string } {
+  const match = value.match(/^(.*)<(.+)>$/);
+  if (match) {
+    return { name: match[1].trim() || undefined, email: match[2].trim() };
+  }
+  return { email: value.trim() };
 }
 
 function renderDigestHtml(items: Awaited<ReturnType<typeof fetchJobs>>["items"]) {
