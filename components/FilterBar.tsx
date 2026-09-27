@@ -126,7 +126,7 @@ function Select({
       <option value="">{label}: any</option>
       {options?.map((opt) => (
         <option key={opt.value} value={opt.value}>
-          {opt.value} ({opt.count})
+          {opt.value}
         </option>
       ))}
     </select>
