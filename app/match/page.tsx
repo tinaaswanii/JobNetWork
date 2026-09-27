@@ -113,27 +113,104 @@ function MatchPageContent() {
 
       {state === "done" && result && (
         <div className="mt-6 pinned-card p-5">
-<p className="font-display text-3xl text-ink">
-  {result.level === "strong"
-    ? "Strong Match"
-    : result.level === "moderate"
-    ? "Moderate Match"
-    : result.level === "weak"
-    ? "Weak Match"
-    : "Limited Match Data"}
-</p>          <p className="text-sm text-ink/60">match score</p>
+          <div className="flex items-baseline justify-between">
+            <p className="font-display text-3xl text-ink">{result.score}%</p>
+            <p
+              className={`text-sm font-medium ${
+                result.level === "strong"
+                  ? "text-emerald-700"
+                  : result.level === "moderate"
+                  ? "text-mustard"
+                  : result.level === "weak"
+                  ? "text-red-600"
+                  : "text-ink/50"
+              }`}
+            >
+              {result.level === "strong"
+                ? "Strong match"
+                : result.level === "moderate"
+                ? "Moderate match"
+                : result.level === "weak"
+                ? "Weak match"
+                : "Limited match data"}
+            </p>
+          </div>
+
+          <div className="mt-2 h-2 w-full overflow-hidden rounded-full bg-ink/10">
+            <div
+              className={`h-full rounded-full ${
+                result.level === "strong"
+                  ? "bg-emerald-600"
+                  : result.level === "weak"
+                  ? "bg-red-500"
+                  : "bg-mustard"
+              }`}
+              style={{ width: `${Math.max(4, result.score)}%` }}
+            />
+          </div>
+
+          {result.level === "limited" && (
+            <p className="mt-3 text-sm text-ink/60">
+              This listing doesn't have enough detail (no skills or experience requirement
+              listed) for a real comparison — that's a gap in the job data, not your resume.
+            </p>
+          )}
+
+          {(result.experienceRequired !== null || result.experienceDetected !== null) && (
+            <div className="mt-4 text-sm">
+              <p className="font-medium text-ink">Experience</p>
+              <p className="mt-1 text-ink/70">
+                {result.experienceRequired !== null
+                  ? `Role asks for ${result.experienceRequired}+ years`
+                  : "No specific experience requirement listed"}
+                {result.experienceDetected !== null
+                  ? ` — resume shows about ${result.experienceDetected} year${
+                      result.experienceDetected === 1 ? "" : "s"
+                    }`
+                  : " — couldn't detect years of experience on your resume"}
+                .
+              </p>
+            </div>
+          )}
 
           {result.matchedSkills.length > 0 && (
             <div className="mt-4">
-              <p className="text-sm font-medium text-ink">Matched skills</p>
-              <p className="text-sm text-ink/70">{result.matchedSkills.join(", ")}</p>
+              <p className="text-sm font-medium text-ink">
+                You've got this covered ({result.matchedSkills.length})
+              </p>
+              <div className="mt-1.5 flex flex-wrap gap-1.5">
+                {result.matchedSkills.map((skill) => (
+                  <span
+                    key={skill}
+                    className="rounded-full bg-emerald-50 px-2.5 py-1 text-xs text-emerald-800 border border-emerald-200"
+                  >
+                    {skill}
+                  </span>
+                ))}
+              </div>
             </div>
           )}
 
           {result.missingSkills.length > 0 && (
-            <div className="mt-3">
-              <p className="text-sm font-medium text-ink">Missing skills</p>
-              <p className="text-sm text-ink/70">{result.missingSkills.join(", ")}</p>
+            <div className="mt-4">
+              <p className="text-sm font-medium text-ink">
+                The gap to close ({result.missingSkills.length})
+              </p>
+              <p className="mt-1 text-xs text-ink/50">
+                Not on your resume, or not phrased the way this listing expects — worth
+                addressing directly in your application or cover letter if you have the
+                experience.
+              </p>
+              <div className="mt-1.5 flex flex-wrap gap-1.5">
+                {result.missingSkills.map((skill) => (
+                  <span
+                    key={skill}
+                    className="rounded-full bg-amber-50 px-2.5 py-1 text-xs text-amber-800 border border-amber-200"
+                  >
+                    {skill}
+                  </span>
+                ))}
+              </div>
             </div>
           )}
         </div>
