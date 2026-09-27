@@ -44,15 +44,10 @@ function normalizeOwnJob(row: any): PublicJob {
 function applyOwnJobFilters(q: any, query: JobsQuery) {
   let scoped = q;
   if (query.q) {
-    // Require EVERY word in the search to appear somewhere in title or
-    // company (AND across words, not one big substring across every field).
-    // This is what makes "kalp corporate" match a company literally named
-    // "Kalp Corporate" precisely, instead of loosely matching anywhere a
-    // generic word like "corporate" happens to appear in a long description.
-    const words = query.q.trim().split(/\s+/).filter(Boolean);
-    for (const word of words) {
-      scoped = scoped.or(`title.ilike.%${word}%,company.ilike.%${word}%`);
-    }
+    const search = query.q.trim();
+    scoped = scoped.or(
+      `title.ilike.%${search}%,company.ilike.%${search}%,description.ilike.%${search}%,location.ilike.%${search}%,city.ilike.%${search}%,state.ilike.%${search}%,country.ilike.%${search}%`
+    );
   }
   if (query.location) scoped = scoped.eq("country", query.location);
   if (query.job_type) scoped = scoped.eq("job_type", query.job_type);
@@ -101,42 +96,44 @@ export async function getJobsPage(query: JobsQuery): Promise<JobsPageResult> {
 
   const ownAsJobs = ownRows.map(normalizeOwnJob);
 
-  // Interleave own_jobs evenly through the Artha feed instead of sorting by
-  // date and concatenating. A pure date-sort clusters all own_jobs into one
-  // block at the top whenever they share a posted_date (e.g. right after a
-  // bulk CSV import), which looks like "my jobs first, then everything
-  // else" rather than a genuine mix — even though it's technically sorted.
   const merged: PublicJob[] = [];
   const artha = [...arthaResult.items];
   const own = [...ownAsJobs];
-  // Roughly one of your own jobs per this many Artha jobs, so a handful of
-  // own_jobs doesn't get diluted across a huge Artha page, and a large
-  // own_jobs batch doesn't dominate a small Artha page either.
-  const INTERVAL = own.length > 0 ? Math.max(1, Math.round(artha.length / own.length)) : Infinity;
+  const isSearching = Boolean(query.q && query.q.trim());
 
-  let arthaIdx = 0;
-  while (arthaIdx < artha.length || own.length > 0) {
-    for (let i = 0; i < INTERVAL && arthaIdx < artha.length; i++) {
-      merged.push(artha[arthaIdx++]);
-    }
-    if (own.length > 0) {
-      merged.push(own.shift()!);
+  if (isSearching) {
+    // When actively searching, a matching own_job is a curated, specific
+    // match to what was typed — it should lead the results, not get buried
+    // behind Artha's much larger (and often only loosely related) result
+    // set. E.g. searching "Kalp Corporate" with 1 own_job match against 50
+    // generic Artha matches for the word "corporate" should show Kalp
+    // first, not last.
+    merged.push(...own, ...artha);
+  } else {
+    // General browse, no search term: interleave own_jobs evenly through
+    // the Artha feed instead of sorting by date and concatenating. A pure
+    // date-sort clusters all own_jobs into one block at the top whenever
+    // they share a posted_date (e.g. right after a bulk CSV import), which
+    // looks like "my jobs first, then everything else" rather than a
+    // genuine mix — even though it's technically sorted.
+    // Roughly one of your own jobs per this many Artha jobs, so a handful
+    // of own_jobs doesn't get diluted across a huge Artha page, and a large
+    // own_jobs batch doesn't dominate a small Artha page either.
+    const INTERVAL = own.length > 0 ? Math.max(1, Math.round(artha.length / own.length)) : Infinity;
+
+    let arthaIdx = 0;
+    while (arthaIdx < artha.length || own.length > 0) {
+      for (let i = 0; i < INTERVAL && arthaIdx < artha.length; i++) {
+        merged.push(artha[arthaIdx++]);
+      }
+      if (own.length > 0) {
+        merged.push(own.shift()!);
+      }
     }
   }
 
   const combinedTotal = arthaResult.total + ownTotal;
   const hasMore = arthaResult.offset + arthaResult.limit < combinedTotal;
-
-  // "Newest first" is a promise about order — interleaving on a fixed
-  // interval breaks it (a job from yesterday can land above one from
-  // today just because of where its slot fell). Only interleave for
-  // relevance-style sorts, where there's no date ordering to violate;
-  // for "newest", do a real chronological sort over the merged set.
-  if (query.sort_by === "newest") {
-    merged.sort(
-      (a, b) => new Date(b.posted_date).getTime() - new Date(a.posted_date).getTime()
-    );
-  }
 
   return {
     items: merged,
