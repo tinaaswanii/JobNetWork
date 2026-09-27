@@ -2,8 +2,6 @@ import { NextRequest, NextResponse } from "next/server";
 import { fetchJobs, ArthaApiError, type PublicJob, type JobsQuery } from "@/lib/artha";
 import { supabaseAdmin } from "@/lib/supabase";
 
-// Turn one of your own_jobs rows into the same shape as artha.link's PublicJob,
-// so the frontend renders both feeds with one component.
 function normalizeOwnJob(row: any): PublicJob {
   return {
     id: `own_${row.id}`,
@@ -25,7 +23,7 @@ function normalizeOwnJob(row: any): PublicJob {
     exp_unit: null,
     skills: row.skills ?? [],
     posted_date: row.posted_date,
-    url: row.apply_url, // your own listings link straight to your own apply URL
+    url: row.apply_url,
   };
 }
 
@@ -34,6 +32,7 @@ export async function GET(req: NextRequest) {
 
   const limit = sp.get("limit") ? Number(sp.get("limit")) : 10;
   const offset = sp.get("offset") ? Number(sp.get("offset")) : 0;
+  const sortBy = (sp.get("sort_by") as JobsQuery["sort_by"]) ?? "newest";
 
   const query: JobsQuery = {
     limit,
@@ -53,59 +52,52 @@ export async function GET(req: NextRequest) {
     salary_min: sp.get("salary_min") ? Number(sp.get("salary_min")) : undefined,
     salary_max: sp.get("salary_max") ? Number(sp.get("salary_max")) : undefined,
     posted_after: sp.get("posted_after") ?? undefined,
-    sort_by: (sp.get("sort_by") as JobsQuery["sort_by"]) ?? undefined,
+    sort_by: sortBy,
   };
 
   try {
-    // Pull EVERY matching own_jobs row (not capped at 20) so pagination across
-    // your whole own-jobs list actually works, no matter how many you've added.
     const ownAll = (await fetchOwnJobs(query)).map(normalizeOwnJob);
     const ownTotal = ownAll.length;
 
     let items: PublicJob[];
     let arthaTotal: number;
 
-    if (offset < ownTotal) {
-      // This page starts inside your own-jobs list.
-      const ownSlice = ownAll.slice(offset, offset + limit);
-      const remaining = limit - ownSlice.length;
-
-      if (remaining > 0) {
-        // Own jobs ran out partway through this page — fill the rest from artha.link,
-        // starting from ITS beginning (offset 0), since none of artha's jobs have
-        // been shown yet at this point in the combined list.
-        const arthaResult = await fetchJobs({ ...query, offset: 0, limit: remaining });
-        items = [...ownSlice, ...arthaResult.items];
-        arthaTotal = arthaResult.total;
+    if (sortBy === "newest") {
+      if (offset < ownTotal) {
+        const ownSlice = ownAll.slice(offset, offset + limit);
+        const remaining = limit - ownSlice.length;
+        if (remaining > 0) {
+          const arthaResult = await fetchJobs({ ...query, offset: 0, limit: remaining });
+          items = [...ownSlice, ...arthaResult.items];
+          arthaTotal = arthaResult.total;
+        } else {
+          items = ownSlice;
+          const arthaResult = await fetchJobs({ ...query, offset: 0, limit: 1 });
+          arthaTotal = arthaResult.total;
+        }
       } else {
-        items = ownSlice;
-        // Still need artha's total count for correct pagination math, without
-        // pulling a full page of jobs we won't show yet.
-        const arthaResult = await fetchJobs({ ...query, offset: 0, limit: 1 });
+        const arthaOffset = offset - ownTotal;
+        const arthaResult = await fetchJobs({ ...query, offset: arthaOffset, limit });
+        items = arthaResult.items;
         arthaTotal = arthaResult.total;
       }
     } else {
-      // Past all own_jobs — this page comes entirely from artha.link.
-      const arthaOffset = offset - ownTotal;
-      const arthaResult = await fetchJobs({ ...query, offset: arthaOffset, limit });
-      items = arthaResult.items;
+      const arthaResult = await fetchJobs({ ...query, offset, limit });
       arthaTotal = arthaResult.total;
+
+      if (arthaResult.items.length === limit) {
+        items = arthaResult.items;
+      } else if (offset < arthaTotal) {
+        const remaining = limit - arthaResult.items.length;
+        items = [...arthaResult.items, ...ownAll.slice(0, remaining)];
+      } else {
+        const ownOffset = offset - arthaTotal;
+        items = ownAll.slice(ownOffset, ownOffset + limit);
+      }
     }
 
     const total = ownTotal + arthaTotal;
     const has_more = offset + limit < total;
-
-    // "Newest first" must be a real chronological guarantee across the
-    // combined own_jobs + Artha set. Artha's own sort_by=newest ordering
-    // covers its own items, but own_jobs are pulled in separately and can
-    // land anywhere in the page — so without this, picking "Newest first"
-    // can look identical to "Most relevant"/"High priority" whenever
-    // own_jobs and Artha jobs end up interleaved out of date order.
-    if (query.sort_by === "newest") {
-      items = [...items].sort(
-        (a, b) => new Date(b.posted_date).getTime() - new Date(a.posted_date).getTime()
-      );
-    }
 
     return NextResponse.json({
       success: true,
@@ -136,8 +128,6 @@ async function fetchOwnJobs(query: JobsQuery) {
   if (query.work_mode) q = q.eq("work_mode", query.work_mode);
   if (query.company) q = q.ilike("company", `%${query.company}%`);
 
-  // No .limit() here — we want every matching row so pagination across
-  // your full own-jobs list works correctly.
   const { data, error } = await q.order("posted_date", { ascending: false, nullsFirst: false });
   if (error) {
     console.error("[api/jobs] supabase error", error);
