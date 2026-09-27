@@ -63,17 +63,54 @@ export default function FilterBar({
 
   const set = (patch: Partial<Filters>) => onChange({ ...value, ...patch });
 
-  return (
-    <div className="pinned-card p-5 pl-6 flex flex-col gap-4">
-      <input
-        type="text"
-        placeholder="Search job titles, skills, companies..."
-        value={qDraft}
-        onChange={(e) => setQDraft(e.target.value)}
-        className="w-full bg-transparent border-b border-ink/20 pb-2 font-body text-ink placeholder:text-ink/40 focus:border-mustard outline-none"
-      />
+  const activeFilterCount = [
+    value.job_type,
+    value.work_mode,
+    value.exp_level,
+    value.sort_by !== "newest" ? value.sort_by : "",
+  ].filter(Boolean).length;
 
-      <div className="flex flex-wrap gap-3">
+  return (
+    <div className="flex flex-col gap-3">
+      {/* Hero search — the primary way into the site. Large, high-contrast,
+          front and center right under the header. Everything else here is
+          secondary and visually smaller/quieter by comparison. */}
+      <div className="pinned-card flex items-center gap-3 px-5 py-4 md:px-6 md:py-5">
+        <svg
+          className="h-6 w-6 shrink-0 text-ink/40"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          aria-hidden="true"
+        >
+          <circle cx="11" cy="11" r="7" />
+          <path d="m20 20-3.5-3.5" strokeLinecap="round" />
+        </svg>
+        <input
+          type="text"
+          placeholder="Search job titles, companies, or skills..."
+          value={qDraft}
+          onChange={(e) => setQDraft(e.target.value)}
+          className="w-full bg-transparent font-display text-xl md:text-2xl text-ink placeholder:text-ink/35 outline-none"
+        />
+        {qDraft && (
+          <button
+            type="button"
+            onClick={() => setQDraft("")}
+            aria-label="Clear search"
+            className="shrink-0 text-ink/40 hover:text-ink text-xl leading-none px-1"
+          >
+            ×
+          </button>
+        )}
+      </div>
+
+      {/* Secondary filters — smaller, quieter, below the hero search */}
+      <div className="flex flex-wrap items-center gap-2 px-1">
+        <span className="text-xs uppercase tracking-wide text-ink/40 mr-1">
+          Refine{activeFilterCount > 0 ? ` (${activeFilterCount})` : ""}:
+        </span>
         <Select
           label="Type"
           value={value.job_type}
@@ -95,7 +132,7 @@ export default function FilterBar({
         <select
           value={value.sort_by}
           onChange={(e) => set({ sort_by: e.target.value })}
-          className="bg-paper border border-ink/20 px-3 py-1.5 text-sm text-ink"
+          className="bg-paper border border-ink/15 px-2.5 py-1 text-xs text-ink/80 rounded"
         >
           <option value="newest">Newest first</option>
           <option value="most_relevant">Most relevant</option>
@@ -121,12 +158,12 @@ function Select({
     <select
       value={value}
       onChange={(e) => onChange(e.target.value)}
-      className="bg-paper border border-ink/20 px-3 py-1.5 text-sm text-ink"
+      className="bg-paper border border-ink/15 px-2.5 py-1 text-xs text-ink/80 rounded"
     >
       <option value="">{label}: any</option>
       {options?.map((opt) => (
         <option key={opt.value} value={opt.value}>
-          {opt.value}
+          {opt.value} ({opt.count})
         </option>
       ))}
     </select>
