@@ -95,6 +95,18 @@ export async function GET(req: NextRequest) {
     const total = ownTotal + arthaTotal;
     const has_more = offset + limit < total;
 
+    // "Newest first" must be a real chronological guarantee across the
+    // combined own_jobs + Artha set. Artha's own sort_by=newest ordering
+    // covers its own items, but own_jobs are pulled in separately and can
+    // land anywhere in the page — so without this, picking "Newest first"
+    // can look identical to "Most relevant"/"High priority" whenever
+    // own_jobs and Artha jobs end up interleaved out of date order.
+    if (query.sort_by === "newest") {
+      items = [...items].sort(
+        (a, b) => new Date(b.posted_date).getTime() - new Date(a.posted_date).getTime()
+      );
+    }
+
     return NextResponse.json({
       success: true,
       data: { items, total, limit, offset, has_more },
