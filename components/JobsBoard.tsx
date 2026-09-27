@@ -1,300 +1,45 @@
-"use client";
+import { NextRequest, NextResponse } from "next/server";
+import { ArthaApiError, type JobsQuery } from "@/lib/artha";
+import { getJobsPage } from "@/lib/jobs";
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { useRouter, useSearchParams, usePathname } from "next/navigation";
-import type { PublicJob } from "@/lib/types";
-import JobCard from "@/components/JobCard";
-import FilterBar, { emptyFilters, type Filters } from "@/components/FilterBar";
-import Pagination from "@/components/Pagination";
-import EmailSignup from "@/components/EmailSignup";
+export async function GET(req: NextRequest) {
+  const sp = req.nextUrl.searchParams;
 
-const LIMIT = 12;
+  const query: JobsQuery = {
+    limit: sp.get("limit") ? Number(sp.get("limit")) : 10,
+    offset: sp.get("offset") ? Number(sp.get("offset")) : 0,
+    q: sp.get("q") ?? undefined,
+    location: sp.get("location") ?? undefined,
+    state: sp.get("state") ?? undefined,
+    city: sp.get("city") ?? undefined,
+    niche_keywords: sp.get("niche_keywords") ?? undefined,
+    negative_keywords: sp.get("negative_keywords") ?? undefined,
+    job_type: sp.get("job_type") ?? undefined,
+    work_mode: sp.get("work_mode") ?? undefined,
+    exp_level: sp.get("exp_level") ?? undefined,
+    education: sp.get("education") ?? undefined,
+    industry: sp.get("industry") ?? undefined,
+    company: sp.get("company") ?? undefined,
+    salary_min: sp.get("salary_min") ? Number(sp.get("salary_min")) : undefined,
+    salary_max: sp.get("salary_max") ? Number(sp.get("salary_max")) : undefined,
+    posted_after: sp.get("posted_after") ?? undefined,
+    sort_by: (sp.get("sort_by") as JobsQuery["sort_by"]) ?? undefined,
+  };
 
-// How many jobs to pull from the server in one go, so client-side search
-// actually has a real pool to search over — not just the current page.
-const FETCH_POOL_SIZE = 50;
-
-const FILTER_KEYS = [
-  "q",
-  "job_type",
-  "work_mode",
-  "exp_level",
-  "sort_by",
-  "location",
-] as const;
-
-function filtersFromSearchParams(sp: URLSearchParams): Filters {
-  const out = { ...emptyFilters };
-  for (const key of FILTER_KEYS) {
-    const v = sp.get(key);
-    if (v) out[key] = v;
+  try {
+    const result = await getJobsPage(query);
+    return NextResponse.json({ success: true, data: result });
+  } catch (err) {
+    if (err instanceof ArthaApiError) {
+      return NextResponse.json(
+        { success: false, error: { code: err.code, message: err.message } },
+        { status: err.status }
+      );
+    }
+    console.error("[api/jobs] unexpected error", err);
+    return NextResponse.json(
+      { success: false, error: { code: "INTERNAL_ERROR", message: "Something went wrong." } },
+      { status: 500 }
+    );
   }
-  return out;
-}
-
-export default function JobsBoard({
-  initialJobs,
-}: {
-  initialJobs: PublicJob[];
-}) {
-  const router = useRouter();
-  const pathname = usePathname();
-  const searchParams = useSearchParams();
-
-  // On the very first mount, if the URL already carries non-default filters
-  // (e.g. the user hit Back after changing sort, reloaded, or opened a
-  // bookmarked/shared link), trust the URL over the SSR default — the
-  // server always renders with default filters, so URL params mean the
-  // client needs to re-sync rather than skip its first fetch.
-  const urlHasFilters = useMemo(
-    () => FILTER_KEYS.some((k) => searchParams.get(k)),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    []
-  );
-
-  const [filters, setFiltersState] = useState<Filters>(() =>
-    urlHasFilters ? filtersFromSearchParams(searchParams) : emptyFilters
-  );
-  const [offset, setOffsetState] = useState(() => {
-    const o = parseInt(searchParams.get("offset") ?? "0", 10);
-    return Number.isFinite(o) && o >= 0 ? o : 0;
-  });
-  const [allJobs, setAllJobs] = useState<PublicJob[]>(initialJobs);
-  const [fetchState, setFetchState] = useState<
-    "loading" | "ready" | "error" | "rate_limited"
-  >(initialJobs.length > 0 ? "ready" : "loading");
-  const [errorMessage, setErrorMessage] = useState("");
-
-  // Skip the very first client-side fetch only when the URL matched the
-  // server's default render — otherwise (URL had real filters) we need a
-  // real fetch on mount to actually apply them, since the SSR homepage
-  // always renders the default "newest" view regardless of URL params.
-  const skipNextFetch = useRef(initialJobs.length > 0 && !urlHasFilters);
-
-  // Keep the URL in sync with the current filters/offset (shallow — no
-  // reload, no server round trip) so Back/Forward and reloads restore
-  // exactly what was showing, instead of resetting to defaults.
-  const syncUrl = useCallback(
-    (nextFilters: Filters, nextOffset: number) => {
-      const params = new URLSearchParams();
-      for (const key of FILTER_KEYS) {
-        const v = nextFilters[key];
-        if (v && v !== emptyFilters[key]) params.set(key, v);
-      }
-      if (nextOffset > 0) params.set("offset", String(nextOffset));
-      const qs = params.toString();
-      router.replace(qs ? `${pathname}?${qs}` : pathname, { scroll: false });
-    },
-    [router, pathname]
-  );
-
-  const setFilters = useCallback(
-    (f: Filters) => {
-      setFiltersState(f);
-      syncUrl(f, 0); // any filter change resets to page 1
-    },
-    [syncUrl]
-  );
-
-  const setOffset = useCallback(
-    (o: number) => {
-      setOffsetState(o);
-      syncUrl(filters, o);
-    },
-    [filters, syncUrl]
-  );
-
-  // Reset to page 1 whenever ANY filter changes, including the search text.
-  useEffect(() => {
-    setOffsetState(0);
-  }, [
-    filters.q,
-    filters.job_type,
-    filters.work_mode,
-    filters.exp_level,
-    filters.sort_by,
-    filters.location,
-  ]);
-
-  useEffect(() => {
-    if (skipNextFetch.current) {
-      skipNextFetch.current = false;
-      return;
-    }
-
-    let cancelled = false;
-
-    async function load() {
-      setFetchState("loading");
-
-      const params = new URLSearchParams({
-        limit: String(FETCH_POOL_SIZE),
-        offset: "0",
-      });
-
-      Object.entries(filters).forEach(([key, value]) => {
-        if (value) {
-          params.set(key, value);
-        }
-      });
-
-      try {
-        const res = await fetch(`/api/jobs?${params.toString()}`);
-        const body = await res.json();
-
-        if (cancelled) return;
-
-        if (res.status === 429) {
-          setFetchState("rate_limited");
-          setErrorMessage(
-            "Job listings are refreshing — try again in a moment."
-          );
-          return;
-        }
-
-        if (!body.success) {
-          setFetchState("error");
-          setErrorMessage(body.error?.message ?? "Couldn't load jobs.");
-          return;
-        }
-
-        setAllJobs(body.data.items);
-        setFetchState("ready");
-      } catch {
-        if (!cancelled) {
-          setFetchState("error");
-          setErrorMessage(
-            "Couldn't reach the server — check your connection."
-          );
-        }
-      }
-    }
-
-    load();
-
-    return () => {
-      cancelled = true;
-    };
-  }, [
-    filters.q,
-    filters.job_type,
-    filters.work_mode,
-    filters.exp_level,
-    filters.sort_by,
-    filters.location,
-  ]);
-
-  // Client-side text search over whatever's already in the UI.
-  const filteredJobs = useMemo(() => {
-    const q = filters.q.trim().toLowerCase();
-
-    if (!q) return allJobs;
-
-    return allJobs.filter((job) => {
-      const haystack = [job.title, job.company, job.city]
-        .filter(Boolean)
-        .join(" ")
-        .toLowerCase();
-
-      return haystack.includes(q);
-    });
-  }, [allJobs, filters.q]);
-
-  const pageJobs = filteredJobs.slice(offset, offset + LIMIT);
-  const total = filteredJobs.length;
-  const isEmpty = fetchState === "ready" && filteredJobs.length === 0;
-
-  return (
-    <>
-      <div className="max-w-5xl mx-auto px-6 md:px-12 -mt-6">
-        <FilterBar value={filters} onChange={setFilters} />
-      </div>
-
-      <section className="max-w-5xl mx-auto px-6 md:px-12 py-10">
-        {fetchState === "loading" && (
-          <div className="space-y-4" aria-live="polite">
-            {Array.from({ length: 4 }).map((_, i) => (
-              <div
-                key={i}
-                className="pinned-card p-5 pl-6 h-24 animate-pulse bg-ink/5"
-              />
-            ))}
-          </div>
-        )}
-
-        {fetchState === "error" && (
-          <div className="pinned-card p-6 pl-7">
-            <p className="font-display text-lg">Couldn't load listings</p>
-            <p className="text-sm text-ink/60 mt-1">{errorMessage}</p>
-          </div>
-        )}
-
-        {fetchState === "rate_limited" && (
-          <div className="pinned-card p-6 pl-7">
-            <p className="font-display text-lg">One moment</p>
-            <p className="text-sm text-ink/60 mt-1">{errorMessage}</p>
-          </div>
-        )}
-
-        {isEmpty && (
-          <div className="pinned-card p-6 pl-7">
-            <p className="font-display text-lg">No matches yet</p>
-            <p className="text-sm text-ink/60 mt-1">
-              Try widening a filter, or clear your search to see everything.
-            </p>
-          </div>
-        )}
-
-        {fetchState === "ready" && !isEmpty && (
-          <>
-            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-              {pageJobs.map((job) => (
-                <JobCard key={job.id} job={job} />
-              ))}
-            </div>
-
-            <Pagination
-              offset={offset}
-              limit={LIMIT}
-              total={total}
-              onChange={setOffset}
-            />
-          </>
-        )}
-
-        <div className="mt-10 pt-6 border-t border-ink/10">
-          <p className="font-display text-lg mb-2">
-            Get new matches by email
-          </p>
-          <EmailSignup filters={filters} />
-        </div>
-        <div className="mt-12 border-t border-ink/10 pt-8">
-          <h2 className="font-display text-2xl">About JobNetWork</h2>
-
-          <p className="mt-3 max-w-3xl leading-7 text-ink/70">
-            JobNetWork brings jobs, internships and career opportunities
-            together in one place for students, freshers, working
-            professionals and recent graduates — across tech, sales,
-            marketing, finance, healthcare, operations, design, customer
-            support and more.
-          </p>
-
-          <p className="mt-3 max-w-3xl leading-7 text-ink/70">
-            We regularly add remote, hybrid and on-site opportunities from
-            different companies and sources, updated in real time, making it
-            easier to search, filter and find roles that match your
-            interests, skills and experience level — from entry-level and
-            internships to senior positions.
-          </p>
-
-          <a
-            href="/about"
-            className="mt-5 inline-block rounded-lg border border-ink/20 bg-paper px-4 py-2 text-sm font-medium text-ink transition hover:bg-ink/5"
-          >
-            Learn more about JobNetWork
-          </a>
-        </div>
-      </section>
-    </>
-  );
 }
