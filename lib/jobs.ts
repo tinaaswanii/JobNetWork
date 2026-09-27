@@ -122,6 +122,17 @@ export async function getJobsPage(query: JobsQuery): Promise<JobsPageResult> {
   const combinedTotal = arthaResult.total + ownTotal;
   const hasMore = arthaResult.offset + arthaResult.limit < combinedTotal;
 
+  // "Newest first" is a promise about order — interleaving on a fixed
+  // interval breaks it (a job from yesterday can land above one from
+  // today just because of where its slot fell). Only interleave for
+  // relevance-style sorts, where there's no date ordering to violate;
+  // for "newest", do a real chronological sort over the merged set.
+  if (query.sort_by === "newest") {
+    merged.sort(
+      (a, b) => new Date(b.posted_date).getTime() - new Date(a.posted_date).getTime()
+    );
+  }
+
   return {
     items: merged,
     total: combinedTotal,
