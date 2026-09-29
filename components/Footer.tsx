@@ -180,17 +180,7 @@ export default function Footer() {
               </svg>
               <span>Email</span>
             </a>
-           <a
-  href="https://boostdomainrating.com/item/job-net-work.vercel.app?utm_source=badge"
-  target="_blank"
-  rel="noopener noreferrer"
->
-  <img
-    src="https://boostdomainrating.com/api/badge/job-net-work.vercel.app"
-    alt="JobNetWork - Domain Rating"
-    style={{ height: "54px", width: "auto" }}
-  />
-</a>
+  
           </div>
         </div>
 
