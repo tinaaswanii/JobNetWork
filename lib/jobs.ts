@@ -1,175 +1,272 @@
-import { fetchJobs, ArthaApiError, type PublicJob, type JobsQuery } from "@/lib/artha";
+import type { Metadata } from "next";
+import Link from "next/link";
+import { notFound } from "next/navigation";
 import { supabaseAdmin } from "@/lib/supabase";
+import { getArthaJobBySlug } from "@/lib/job-cache";
+import { htmlToText, sanitizeJobHtml } from "@/lib/html";
+import type { PublicJob } from "@/lib/types";
 
-export type JobsPageResult = {
-  items: PublicJob[];
-  total: number;
-  limit: number;
-  offset: number;
-  has_more: boolean;
+export const revalidate = 3600;
+
+const SITE_URL = "https://job-net-work.vercel.app";
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+const EMPLOYMENT_TYPE_SCHEMA: Record<string, string> = {
+  "full-time": "FULL_TIME",
+  "part-time": "PART_TIME",
+  contract: "CONTRACTOR",
+  internship: "INTERN",
+  temporary: "TEMPORARY",
+  freelance: "CONTRACTOR",
 };
 
-// Turn one of your own_jobs rows into the same shape as artha.link's PublicJob,
-// so the frontend renders both feeds with one component.
-function normalizeOwnJob(row: any): PublicJob {
+async function getOwnJobBySlug(slug: string): Promise<PublicJob | null> {
+  if (!UUID_RE.test(slug)) return null;
+  const db = supabaseAdmin();
+  const { data, error } = await db
+    .from("own_jobs")
+    .select("*")
+    .eq("id", slug)
+    .eq("is_active", true)
+    .maybeSingle();
+  if (error || !data) return null;
   return {
-    id: `own_${row.id}`,
-    slug: row.id,
-    title: row.title,
-    company: row.company,
-    logo: row.logo,
-    description: row.description,
-    location: row.location,
-    city: row.city,
-    state: row.state,
-    country: row.country,
-    job_type: row.job_type,
-    salary_min: row.salary_min,
-    salary_max: row.salary_max,
-    salary_curr: row.salary_curr,
+    id: `own_${data.id}`,
+    slug: data.id,
+    title: data.title,
+    company: data.company,
+    logo: data.logo,
+    description: data.description,
+    location: data.location,
+    city: data.city,
+    state: data.state,
+    country: data.country,
+    job_type: data.job_type,
+    salary_min: data.salary_min,
+    salary_max: data.salary_max,
+    salary_curr: data.salary_curr,
     exp_min: null,
     exp_max: null,
     exp_unit: null,
-    skills: row.skills ?? [],
-    posted_date: row.posted_date,
-    url: row.apply_url, // your own listings link straight to your own apply URL
+    skills: data.skills ?? [],
+    posted_date: data.posted_date,
+    url: data.apply_url,
   };
 }
 
-// Typed as `any` deliberately: lib/supabase.ts's createClient() isn't given a
-// Database generic, so the .from()/.select() chain has no concrete row type to
-// narrow to here, and the two callers below apply .select() differently
-// (one for rows, one for a count-only head request), so they don't share an
-// exact builder type anyway.
-function applyOwnJobFilters(q: any, query: JobsQuery) {
-  let scoped = q;
-  if (query.q) {
-    const search = query.q.trim();
-    scoped = scoped.or(
-      `title.ilike.%${search}%,company.ilike.%${search}%,description.ilike.%${search}%,location.ilike.%${search}%,city.ilike.%${search}%,state.ilike.%${search}%,country.ilike.%${search}%`
-    );
-  }
-  if (query.location) scoped = scoped.eq("country", query.location);
-  if (query.job_type) scoped = scoped.eq("job_type", query.job_type);
-  if (query.work_mode) scoped = scoped.eq("work_mode", query.work_mode);
-  if (query.company) scoped = scoped.ilike("company", `%${query.company}%`);
-  return scoped;
+async function getJob(slug: string): Promise<PublicJob | null> {
+  const own = await getOwnJobBySlug(slug);
+  if (own) return own;
+  return getArthaJobBySlug(slug);
 }
 
-async function fetchOwnJobs(query: JobsQuery) {
-  const db = supabaseAdmin();
-  const q = applyOwnJobFilters(db.from("own_jobs").select("*").eq("is_active", true), query);
+export async function generateMetadata({
+  params,
+}: {
+  params: { slug: string };
+}): Promise<Metadata> {
+  const job = await getJob(params.slug);
+  if (!job) return { title: "Job not found" };
 
-  const { data, error } = await q.order("posted_date", { ascending: false }).limit(20);
-  if (error) {
-    console.error("[lib/jobs] supabase error", error);
-    return [];
-  }
-  return data ?? [];
-}
-
-async function fetchOwnJobsCount(query: JobsQuery) {
-  const db = supabaseAdmin();
-  const q = applyOwnJobFilters(
-    db.from("own_jobs").select("*", { count: "exact", head: true }).eq("is_active", true),
-    query
-  );
-
-  const { count, error } = await q;
-  if (error) {
-    console.error("[lib/jobs] supabase count error", error);
-    return 0;
-  }
-  return count ?? 0;
-}
-
-// Merges the Artha feed with your own_jobs table. Used by both
-// app/api/jobs/route.ts (for client-side filtering/pagination) and
-// app/page.tsx (for the initial server-rendered page, so real job content
-// — not just a loading shell — is present in the HTML search engines see).
-export async function getJobsPage(query: JobsQuery): Promise<JobsPageResult> {
-  const isSearching = Boolean(query.q && query.q.trim());
-
-  // Artha's own search is fuzzy against its ~500K+ job pool — a query like
-  // "corporate" can match loads of jobs that only mention the word deep in
-  // a description, not the job itself. When searching, ask Artha for a
-  // bigger pool up front so there's enough left over after we filter that
-  // pool down to genuine title/company matches below.
-  const arthaQuery: JobsQuery = isSearching
-    ? { ...query, limit: Math.max(query.limit ?? 10, 100) }
-    : query;
-
-  const [arthaResult, ownRows, ownTotal] = await Promise.all([
-    fetchJobs(arthaQuery),
-    query.offset === 0 ? fetchOwnJobs(query) : Promise.resolve([]),
-    fetchOwnJobsCount(query),
-  ]);
-
-  const ownAsJobs = ownRows.map(normalizeOwnJob);
-
-  // Strict search: only keep Artha results whose title or company actually
-  // contains every word that was searched for, rather than trusting
-  // whatever loosely-relevant set Artha's own fuzzy matching returned.
-  let arthaItems = arthaResult.items;
-  if (isSearching) {
-    const terms = query.q!.trim().toLowerCase().split(/\s+/).filter(Boolean);
-    arthaItems = arthaItems.filter((job) => {
-      const haystack = `${job.title} ${job.company}`.toLowerCase();
-      return terms.every((term) => haystack.includes(term));
-    });
-  }
-
-  const merged: PublicJob[] = [];
-  const artha = [...arthaItems];
-  const own = [...ownAsJobs];
-
-  if (isSearching) {
-    // When actively searching, a matching own_job is a curated, specific
-    // match to what was typed — it should lead the results, not get buried
-    // behind Artha's much larger (and often only loosely related) result
-    // set. E.g. searching "Kalp Corporate" with 1 own_job match against 50
-    // generic Artha matches for the word "corporate" should show Kalp
-    // first, not last.
-    merged.push(...own, ...artha);
-  } else {
-    // General browse, no search term: interleave own_jobs evenly through
-    // the Artha feed instead of sorting by date and concatenating. A pure
-    // date-sort clusters all own_jobs into one block at the top whenever
-    // they share a posted_date (e.g. right after a bulk CSV import), which
-    // looks like "my jobs first, then everything else" rather than a
-    // genuine mix — even though it's technically sorted.
-    // Roughly one of your own jobs per this many Artha jobs, so a handful
-    // of own_jobs doesn't get diluted across a huge Artha page, and a large
-    // own_jobs batch doesn't dominate a small Artha page either.
-    const INTERVAL = own.length > 0 ? Math.max(1, Math.round(artha.length / own.length)) : Infinity;
-
-    let arthaIdx = 0;
-    while (arthaIdx < artha.length || own.length > 0) {
-      for (let i = 0; i < INTERVAL && arthaIdx < artha.length; i++) {
-        merged.push(artha[arthaIdx++]);
-      }
-      if (own.length > 0) {
-        merged.push(own.shift()!);
-      }
-    }
-  }
-
-  // Once we've strictly filtered, Artha's own reported `total` no longer
-  // matches what's actually on screen — it still reflects their fuzzy
-  // match count. Use the real filtered count instead when searching, and
-  // treat the page as complete (no further pagination) since a strict
-  // title/company match set is typically small enough to fit on one page.
-  const combinedTotal = isSearching ? merged.length : arthaResult.total + ownTotal;
-
-  const hasMore = isSearching ? false : arthaResult.offset + arthaResult.limit < combinedTotal;
+  const title = `${job.title} at ${job.company}`;
+  const plainDescription = htmlToText(job.description, 160);
+  const url = `${SITE_URL}/jobs/${job.slug}`;
 
   return {
-    items: merged,
-    total: combinedTotal,
-    limit: arthaResult.limit,
-    offset: arthaResult.offset,
-    has_more: hasMore,
+    title,
+    description: plainDescription,
+    alternates: { canonical: url },
+    openGraph: {
+      type: "website",
+      url,
+      siteName: "JobNetWork",
+      title,
+      description: plainDescription,
+      images: job.logo ? [{ url: job.logo }] : [{ url: `${SITE_URL}/Logo.png` }],
+    },
+    twitter: {
+      card: "summary",
+      title,
+      description: plainDescription,
+    },
   };
 }
 
-export { ArthaApiError };
+function formatSalary(job: PublicJob) {
+  if (!job.salary_min && !job.salary_max) return null;
+  const curr = job.salary_curr ?? "USD";
+  const fmt = (n: number) => new Intl.NumberFormat("en-US").format(n);
+  if (job.salary_min && job.salary_max) {
+    return `${curr} ${fmt(job.salary_min)}–${fmt(job.salary_max)}`;
+  }
+  return `${curr} ${fmt(job.salary_min ?? job.salary_max!)}+`;
+}
+
+export default async function JobDetailPage({
+  params,
+}: {
+  params: { slug: string };
+}) {
+  const job = await getJob(params.slug);
+  if (!job) notFound();
+
+  const salary = formatSalary(job);
+  const sanitizedDescription = sanitizeJobHtml(job.description);
+
+  const matchHref = `/match?job=${encodeURIComponent(
+    JSON.stringify({
+      title: job.title,
+      description: job.description,
+      skills: job.skills,
+      exp_min: job.exp_min,
+      exp_max: job.exp_max,
+    })
+  )}`;
+
+  // https://schema.org/JobPosting — powers Google for Jobs rich results,
+  // which is the single highest-leverage SEO lever available to a job
+  // board: individual postings can surface directly in Google's dedicated
+  // jobs search UI, not just the ordinary web results list.
+  const jsonLd: Record<string, unknown> = {
+    "@context": "https://schema.org",
+    "@type": "JobPosting",
+    title: job.title,
+    description: job.description,
+    identifier: {
+      "@type": "PropertyValue",
+      name: job.company,
+      value: job.slug,
+    },
+    datePosted: job.posted_date,
+    hiringOrganization: {
+      "@type": "Organization",
+      name: job.company,
+      ...(job.logo ? { logo: job.logo } : {}),
+    },
+    directApply: false,
+  };
+
+  if (job.job_type && EMPLOYMENT_TYPE_SCHEMA[job.job_type]) {
+    jsonLd.employmentType = EMPLOYMENT_TYPE_SCHEMA[job.job_type];
+  }
+
+  if (job.city || job.state || job.country) {
+    jsonLd.jobLocation = {
+      "@type": "Place",
+      address: {
+        "@type": "PostalAddress",
+        ...(job.city ? { addressLocality: job.city } : {}),
+        ...(job.state ? { addressRegion: job.state } : {}),
+        ...(job.country ? { addressCountry: job.country } : {}),
+      },
+    };
+  } else {
+    // No location at all typically means remote on Artha's feed.
+    jsonLd.jobLocationType = "TELECOMMUTE";
+    jsonLd.applicantLocationRequirements = {
+      "@type": "Country",
+      name: job.country ?? "IN",
+    };
+  }
+
+  if (job.salary_min || job.salary_max) {
+    jsonLd.baseSalary = {
+      "@type": "MonetaryAmount",
+      currency: job.salary_curr ?? "USD",
+      value: {
+        "@type": "QuantitativeValue",
+        ...(job.salary_min ? { minValue: job.salary_min } : {}),
+        ...(job.salary_max ? { maxValue: job.salary_max } : {}),
+        unitText: "YEAR",
+      },
+    };
+  }
+
+  return (
+    <main className="min-h-screen bg-paper">
+      {/* eslint-disable-next-line react/no-danger */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
+
+      <div className="max-w-3xl mx-auto px-6 md:px-12 py-10">
+        <Link href="/" className="text-sm text-denim hover:underline">
+          ← Back to all jobs
+        </Link>
+
+        <div className="mt-4 pinned-card p-6 pl-7">
+          <div className="flex items-start gap-4">
+            {job.logo ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={job.logo}
+                alt=""
+                className="h-12 w-12 object-contain shrink-0"
+              />
+            ) : (
+              <div className="h-12 w-12 shrink-0 bg-board text-paper flex items-center justify-center font-display text-xl">
+                {job.company.charAt(0)}
+              </div>
+            )}
+
+            <div className="min-w-0 flex-1">
+              <h1 className="font-display text-2xl leading-snug text-ink">
+                {job.title}
+              </h1>
+              <p className="text-ink/70">{job.company}</p>
+
+              <div className="mt-2 flex flex-wrap gap-x-3 gap-y-1 text-sm text-ink/60">
+                {job.location && <span>{job.location}</span>}
+                {job.job_type && (
+                  <span className="capitalize">
+                    {job.job_type.replace("-", " ")}
+                  </span>
+                )}
+                {salary && (
+                  <span className="text-denim font-medium">{salary}</span>
+                )}
+              </div>
+
+              {job.skills.length > 0 && (
+                <div className="mt-3 flex flex-wrap gap-1.5">
+                  {job.skills.map((skill) => (
+                    <span
+                      key={skill}
+                      className="rounded-full bg-board/10 px-2.5 py-1 text-xs text-ink/70"
+                    >
+                      {skill}
+                    </span>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+
+          <div className="mt-5 flex flex-wrap gap-2">
+            <a
+              href={job.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-block rounded-lg bg-denim px-4 py-2 text-sm font-medium text-paper hover:opacity-90"
+            >
+              Apply →
+            </a>
+            <Link
+              href={matchHref}
+              className="inline-block rounded-lg bg-mustard px-4 py-2 text-sm font-medium text-ink hover:opacity-90"
+            >
+              Match My Resume
+            </Link>
+          </div>
+
+          <div
+            className="mt-6 prose prose-sm max-w-none text-ink/80 border-t border-ink/10 pt-6"
+            // eslint-disable-next-line react/no-danger
+            dangerouslySetInnerHTML={{ __html: sanitizedDescription }}
+          />
+        </div>
+      </div>
+    </main>
+  );
+}
