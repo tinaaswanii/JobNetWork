@@ -179,8 +179,16 @@ export default function Footer() {
                 <path d="m22 6-10 7L2 6" />
               </svg>
               <span>Email</span>
-<a href="https://shipthing.com/projects/jobnetwork?utm_source=badge" target="_blank" rel="noopener noreferrer">
-  <img src="https://shipthing.com/shipthing/images/badges/featured-on-light.svg" alt="Featured on ShipThing" style="height:44px;width:auto"/>
+<a
+  href="https://shipthing.com/projects/jobnetwork?utm_source=badge"
+  target="_blank"
+  rel="noopener noreferrer"
+>
+  <img
+    src="https://shipthing.com/shipthing/images/badges/featured-on-light.svg"
+    alt="Featured on ShipThing"
+    style={{ height: "44px", width: "auto" }}
+  />
 </a>
   
           </div>
