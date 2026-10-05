@@ -1,17 +1,48 @@
 // Prep Trek — role-level interview prep + study content. Deliberately
 // static and field-level, not per-job: a real per-job interview prep
 // feature would need per-employer interview data that no API gives us, so
-// this is the honest, useful version — common questions and a learning
-// path for a role family, the same way a career-center handout would be.
+// this is the honest, useful version — common questions, a 4-week study
+// roadmap, a pre-interview checklist, and curated (real, stable) free
+// resources for a role family, the same way a career-center handout would be.
 
 export type PrepQA = {
   question: string;
   answer: string;
+  // Optional code snippet shown below the answer in a monospace block —
+  // used for tracks (Java, SWE) where a short example clarifies more than
+  // another sentence would.
+  code?: string;
 };
 
 export type LearningStep = {
   title: string;
   description: string;
+};
+
+export type RoadmapWeek = {
+  week: number;
+  title: string;
+  goals: string[];
+};
+
+export type Resource = {
+  name: string;
+  url: string;
+  note: string;
+};
+
+// An on-page teaser for a paid deeper version of a track's content, sold
+// outside this site (via Topmate) rather than through a payment/accounts
+// system this app doesn't have. The page shows what's in it and links out
+// to buy — it never reproduces the paid material itself.
+export type PremiumTeaser = {
+  heading: string;
+  intro: string;
+  bullets: string[];
+  ctaLabel: string;
+  ctaUrl: string;
+  secondaryCtaLabel?: string;
+  secondaryCtaUrl?: string;
 };
 
 export type PrepTrack = {
@@ -22,8 +53,23 @@ export type PrepTrack = {
   overview: string;
   commonQuestions: PrepQA[];
   learningPath: LearningStep[];
+  roadmap: RoadmapWeek[];
+  checklist: string[];
+  resources: Resource[];
   coldMailTips: string[];
+  premium?: PremiumTeaser;
 };
+
+// Shared across every track — the universal, field-agnostic part of
+// getting ready for the interview itself, not the subject matter.
+export const interviewDayChecklist: string[] = [
+  "Re-read the job description and highlight 3 requirements you'll tie your answers back to",
+  "Look up the interviewer(s) on LinkedIn if named in the invite — one shared interest or background note is enough",
+  "Prepare 2-3 questions to ask them — about the role, the team, or what success looks like in 90 days",
+  "Test your camera, mic, and internet 30 minutes before (for virtual interviews) — not 2 minutes before",
+  "Keep a glass of water nearby and have your resume printed or open on a second screen",
+  "Plan your route or login link the night before — arriving stressed undoes all your prep",
+];
 
 export const prepTracks: PrepTrack[] = [
   {
@@ -59,6 +105,11 @@ export const prepTracks: PrepTrack[] = [
         answer:
           "DNS lookup → TCP handshake → (TLS handshake if https) → HTTP request → server processes and responds → browser parses HTML/CSS/JS and renders. You don't need to go deep on every layer — name all the steps, then let the interviewer pick one to go deeper on.",
       },
+      {
+        question: "How would you design a simple rate limiter?",
+        answer:
+          "Name a technique (token bucket or fixed window counter), say what you'd store it in (an in-memory map for a single server, Redis for multiple servers), and flag the one real trade-off: accuracy vs. memory/complexity. You're not expected to write production code for this live.",
+      },
     ],
     learningPath: [
       {
@@ -82,11 +133,242 @@ export const prepTracks: PrepTrack[] = [
           "For new-grad roles, 'design a URL shortener' or 'design a rate limiter' at a surface level is often enough — you're not expected to design Twitter.",
       },
     ],
+    roadmap: [
+      {
+        week: 1,
+        title: "Foundations",
+        goals: [
+          "Pick your two best projects and write a 150-word summary of each (problem, your role, one trade-off)",
+          "Review arrays, strings and hash maps — solve 10 easy problems using only these",
+          "Read one explainer on time/space complexity (Big-O) until you can classify your own code's complexity",
+        ],
+      },
+      {
+        week: 2,
+        title: "Core data structures & patterns",
+        goals: [
+          "Solve 10 problems each on linked lists and trees (easy → medium)",
+          "Learn two-pointer and sliding-window patterns — they solve a disproportionate number of interview questions",
+          "Redo 3 problems you struggled with last week from scratch, without looking at your old solution",
+        ],
+      },
+      {
+        week: 3,
+        title: "Graphs, recursion & mock practice",
+        goals: [
+          "Learn BFS/DFS and solve 8-10 graph/tree traversal problems",
+          "Do 2 timed mock interviews (45 min each) — a friend, a mentor, or recording yourself solving out loud",
+          "Draft spoken answers to your 2 project walkthroughs and the 'tell me about yourself' opener",
+        ],
+      },
+      {
+        week: 4,
+        title: "System design basics & polish",
+        goals: [
+          "Learn the shape of one basic system design answer (URL shortener or rate limiter) end to end",
+          "Do one full mock interview combining a coding question + a project walkthrough + 2 behavioral questions",
+          "Re-review your weakest topic from weeks 1-3 based on what tripped you up in mocks",
+        ],
+      },
+    ],
+    checklist: [
+      "Can explain both chosen projects in under 2 minutes each, without notes",
+      "Comfortable coding on a shared screen or whiteboard, not just in your own IDE",
+      "Know your own code's time/space complexity without being asked",
+      "Have one system-design answer ready end-to-end",
+      "Have 2-3 questions ready about their engineering stack or team structure",
+    ],
+    resources: [
+      { name: "LeetCode", url: "https://leetcode.com", note: "Practice problems, filterable by topic and difficulty" },
+      { name: "freeCodeCamp", url: "https://www.freecodecamp.org", note: "Free full curriculum if any fundamentals feel shaky" },
+      { name: "The Odin Project", url: "https://www.theodinproject.com", note: "Free, project-based full-stack path" },
+    ],
     coldMailTips: [
       "Lead with one specific thing about their engineering work, not 'I'm very interested in your company.'",
       "Link a project, not just a resume attachment — something they can open in one click.",
       "Keep it under 150 words. A long cold email reads as unconfident.",
     ],
+  },
+  {
+    slug: "java",
+    name: "Java Development",
+    tagline: "Core Java interview prep — JDK to JVM internals",
+    emoji: "☕",
+    overview:
+      "Java interviews for fresher and 0-2 year roles lean heavily on fundamentals: OOP, collections, exceptions, and the few multithreading and JVM basics that come up again and again. This track covers 14 of the most common questions in depth — enough to walk in prepared, not just familiar.",
+    commonQuestions: [
+      {
+        question: "What is the difference between JDK, JRE, and JVM?",
+        answer:
+          "The JVM runs bytecode, is platform-specific, and handles memory and garbage collection. The JRE is the JVM plus the core libraries needed to run Java programs. The JDK is the JRE plus development tools like the compiler (javac) and debugger, needed to write and build programs. So JDK contains JRE, which contains JVM — and 'write once, run anywhere' works because javac produces platform-independent bytecode while each OS has its own JVM to run it.",
+      },
+      {
+        question: "Why is Java platform independent?",
+        answer:
+          "Source code compiles to bytecode, not machine code, and any machine with a JVM can run that bytecode. It's the JVM that's platform-specific, not your compiled code — each OS needs its own JVM implementation, but the .class file you ship is the same everywhere.",
+      },
+      {
+        question: "Explain the four pillars of OOP with a Java example.",
+        answer:
+          "Using a payment system as the example: encapsulation keeps a field private with validated getters/setters; inheritance lets a subclass like CreditCardPayment extend a shared Payment base; polymorphism means calling process() on a Payment reference runs whichever subclass's version actually got created; abstraction means an abstract Payment class declares what must be done without callers seeing how.",
+        code: "abstract class Payment {\n  abstract void process();\n}\n\nclass UpiPayment extends Payment {\n  @Override void process() { /* ... */ }\n}\n\nPayment p = new UpiPayment();\np.process(); // resolved at runtime — polymorphism",
+      },
+      {
+        question: "Method overloading vs overriding?",
+        answer:
+          "Overloading happens within the same class — same method name, different parameters, resolved at compile time, and the return type can differ. Overriding happens between a parent and child class — same signature, resolved at runtime, and the return type must be the same or covariant. You cannot override a static, final, or private method.",
+        code: "class Calc {\n  int add(int a, int b) { return a + b; }\n  double add(double a, double b) { return a + b; } // overload\n}\n\nclass Dog extends Animal {\n  @Override void sound() { System.out.println(\"Woof\"); } // override\n}",
+      },
+      {
+        question: "Abstract class vs interface?",
+        answer:
+          "A class can extend only one abstract class but implement many interfaces. An abstract class can hold instance fields and a mix of abstract and concrete methods; an interface traditionally held only constants, though Java 8+ added default and static methods. Abstract classes can have constructors, interfaces can't. Reach for an abstract class for shared base code ('is-a'), an interface for a capability contract ('can-do').",
+      },
+      {
+        question: "Why is String immutable in Java?",
+        answer:
+          "Four reasons: security, since strings often hold things like file paths or usernames that shouldn't mutate after validation; the string pool, which can only safely share literals if nothing can change them; thread safety, since immutable objects never need synchronization; and hash caching, since hashCode() can be computed once and reused, which is why strings make good HashMap keys.",
+      },
+      {
+        question: "String vs StringBuilder vs StringBuffer?",
+        answer:
+          "String is immutable and thread-safe by nature, but slow for repeated edits since every change creates a new object. StringBuilder is mutable and the fastest option, but not thread-safe. StringBuffer is mutable and thread-safe (synchronized), but slower than StringBuilder as a result. Default to StringBuilder for building strings in a loop, and only reach for StringBuffer if multiple threads genuinely share it.",
+      },
+      {
+        question: "Checked vs unchecked exceptions?",
+        answer:
+          "Checked exceptions are verified at compile time — you must handle or declare them — and extend Exception without extending RuntimeException; IOException and SQLException are typical examples. Unchecked exceptions extend RuntimeException and aren't enforced by the compiler, like NullPointerException or ArrayIndexOutOfBoundsException. Errors like OutOfMemoryError are serious JVM-level problems you generally don't try to catch.",
+      },
+      {
+        question: "ArrayList vs LinkedList?",
+        answer:
+          "ArrayList is backed by a dynamic array: O(1) get by index, O(1) amortized add at the end, but O(n) insert/remove in the middle due to shifting. LinkedList is a doubly linked list: O(n) get by index, O(1) add/remove at the ends, and O(1) insert/remove once you've found the node — but finding it is still O(n). In practice, default to ArrayList; it usually wins even for middle inserts because of cache-friendly memory layout.",
+      },
+      {
+        question: "How does HashMap work internally?",
+        answer:
+          "key.hashCode() is computed and spread to pick a bucket index. An empty bucket stores the entry directly; a collision compares keys with equals() — a match replaces the value, otherwise the entry joins that bucket's chain. Since Java 8, a long chain (8+ entries, with a large enough table) converts to a balanced tree, improving worst-case lookup from O(n) to O(log n). When size exceeds capacity times the load factor (default 0.75), the table resizes and redistributes entries. Average get/put is O(1) — and you must override hashCode() whenever you override equals(), or equal objects can land in different buckets and the map simply won't find them.",
+      },
+      {
+        question: "Two ways to create a thread? Which is better?",
+        answer:
+          "Extend Thread and override run(), or implement Runnable and pass it to a Thread. Runnable is generally preferred: Java has single inheritance, so extending Thread uses up your one chance, and Runnable cleanly separates the task from the threading mechanism. In real projects, an ExecutorService is better than creating threads manually either way. One common trap: calling start() creates a new thread, while calling run() directly just runs it like a normal method on the current thread.",
+      },
+      {
+        question: "What are lambda expressions and functional interfaces?",
+        answer:
+          "A functional interface has exactly one abstract method — Runnable, Comparator, and Function are common examples. A lambda is a short way to implement one inline, without a named class. The most-used built-ins are Predicate<T> for a boolean test, Function<T,R> for a transform, Consumer<T> for using a value, and Supplier<T> for providing one.",
+        code: "Runnable r = () -> System.out.println(\"hello\");\nComparator<Integer> c = (a, b) -> b - a;",
+      },
+      {
+        question: "What is the Stream API? Give an example.",
+        answer:
+          "Streams process collections declaratively, in three stages: a source, lazy intermediate operations, and one terminal operation that actually triggers execution. They read like a pipeline and avoid writing explicit loops for common filter/transform/collect work.",
+        code: "List<String> result = names.stream()\n    .filter(n -> n.startsWith(\"A\"))\n    .map(String::toUpperCase)\n    .sorted()\n    .collect(Collectors.toList());",
+      },
+      {
+        question: "Stack vs heap memory?",
+        answer:
+          "The stack holds method call frames, local variables, and object references — it's per-thread, fast, and automatically cleaned up when a method returns. The heap holds the actual objects and is shared across all threads, managed by the garbage collector. A StackOverflowError happens when the stack fills up (usually deep or infinite recursion); an OutOfMemoryError happens when the heap fills up.",
+      },
+    ],
+    learningPath: [
+      {
+        title: "Core Java & OOP, cold",
+        description:
+          "Work through JDK/JRE/JVM, the four OOP pillars, and overloading vs overriding until you can explain each without rereading your own notes.",
+      },
+      {
+        title: "Strings, exceptions, collections",
+        description:
+          "String immutability, checked vs unchecked exceptions, and ArrayList/HashMap internals — the section most fresher interviews spend the most time on.",
+      },
+      {
+        title: "Threads, Java 8+, and the JVM",
+        description:
+          "Just enough multithreading to not freeze up, plus lambdas, streams, and the stack/heap split — this is usually a smaller slice of the interview, not the whole thing.",
+      },
+      {
+        title: "Run it like a real interview",
+        description:
+          "Use the 60-minute mock structure (intro, DSA, fundamentals, project, close) at least twice before the real thing.",
+      },
+    ],
+    roadmap: [
+      {
+        week: 1,
+        title: "Core Java & OOP foundations",
+        goals: [
+          "Explain JDK vs JRE vs JVM and why Java is platform independent, without notes",
+          "Write your own small example (not the payment one above) that clearly shows all four OOP pillars",
+          "Drill overloading vs overriding and abstract class vs interface until the distinctions are automatic",
+        ],
+      },
+      {
+        week: 2,
+        title: "Strings, exceptions & collections",
+        goals: [
+          "Explain all 4 reasons String is immutable, and when you'd reach for StringBuilder instead",
+          "Practice checked vs unchecked exceptions with your own example of each",
+          "Be able to explain HashMap's bucket/collision/resize behavior end to end, including why hashCode() and equals() must agree",
+        ],
+      },
+      {
+        week: 3,
+        title: "Multithreading, Java 8+ & JVM",
+        goals: [
+          "Explain the two ways to create a thread and justify why Runnable is usually preferred",
+          "Write one lambda expression and one short stream pipeline from scratch, live",
+          "Explain stack vs heap, and what causes a StackOverflowError vs an OutOfMemoryError",
+        ],
+      },
+      {
+        week: 4,
+        title: "Mock interviews",
+        goals: [
+          "Run the 60-minute mock structure at least twice: intro, DSA, fundamentals rapid-fire, project deep dive, close",
+          "Solve Two Sum and Valid Parentheses using the 7-step protocol, narrating your reasoning out loud",
+          "Prepare one STAR-format story about a bug or technical disagreement, timed under 90 seconds",
+        ],
+      },
+    ],
+    checklist: [
+      "Can explain == vs .equals(), and why a custom class must override equals() alongside hashCode()",
+      "Comfortable explaining HashMap's internal bucket/collision/resize behavior end to end",
+      "Know both ways to create a thread and can justify why Runnable is usually preferred",
+      "Can write a lambda expression and a simple stream pipeline live, without references",
+      "Completed at least one full 60-minute mock interview covering DSA, fundamentals, a project, and behavioral questions",
+      "Have one STAR-format project or bug story ready to tell in under 90 seconds",
+    ],
+    resources: [
+      { name: "Oracle Java Documentation", url: "https://docs.oracle.com/en/java/", note: "The official spec — good for settling any 'but what does it actually say' question" },
+      { name: "Baeldung", url: "https://www.baeldung.com", note: "Free, detailed write-ups on nearly every Core Java and Collections topic" },
+      { name: "GeeksforGeeks — Java", url: "https://www.geeksforgeeks.org/java/", note: "Free practice questions and explanations by topic" },
+      { name: "LeetCode", url: "https://leetcode.com", note: "For the DSA side of the interview, filterable by language and topic" },
+    ],
+    coldMailTips: [
+      "Lead with one specific thing about their engineering work, not 'I'm very interested in your company.'",
+      "Link a project, not just a resume attachment — something they can open in one click.",
+      "Keep it under 150 words. A long cold email reads as unconfident.",
+    ],
+    premium: {
+      heading: "Prep Trek Premium: Java Black Belt",
+      intro:
+        "This free track covers 14 of the 44 questions in the full Java Interview Q&A Bank, 2 of the 6 DSA mock problems, and none of the visual Java Black Belt notes. Premium picks up exactly where this leaves off.",
+      bullets: [
+        "30 more Q&A answers: == vs .equals(), static/final, access modifiers, wrapper classes, the full Collections set (HashMap vs ConcurrentHashMap, TreeSet, Comparable vs Comparator, fail-fast iterators), multithreading (synchronization, volatile, deadlock, thread pools), Java 8+ (Optional, map vs flatMap), and JVM internals & garbage collection",
+        "The output-prediction drill — the 'what does this print?' trap questions interviewers love",
+        "4 more DSA mock problems (linked lists, cycle detection, tree traversal, binary search traps) with graded hints",
+        "13 more CS fundamentals answers across OOP, DBMS, Operating Systems and Computer Networks",
+        "The project deep-dive question bank plus a fill-in answer template",
+        "12 behavioral questions to rehearse, an interviewer scorecard, a peer-mock script, and a full 4-week mock schedule",
+        "Java Black Belt visual notes — Core Java, Collections, and Threads, plus a traps quiz with an answer key",
+      ],
+      ctaLabel: "Get full access on Topmate",
+      ctaUrl: "https://topmate.io/getyourjob",
+      secondaryCtaLabel: "Book a 1:1 mock interview",
+      secondaryCtaUrl: "https://topmate.io/getyourjob",
+    },
   },
   {
     slug: "data-analytics",
@@ -116,6 +398,11 @@ export const prepTracks: PrepTrack[] = [
         answer:
           "Pick a story with a concrete before/after, even from a class project or personal analysis if you lack work experience — the key is showing the chain from data to insight to action.",
       },
+      {
+        question: "How would you explain a p-value to a non-technical manager?",
+        answer:
+          "Avoid the textbook definition. Something like: 'it's how likely we'd see a result this strong just by chance, if there was actually no real effect — low means the effect is probably real.' Simple and correct beats precise and confusing.",
+      },
     ],
     learningPath: [
       {
@@ -133,6 +420,56 @@ export const prepTracks: PrepTrack[] = [
         description:
           "Be able to explain p-value, correlation vs. causation, and sample size in one plain sentence each — interviewers often test for this specifically.",
       },
+    ],
+    roadmap: [
+      {
+        week: 1,
+        title: "SQL fundamentals",
+        goals: [
+          "Drill SELECT, WHERE, GROUP BY, HAVING and all join types until you don't need to look up syntax",
+          "Solve 15-20 SQL practice problems, including at least 5 using window functions",
+          "Pick a public dataset (government open data, Kaggle) for your end-to-end project",
+        ],
+      },
+      {
+        week: 2,
+        title: "One real analysis project",
+        goals: [
+          "Clean your chosen dataset and document every cleaning decision you made and why",
+          "Find one genuinely non-obvious insight — not just 'sales went up'",
+          "Build 2-3 clear charts and write 3-4 sentences explaining what each one shows a non-technical reader",
+        ],
+      },
+      {
+        week: 3,
+        title: "Statistics & case practice",
+        goals: [
+          "Review mean/median/variance, correlation vs. causation, and p-values until you can explain each in one plain sentence",
+          "Practice 3-4 'investigate this metric drop' style case questions out loud, timed to 5-10 minutes each",
+          "Learn to sanity-check: always ask 'could this be a tracking/data issue?' before a business hypothesis",
+        ],
+      },
+      {
+        week: 4,
+        title: "Storytelling & mock interviews",
+        goals: [
+          "Turn your project into a 3-minute spoken walkthrough: problem → approach → finding → so what",
+          "Do one full mock interview: a SQL question, a case question, and your project walkthrough",
+          "Prepare 2-3 questions about their data stack, data quality practices, or how analytics is used in decisions",
+        ],
+      },
+    ],
+    checklist: [
+      "Comfortable writing a join and a window-function query from scratch, live, without references",
+      "Can explain your end-to-end project in under 3 minutes to a non-technical listener",
+      "Can define p-value, correlation vs. causation, and sample size in plain language",
+      "Have a structured approach ready for 'investigate this metric' style questions",
+      "Have 2-3 questions ready about their data stack or how analytics drives decisions",
+    ],
+    resources: [
+      { name: "Mode SQL Tutorial", url: "https://mode.com/sql-tutorial/", note: "Free, practical SQL tutorial built around real query practice" },
+      { name: "Kaggle", url: "https://www.kaggle.com", note: "Free datasets and notebooks for your end-to-end project" },
+      { name: "Khan Academy — Statistics", url: "https://www.khanacademy.org/math/statistics-probability", note: "Free refresher on core stats concepts" },
     ],
     coldMailTips: [
       "Reference a specific metric or public report from their company if one exists — shows real homework.",
@@ -168,6 +505,11 @@ export const prepTracks: PrepTrack[] = [
         answer:
           "Generic 'I like talking to people' answers are weak. Connect a real trait (persistence, curiosity about a specific industry) to something concrete about what this company sells and who it sells to.",
       },
+      {
+        question: "How would you prioritize 50 leads with limited time?",
+        answer:
+          "Name a real criterion (company size, buying signal, past engagement) rather than 'I'd call them all' — show you understand time is the scarce resource in sales, not effort.",
+      },
     ],
     learningPath: [
       {
@@ -185,6 +527,55 @@ export const prepTracks: PrepTrack[] = [
         description:
           "Before any interview, know who the company sells to and one real pain point that customer has — this comes up constantly in sales interviews specifically.",
       },
+    ],
+    roadmap: [
+      {
+        week: 1,
+        title: "Frameworks & company research",
+        goals: [
+          "Learn one sales framework (SPIN, or a simple discovery-before-pitch model) well enough to name its steps unprompted",
+          "Research 2-3 target companies deeply: who they sell to, one real customer pain point, one recent news item",
+          "Write your 'why sales' story and read it out loud until it doesn't sound memorized",
+        ],
+      },
+      {
+        week: 2,
+        title: "Roleplay practice",
+        goals: [
+          "Practice 'sell me X' roleplay with a friend or by recording yourself, 5 different objects",
+          "Write out 3 common objections in your target field and a discovery-first response to each",
+          "Draft and read aloud a 30-second cold call opener until it's natural, not scripted-sounding",
+        ],
+      },
+      {
+        week: 3,
+        title: "Resilience & numbers",
+        goals: [
+          "Prepare 2 real rejection stories using STAR structure (situation, task, action, result)",
+          "Learn the basic sales vocabulary: quota, pipeline, conversion rate, churn — be able to use each correctly in a sentence",
+          "Practice a prioritization question ('50 leads, limited time') with a clear, stated criterion",
+        ],
+      },
+      {
+        week: 4,
+        title: "Mock interviews & polish",
+        goals: [
+          "Do 2 full mock interviews including at least one live roleplay round",
+          "Tighten your cold-email template using the field-specific tips below",
+          "Prepare 2-3 questions about their sales process, quota structure, or ramp-up time for new hires",
+        ],
+      },
+    ],
+    checklist: [
+      "Can do a 'sell me this' roleplay opening with a discovery question, not a pitch",
+      "Have 2 rejection/resilience stories ready in STAR format",
+      "Comfortable using quota, pipeline, and conversion rate correctly in conversation",
+      "Know who your target company sells to and one real pain point of that customer",
+      "Have 2-3 questions ready about quota structure or ramp-up time",
+    ],
+    resources: [
+      { name: "HubSpot Sales Blog", url: "https://blog.hubspot.com/sales", note: "Free, practical articles on frameworks and objection handling" },
+      { name: "Glassdoor Interview Questions", url: "https://www.glassdoor.com/Interview/index.htm", note: "Search real, company-specific sales interview questions" },
     ],
     coldMailTips: [
       "Short and punchy — sales hiring managers expect you to demonstrate good copywriting in the email itself.",
@@ -215,6 +606,11 @@ export const prepTracks: PrepTrack[] = [
         answer:
           "Avoid generic answers like 'Nike's marketing.' Pick something specific and recent, and explain the mechanism (why it worked on its audience), not just that you liked it.",
       },
+      {
+        question: "Pitch me 3 content ideas for our brand, right now.",
+        answer:
+          "Skim their recent posts for 30 seconds before this comes up if you can. Give 3 genuinely different angles (not 3 variations of the same idea), and briefly say who each one targets.",
+      },
     ],
     learningPath: [
       {
@@ -232,6 +628,55 @@ export const prepTracks: PrepTrack[] = [
         description:
           "Many marketing interviews include an on-the-spot 'pitch me 3 content ideas for X' — practice generating ideas quickly and explaining the reasoning behind each.",
       },
+    ],
+    roadmap: [
+      {
+        week: 1,
+        title: "Portfolio audit",
+        goals: [
+          "Pick your 3-5 strongest pieces of work and write one sentence each on the goal, the result, and why it worked",
+          "If you lack real work, create 2 sample pieces (a post, a short video script, a landing page headline) for a brand you admire",
+          "Learn funnel vocabulary (awareness/consideration/conversion/retention) and match each past piece to a stage",
+        ],
+      },
+      {
+        week: 2,
+        title: "Metrics & measurement",
+        goals: [
+          "For each portfolio piece, identify the one metric that actually mattered for its goal",
+          "Learn to read basic analytics screenshots (engagement rate, CTR, reach) if you haven't worked with them directly",
+          "Write a short case study format you can reuse: goal → approach → result → learning",
+        ],
+      },
+      {
+        week: 3,
+        title: "Ideation practice",
+        goals: [
+          "Practice the 'pitch me 3 ideas' exercise for 5 different hypothetical brands, timed to 2 minutes each",
+          "Research 2-3 target companies' recent content/campaigns so you have real material to reference",
+          "Write your 'brand or campaign I admire' answer and make sure it names a specific mechanism, not just a vibe",
+        ],
+      },
+      {
+        week: 4,
+        title: "Mock interviews & polish",
+        goals: [
+          "Do 1-2 full mock interviews including a live on-the-spot ideation round",
+          "Tighten your portfolio down to the 3 strongest pieces — cut anything you can't defend under questioning",
+          "Prepare 2-3 questions about their content strategy or team structure",
+        ],
+      },
+    ],
+    checklist: [
+      "Have 3-5 portfolio pieces, each with a goal, metric, and result memorized",
+      "Can name the right metric for a given campaign goal without hesitating",
+      "Practiced the 'pitch me 3 ideas' exercise at least 5 times under a 2-minute timer",
+      "Have a specific, mechanism-based answer for 'a campaign you admire'",
+      "Have 2-3 questions ready about their content strategy or team",
+    ],
+    resources: [
+      { name: "HubSpot Academy", url: "https://academy.hubspot.com", note: "Free courses on content, social and inbound marketing" },
+      { name: "Google Analytics Academy", url: "https://analytics.google.com/analytics/academy/", note: "Free, if you need basic metrics fluency" },
     ],
     coldMailTips: [
       "Show, don't tell — link your best piece of work directly in the first two lines.",
@@ -262,6 +707,11 @@ export const prepTracks: PrepTrack[] = [
         answer:
           "Any real example counts, even informal ones (reorganizing a shared doc, creating a checklist). The key is showing you noticed inefficiency and acted without being told to.",
       },
+      {
+        question: "What would you do if you didn't know the answer to a customer's question?",
+        answer:
+          "The expected answer is about process, not bluffing: say you'd be honest that you need to check, tell them a realistic timeline, and actually follow up — not disappear or guess.",
+      },
     ],
     learningPath: [
       {
@@ -274,6 +724,55 @@ export const prepTracks: PrepTrack[] = [
         description:
           "Practice 'what would you do if you didn't know the answer to a customer's question' — the expected answer is about process (checking resources, escalating correctly), not bluffing.",
       },
+    ],
+    roadmap: [
+      {
+        week: 1,
+        title: "STAR stories",
+        goals: [
+          "Learn the STAR structure (Situation, Task, Action, Result) and write out 4 real work/life stories using it",
+          "Make sure at least one story covers a difficult person, one covers prioritization, and one covers a process you improved",
+          "Practice saying each story out loud in under 90 seconds",
+        ],
+      },
+      {
+        week: 2,
+        title: "Tools & ambiguity",
+        goals: [
+          "If the role lists a tool (Zendesk, Intercom, Freshdesk, Notion), spend 1-2 hours in its free trial or documentation",
+          "Practice answering 'what if you don't know the answer' with a clear, honest process rather than guessing",
+          "Write out your own prioritization method for 'five urgent things at once' in plain, repeatable steps",
+        ],
+      },
+      {
+        week: 3,
+        title: "Mock interviews",
+        goals: [
+          "Do 2 mock interviews focused entirely on behavioral questions",
+          "Practice staying calm and structured even when a mock question catches you off guard",
+          "Refine your weakest STAR story based on mock feedback",
+        ],
+      },
+      {
+        week: 4,
+        title: "Final polish",
+        goals: [
+          "Review all 4 STAR stories until you can tell each without sounding rehearsed",
+          "Prepare 2-3 questions about team structure, escalation paths, or what good performance looks like in this role",
+          "Do one final run-through of your tool familiarity if the role names a specific platform",
+        ],
+      },
+    ],
+    checklist: [
+      "Have 4 STAR stories ready: a difficult customer, a prioritization call, a process improvement, and a mistake you owned",
+      "Can explain your own prioritization method in plain, repeatable steps",
+      "Have a clear, honest process for 'what if you don't know the answer'",
+      "Familiar with any tool specifically named in the job listing",
+      "Have 2-3 questions ready about escalation paths or what good performance looks like",
+    ],
+    resources: [
+      { name: "Zendesk Help Center (public docs)", url: "https://support.zendesk.com", note: "Free way to get familiar with a widely-used support tool" },
+      { name: "Indeed Career Guide — Customer Service", url: "https://www.indeed.com/career-advice/interviewing", note: "General interview-question practice by role" },
     ],
     coldMailTips: [
       "Mention a specific tool you know (Zendesk, Intercom, Notion) if the role lists one — operational roles value tool familiarity.",
@@ -303,6 +802,11 @@ export const prepTracks: PrepTrack[] = [
         answer:
           "Research/understand the user and constraints → sketch multiple directions (not just one) → test or validate → refine. Naming more than one direction you considered shows range, not just taste.",
       },
+      {
+        question: "Critique this screen (shown live or sent beforehand).",
+        answer:
+          "Don't just list flaws. Structure it: what's the screen's goal, what works toward that goal, what works against it, and one concrete fix you'd try — critique with a point of view, not a list of nitpicks.",
+      },
     ],
     learningPath: [
       {
@@ -320,6 +824,55 @@ export const prepTracks: PrepTrack[] = [
         description:
           "Wireframe, user flow, affordance, information architecture — enough fluency to not stumble over vocabulary in a review.",
       },
+    ],
+    roadmap: [
+      {
+        week: 1,
+        title: "Portfolio curation",
+        goals: [
+          "Pick your 3-5 strongest case studies and cut everything else from your main portfolio",
+          "For each, write the problem statement in one sentence before describing any visuals",
+          "Identify one real trade-off you made in each project and one thing you'd change with more time",
+        ],
+      },
+      {
+        week: 2,
+        title: "Process & vocabulary",
+        goals: [
+          "Learn core UX vocabulary: wireframe, user flow, affordance, information architecture, usability testing",
+          "Write out your design process in your own words (research → sketch → validate → refine, or your own version)",
+          "Practice narrating one case study's process out loud, focusing on 'why' at each step",
+        ],
+      },
+      {
+        week: 3,
+        title: "Critique & feedback practice",
+        goals: [
+          "Practice critiquing 3 real apps/websites using the structure: goal → what works → what doesn't → one fix",
+          "Prepare 2 feedback stories: one where you pushed back successfully, one where you changed your mind",
+          "Get a mentor or peer to mock-review one case study and ask hard questions",
+        ],
+      },
+      {
+        week: 4,
+        title: "Mock interviews & polish",
+        goals: [
+          "Do a full portfolio walkthrough mock interview, timed to how long you'd actually get (usually 15-20 min)",
+          "Practice a live whiteboard/sketch exercise for a hypothetical brief if the role might include one",
+          "Prepare 2-3 questions about their design process, team size, or how design and engineering collaborate",
+        ],
+      },
+    ],
+    checklist: [
+      "Portfolio trimmed to 3-5 case studies you can defend in depth",
+      "Each case study opens with the problem, not the visuals",
+      "Comfortable using wireframe, user flow, affordance, and information architecture correctly",
+      "Have 2 feedback stories ready: pushing back, and changing your mind",
+      "Have 2-3 questions ready about their design process or team collaboration",
+    ],
+    resources: [
+      { name: "Nielsen Norman Group", url: "https://www.nngroup.com/articles/", note: "Free, well-respected UX articles and vocabulary" },
+      { name: "Behance", url: "https://www.behance.net", note: "Free portfolio hosting and inspiration from other designers" },
     ],
     coldMailTips: [
       "Always link the portfolio directly — never make someone hunt for it.",
