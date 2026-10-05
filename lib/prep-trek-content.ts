@@ -365,7 +365,7 @@ export const prepTracks: PrepTrack[] = [
         "Java Black Belt visual notes — Core Java, Collections, and Threads, plus a traps quiz with an answer key",
       ],
       ctaLabel: "Get full access on Topmate",
-      ctaUrl: "https://topmate.io/getyourjob",
+      ctaUrl: "https://topmate.io/getyourjob/2333816?utm_source=public_profile&utm_campaign=getyourjob",
       secondaryCtaLabel: "Book a 1:1 mock interview",
       secondaryCtaUrl: "https://topmate.io/getyourjob",
     },
