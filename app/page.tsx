@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
+import Link from "next/link";
 import { getJobsPage } from "@/lib/jobs";
 import JobsBoard from "@/components/JobsBoard";
+import { prepTracks } from "@/lib/prep-trek-content";
 
 export const revalidate = 300;
 
@@ -160,6 +162,45 @@ export default async function HomePage() {
                 recent graduates and people starting their careers.
               </p>
             </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Prep Trek teaser */}
+      <section className="border-t px-6 py-16 md:px-12">
+        <div className="mx-auto max-w-5xl">
+          <div className="flex flex-wrap items-end justify-between gap-4">
+            <div className="max-w-2xl">
+              <h2 className="font-display text-3xl md:text-4xl">
+                🧭 Prep Trek — get interview-ready
+              </h2>
+              <p className="mt-3 text-muted-foreground">
+                Common interview questions with real answers, a short
+                learning path, and cold-mail tips — by field.
+              </p>
+            </div>
+            <Link
+              href="/prep-trek"
+              className="text-sm font-semibold text-ink hover:text-ink/70"
+            >
+              See all tracks →
+            </Link>
+          </div>
+
+          <div className="mt-8 grid gap-4 sm:grid-cols-2 md:grid-cols-3">
+            {prepTracks.slice(0, 3).map((track) => (
+              <Link
+                key={track.slug}
+                href={`/prep-trek/${track.slug}`}
+                className="pinned-card block p-5 pl-7 transition hover:-translate-y-0.5"
+              >
+                <div className="text-2xl">{track.emoji}</div>
+                <h3 className="mt-3 font-semibold">{track.name}</h3>
+                <p className="mt-2 text-sm leading-6 text-ink/70">
+                  {track.tagline}
+                </p>
+              </Link>
+            ))}
           </div>
         </div>
       </section>
