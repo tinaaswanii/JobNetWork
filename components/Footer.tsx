@@ -76,6 +76,7 @@ const socialLinks = [
 
 const exploreLinks = [
   { name: "Jobs", href: "/" },
+  { name: "Prep Trek", href: "/prep-trek" },
   { name: "About", href: "/about" },
 ];
 
