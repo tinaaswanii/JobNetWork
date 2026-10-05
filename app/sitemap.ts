@@ -1,5 +1,6 @@
 import type { MetadataRoute } from "next";
 import { supabaseAdmin } from "@/lib/supabase";
+import { prepTracks } from "@/lib/prep-trek-content";
 
 // Sitemaps can hold up to 50,000 URLs; cap well under that for now so this
 // stays fast and we're not submitting a sitemap a search engine will choke
@@ -22,6 +23,18 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       changeFrequency: "monthly",
       priority: 0.7,
     },
+    {
+      url: `${baseUrl}/prep-trek`,
+      lastModified: new Date(),
+      changeFrequency: "monthly",
+      priority: 0.7,
+    },
+    ...prepTracks.map((t) => ({
+      url: `${baseUrl}/prep-trek/${t.slug}`,
+      lastModified: new Date(),
+      changeFrequency: "monthly" as const,
+      priority: 0.6,
+    })),
   ];
 
   const db = supabaseAdmin();
