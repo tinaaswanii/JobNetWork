@@ -64,13 +64,20 @@ export default function PrepTrekIndexPage() {
               href={`/prep-trek/${track.slug}`}
               className="pinned-card block p-6 pl-8 transition hover:-translate-y-0.5"
             >
-              <div className="text-3xl">{track.emoji}</div>
+              <div className="flex items-start justify-between gap-2">
+                <div className="text-3xl">{track.emoji}</div>
+                {track.premium && (
+                  <span className="rounded-full bg-mustard px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wide text-ink">
+                    Premium available
+                  </span>
+                )}
+              </div>
               <h2 className="mt-3 font-display text-xl">{track.name}</h2>
               <p className="mt-2 text-sm leading-6 text-ink/70">
                 {track.tagline}
               </p>
               <p className="mt-3 text-xs font-medium uppercase tracking-wide text-ink/40">
-                {track.commonQuestions.length} questions · {track.learningPath.length}-step path →
+                {track.commonQuestions.length} questions · {track.roadmap.length}-week roadmap →
               </p>
             </Link>
           ))}
