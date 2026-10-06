@@ -91,6 +91,46 @@ export default function PrepTrackPage({
       </header>
 
       <section className="mx-auto max-w-4xl space-y-12 px-6 py-12 md:px-12">
+        {/* Free PDF download — the same content below, typeset to actually
+            study from instead of scrolling a long page */}
+        {track.freeDownload && (
+          <div className="rounded-xl border-2 border-board bg-paper p-6 pl-8 md:p-8 md:pl-10">
+            <div className="flex flex-col gap-5 md:flex-row md:items-center md:justify-between">
+              <div>
+                <span className="inline-block rounded-full bg-board px-3 py-1 text-xs font-semibold uppercase tracking-wide text-paper">
+                  Free download
+                </span>
+                <h2 className="mt-3 font-display text-xl md:text-2xl">
+                  {track.freeDownload.label}
+                </h2>
+                <p className="mt-2 max-w-xl text-sm leading-6 text-ink/70">
+                  {track.freeDownload.note}
+                </p>
+              </div>
+              <a
+                href={track.freeDownload.url}
+                download
+                className="inline-flex shrink-0 items-center justify-center rounded-lg bg-board px-6 py-3 text-sm font-semibold text-paper transition hover:bg-boardDark"
+              >
+                Download PDF ↓
+              </a>
+            </div>
+
+            {track.premium && (
+              <div className="mt-5 border-t border-ink/10 pt-5">
+                <a
+                  href={track.premium.ctaUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center text-sm font-semibold text-ink underline decoration-mustard decoration-2 underline-offset-4 hover:text-ink/70"
+                >
+                  Want the full 44-question pack, or a 1:1 mock review? Book it on Topmate →
+                </a>
+              </div>
+            )}
+          </div>
+        )}
+
         {/* Common questions */}
         <div>
           <h2 className="font-display text-2xl">Common interview questions</h2>
