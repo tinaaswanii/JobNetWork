@@ -56,6 +56,52 @@ export default function PrepTrekIndexPage() {
         </div>
       </header>
 
+      {/* Founder note — real credibility, not a generic "about us" blurb */}
+      <section className="border-b px-6 py-10 md:px-12">
+        <div className="mx-auto max-w-5xl">
+          <div className="pinned-card flex flex-col gap-4 p-6 pl-8 md:flex-row md:items-center md:gap-8 md:p-8 md:pl-10">
+            <div className="text-4xl">👋</div>
+            <p className="text-sm leading-7 text-ink/75 md:text-base">
+              <span className="font-semibold text-ink">
+                Built by someone who's actually been through it.
+              </span>{" "}
+              I'm Tina — a BCA graduate who went into placement season with
+              the same last-minute panic Prep Trek exists to fix. I ended up
+              with 4 offers (Accenture, Deloitte, Innove8, and Cognizant) and
+              got my resume shortlisted at Google and Amazon. These are the
+              same notes and drills I actually used to prepare — I'm a job
+              seeker too, not a career coach writing from the outside.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      {/* Featured: interactive flashcard page, not a track, so it's called
+          out on its own rather than squeezed into the track grid below */}
+      <section className="mx-auto max-w-5xl px-6 pt-12 md:px-12">
+        <a
+          href="/prep-trek/common-questions.html"
+          className="flex flex-col gap-4 rounded-xl border-2 border-board bg-paper p-6 pl-8 transition hover:-translate-y-0.5 md:flex-row md:items-center md:justify-between md:p-8 md:pl-10"
+        >
+          <div>
+            <span className="inline-block rounded-full bg-board px-3 py-1 text-xs font-semibold uppercase tracking-wide text-paper">
+              Interactive
+            </span>
+            <h2 className="mt-3 font-display text-xl md:text-2xl">
+              🎤 Interview Questions, Answered Like a Pro
+            </h2>
+            <p className="mt-2 max-w-xl text-sm leading-6 text-ink/70">
+              7 tappable flashcards with the exact structure to answer the
+              questions every interviewer asks — tell me about yourself,
+              weaknesses, STAR, and more. Free, no sign-up.
+            </p>
+          </div>
+          <span className="inline-flex shrink-0 items-center justify-center rounded-lg bg-board px-6 py-3 text-sm font-semibold text-paper">
+            Open flashcards →
+          </span>
+        </a>
+      </section>
+
       <section className="mx-auto max-w-5xl px-6 py-12 md:px-12">
         <div className="grid gap-5 md:grid-cols-2">
           {prepTracks.map((track) => (
