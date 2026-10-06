@@ -12,7 +12,7 @@ export type Testimonial = {
 export const testimonials: Testimonial[] = [
   {
     quote:
-      "I built Prep Trek from my own placement season — the same panic, the same last-minute scramble. These are the actual notes and drills I used.",
+      "I built JobNetWork from my own placement season — the same panic, the same last-minute scramble.",
     name: "Tina",
     role: "Creator of Prep Trek · 4 offers (Accenture, Deloitte, Innove8, Cognizant) · resume shortlisted at Google & Amazon",
   },
