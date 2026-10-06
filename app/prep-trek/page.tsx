@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { prepTracks } from "@/lib/prep-trek-content";
+import Testimonials from "@/components/Testimonials";
 
 const SITE_URL = "https://job-net-work.vercel.app";
 
@@ -129,6 +130,8 @@ export default function PrepTrekIndexPage() {
           ))}
         </div>
       </section>
+
+      <Testimonials />
     </main>
   );
 }
