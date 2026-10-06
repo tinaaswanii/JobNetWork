@@ -161,7 +161,7 @@ export default function Footer() {
               <span>Feedback</span>
             </a>
 
-                       {/* Email */}
+            {/* Email */}
             <a
               href="mailto:thedigitalldreamerr@gmail.com"
               aria-label="Email JobNetWork"
@@ -181,31 +181,61 @@ export default function Footer() {
               </svg>
               <span>Email</span>
             </a>
-{/* ShipThing */}
-<a
-  href="https://shipthing.com/projects/jobnetwork?utm_source=badge"
-  target="_blank"
-  rel="noopener noreferrer"
->
-  <img
-    src="https://shipthing.com/shipthing/images/badges/featured-on-light.svg"
-    alt="Featured on ShipThing"
-    style={{ height: "44px", width: "auto" }}
-  />
-</a>
 
-{/* Looking For Tools */}
-<a
-  href="https://lookingfortools.com/projects/jobnetwork?utm_source=badge"
-  target="_blank"
-  rel="noopener noreferrer"
->
-  <img
-    src="https://lookingfortools.com/lookingfortools/images/badges/featured-on-light.svg"
-    alt="Featured on Looking For Tools"
-    style={{ height: "44px", width: "auto" }}
-  />
-</a>
+            {/* Topmate */}
+            <a
+              href="https://topmate.io/getyourjob/page/WRpfovg9ud?utm_medium=email&utm_source=spotlight#offers"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="Book a 1:1 session with JobNetWork"
+              title="Book a 1:1 Session"
+              className="inline-flex items-center gap-2 rounded-lg border px-3 py-2 text-sm font-medium transition hover:-translate-y-0.5 hover:bg-muted/40 sm:px-4"
+            >
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                className="h-5 w-5"
+                aria-hidden="true"
+              >
+                <path d="M6 3h12a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z" />
+                <path d="M8 7h8M8 11h8M8 15h5" />
+              </svg>
+              <span>Book a 1:1 Session</span>
+            </a>
+
+            {/* ShipThing */}
+            <a
+              href="https://shipthing.com/projects/jobnetwork?utm_source=badge"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="Featured on ShipThing"
+              title="Featured on ShipThing"
+              className="inline-flex items-center"
+            >
+              <img
+                src="https://shipthing.com/shipthing/images/badges/featured-on-light.svg"
+                alt="Featured on ShipThing"
+                style={{ height: "44px", width: "auto" }}
+              />
+            </a>
+
+            {/* Looking For Tools */}
+            <a
+              href="https://lookingfortools.com/projects/jobnetwork?utm_source=badge"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="Featured on Looking For Tools"
+              title="Featured on Looking For Tools"
+              className="inline-flex items-center"
+            >
+              <img
+                src="https://lookingfortools.com/lookingfortools/images/badges/featured-on-light.svg"
+                alt="Featured on Looking For Tools"
+                style={{ height: "44px", width: "auto" }}
+              />
+            </a>
           </div>
         </div>
 
