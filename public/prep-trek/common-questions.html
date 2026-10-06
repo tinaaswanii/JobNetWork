@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="7 free interactive flashcards covering the most common interview questions — tell me about yourself, strengths and weaknesses, STAR method, and more — with sample answers, by Prep Trek.">
+<link rel="canonical" href="https://job-net-work.vercel.app/prep-trek/common-questions.html">
+<title>Prep Trek: Common Interview Questions</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#f6f4ff;--grid:#e3defa;--ink:#1b1b3a;--mut:#555880;--card:#fff;--soft:#f0edff;--sh:#1b1b3a;--c1:#ff7a1a;--c2:#2ec4a6;--c3:#ffd23f;--c4:#ff6b9d;--c5:#7c6cff;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#14132b;--grid:#211f45;--ink:#f1efff;--mut:#aaa8d6;--card:#1e1c3d;--soft:#2a2759;--sh:#000}}
+:root[data-theme="dark"]{--bg:#14132b;--grid:#211f45;--ink:#f1efff;--mut:#aaa8d6;--card:#1e1c3d;--soft:#2a2759;--sh:#000}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background-color:var(--bg);background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);background-size:28px 28px;color:var(--ink);font-family:"Bricolage Grotesque",system-ui,-apple-system,"Segoe UI",sans-serif;line-height:1.55}
+main{max-width:760px;margin:0 auto;padding:20px 16px 48px}
+header{padding:28px 0 12px}
+h1{font-size:clamp(2rem,7vw,3rem);line-height:1.05;margin:0 0 10px;font-weight:800}
+h1 span{display:inline-block;background:var(--c3);color:#1b1b3a;padding:0 10px;transform:rotate(-2deg);border-radius:8px}
+.sub{color:var(--mut);margin:0 0 14px;max-width:52ch}
+.prog{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--card);border:2px solid var(--ink);border-radius:999px;padding:6px 14px;font-weight:600;display:flex;gap:10px;align-items:center;margin:10px 0 22px;box-shadow:3px 3px 0 var(--sh)}
+.prog i{flex:1;height:10px;border-radius:5px;background:var(--soft);overflow:hidden}
+.prog i b{display:block;height:100%;width:0;background:var(--c2);transition:width .3s}
+.c{--a:var(--c1);background:var(--card);border:2px solid var(--ink);border-radius:18px;padding:18px;margin:0 0 22px;box-shadow:6px 6px 0 var(--a)}
+.c:nth-of-type(5n+2){--a:var(--c2)}.c:nth-of-type(5n+3){--a:var(--c3)}.c:nth-of-type(5n+4){--a:var(--c4)}.c:nth-of-type(5n+5){--a:var(--c5)}
+.c.done{box-shadow:6px 6px 0 var(--c2);opacity:.9}
+h2{margin:0 0 6px;font-size:1.35rem;font-weight:800}
+h2 em{font-style:normal;margin-right:6px}
+.an{margin:0 0 12px;color:var(--mut)}
+.tr{margin:12px 0 0;padding:8px 12px;border-left:5px solid var(--c4);background:var(--soft);border-radius:0 10px 10px 0;font-size:.95rem}
+code{background:var(--soft);padding:1px 6px;border-radius:6px;font-size:.88em}
+details{margin-top:12px}
+summary{cursor:pointer;font-weight:600;padding:6px 0}
+details p{margin:4px 0 0;padding:10px 12px;background:var(--soft);border-radius:10px}
+button.k{margin-top:12px;font:inherit;font-weight:600;border:2px solid var(--ink);background:var(--card);color:var(--ink);border-radius:999px;padding:6px 14px;cursor:pointer}
+button.k:focus-visible,summary:focus-visible{outline:3px solid var(--c5);outline-offset:2px}
+.done button.k{background:var(--c2);color:#0b2a24}
+.nest div{padding:10px 12px;border-radius:12px;border:2px solid var(--ink);font-size:.9rem}
+.nest .d3{background:rgba(255,122,26,.18)}.nest .d2{background:rgba(255,210,63,.3);margin-top:8px}.nest .d1{background:rgba(46,196,166,.35);margin-top:8px}
+.fl{display:flex;flex-wrap:wrap;gap:6px 8px;align-items:center;margin:6px 0}
+.fl i{font-style:normal;color:var(--mut);font-weight:800}
+.ch{background:var(--soft);border:2px solid var(--ink);border-radius:10px;padding:5px 10px;font-size:.86rem}
+.ch.a{background:var(--c3);color:#1b1b3a}.ch.b{background:var(--c2);color:#0b2a24}.ch.r{background:var(--c4);color:#2a0b17}
+.g{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:8px;margin:6px 0}
+.t{background:var(--soft);border-radius:12px;padding:10px 12px;font-size:.9rem}
+.t b{display:block;font-size:1rem}
+.bar{display:flex;align-items:center;gap:8px;margin:6px 0;font-size:.88rem}
+.bar b{flex:0 0 118px}
+.bar span{display:block;height:16px;border-radius:8px;border:2px solid var(--ink)}
+.zone{border:2px dashed var(--ink);border-radius:12px;padding:8px 10px;margin:6px 0;font-size:.88rem}
+.cta{text-align:center;background:var(--c5);color:#fff;border:2px solid var(--ink);border-radius:18px;padding:22px;box-shadow:6px 6px 0 var(--c3)}
+.cta h2{color:#fff}
+.cta a{display:inline-block;margin-top:8px;background:var(--c3);color:#1b1b3a;font-weight:800;text-decoration:none;border:2px solid #1b1b3a;border-radius:999px;padding:10px 22px}
+@media (prefers-reduced-motion:reduce){.prog i b{transition:none}}
+</style>
+</head>
+<body>
+<main>
+<header>
+<p style="margin:0 0 10px"><a href="/prep-trek" style="color:inherit;opacity:.65;text-decoration:none;font-weight:600">&larr; All Prep Trek tracks</a></p>
+<h1>Interview questions, <span>answered like a pro</span> 🎤</h1>
+<p class="sub">7 quick cards with the exact structure to answer the questions every interviewer asks. Read the card, say the answer out loud, tap <b>Got it</b>.</p>
+</header>
+<div class="prog" role="status"><span id="pt">0 / 7</span><i><b id="pb"></b></i></div>
+<section class="c"><h2><em>🔑</em>3 formulas that open every door</h2>
+<p class="an">Almost every question fits one of these. Learn the three, and you can answer questions you have never seen.</p>
+<div class="g"><div class="t"><b>Present, Past, Future</b>for "Tell me about yourself" and "Why this role?"</div><div class="t"><b>STAR</b>for every "Tell me about a time..." question</div><div class="t"><b>Claim, Proof, Value</b>for strengths and "Why should we hire you?"</div></div>
+<p class="tr">⚠️ Never memorize a sample word for word. Keep the structure, use your own real story.</p>
+<button class="k">✅ Got it</button></section>
+<section class="c"><h2><em>👋</em>Tell me about yourself</h2>
+<p class="an">Not your life story. A 45 to 60 second trailer of you.</p>
+<div class="fl"><span class="ch a">Present: who you are now</span><i>→</i><span class="ch b">Past: 1 or 2 proofs</span><i>→</i><span class="ch r">Future: why this role</span></div>
+<p class="tr">⚠️ Do not read your resume line by line, and do not go past 90 seconds.</p><details><summary>🎤 Sample answer</summary><p>I am [Name], a final-year [degree] student at [college]. I enjoy [your main area]. During my [project or internship], I [one specific thing you did and the result], which taught me [skill]. I am now looking for a role like this one at [company], where I can apply [skill] and keep learning.</p></details>
+<button class="k">✅ Got it</button></section>
+<section class="c"><h2><em>🪞</em>What is your biggest weakness?</h2>
+<p class="an">They test honesty. Pick a real, small weakness and show you are fixing it.</p>
+<div class="fl"><span class="ch a">A real, small weakness</span><i>→</i><span class="ch b">What you are doing about it</span><i>→</i><span class="ch r">Proof of progress</span></div>
+<p class="tr">⚠️ "I am a perfectionist" and "I work too hard" are the two most overused answers. Skip them.</p><details><summary>🎤 Sample answer</summary><p>I used to hesitate before speaking up in groups, because I wanted to be completely sure first. I have been working on it by [specific action, such as presenting in class]. Last [semester] I [small result], and it is getting easier.</p></details>
+<button class="k">✅ Got it</button></section>
+<section class="c"><h2><em>💼</em>Why should we hire you?</h2>
+<p class="an">Your pitch. Pick the two skills the job description repeats most and prove each one.</p>
+<div class="fl"><span class="ch a">Claim: I can do X</span><i>→</i><span class="ch b">Proof: one real example</span><i>→</i><span class="ch r">Value: what it gives them</span></div>
+<p class="tr">⚠️ "I am hardworking and a quick learner" with no proof sounds like everyone else.</p><details><summary>🎤 Sample answer</summary><p>You need someone who can [skill 1] and [skill 2]. For [skill 1], I [proof]. For [skill 2], I [proof]. I also take feedback well, so I would be productive quickly and keep improving.</p></details>
+<button class="k">✅ Got it</button></section>
+<section class="c"><h2><em>⭐</em>Tell me about a time you faced a problem</h2>
+<p class="an">STAR: spend most of your time on Action, because that is what they are judging.</p>
+<div class="bar"><b>Situation</b><span style="width:10%;background:var(--c3)"></span></div><div class="bar"><b>Task</b><span style="width:10%;background:var(--c4)"></span></div><div class="bar"><b>Action</b><span style="width:60%;background:var(--c2)"></span></div><div class="bar"><b>Result</b><span style="width:20%;background:var(--c1)"></span></div>
+<p class="tr">⚠️ Pick a real problem. Do not take credit for the whole team.</p><details><summary>🎤 Sample answer</summary><p>S: In my [project], [problem happened]. T: I was responsible for [your part]. A: I first [step 1], then [step 2], and found the cause was [cause]. I fixed it by [fix] and added [check] so it would not repeat. R: [Outcome], and I learned to [lesson].</p></details>
+<button class="k">✅ Got it</button></section>
+<section class="c"><h2><em>🙋</em>Do you have any questions for us?</h2>
+<p class="an">Always say yes. Your questions show how serious you are.</p>
+<div class="g"><div class="t"><b>Ask</b>What does success look like in the first 6 months?</div><div class="t"><b>Ask</b>What does training for new joiners look like?</div><div class="t"><b>Ask</b>What is the team's biggest challenge right now?</div></div>
+<p class="tr">⚠️ Do not say "No questions", and do not ask only about salary and leave in round one.</p>
+<button class="k">✅ Got it</button></section>
+<section class="c"><h2><em>🛡️</em>5 golden rules</h2>
+<p class="an">Small habits that matter more than clever answers.</p>
+<div class="g"><div class="t"><b>⏸️ Pause</b>2 seconds before you answer</div><div class="t"><b>⏱️ 90 seconds</b>keep most answers under this</div><div class="t"><b>🙅 No lying</b>one follow-up exposes it</div><div class="t"><b>❓ Ask</b>if you did not understand</div><div class="t"><b>🙊 No blame</b>never criticize past colleges or bosses</div></div>
+
+<button class="k">✅ Got it</button></section>
+<section class="cta"><h2>Want the other 23 questions? 🚀</h2>
+<p>The full guide has 29 questions with sample answers, plus salary, low CGPA, career gaps, conflict, a thank-you message template and a 7-day prep plan. It is phone-friendly, one question per page.</p>
+<a href="https://topmate.io/getyourjob/2334509?utm_source=public_profile&utm_campaign=getyourjob">Get the full guide on Topmate</a></section>
+</main>
+<script>
+(function(){var cs=document.querySelectorAll('.c'),t=cs.length;
+function up(){var d=document.querySelectorAll('.c.done').length;document.getElementById('pt').textContent=d+' / '+t;document.getElementById('pb').style.width=(d/t*100)+'%'}
+document.getElementById('pt').textContent='0 / '+t;
+cs.forEach(function(c){c.querySelector('.k').addEventListener('click',function(){c.classList.toggle('done');this.textContent=c.classList.contains('done')?'🎉 Done':'✅ Got it';up()})})})();
+</script>
+</body>
+</html>
