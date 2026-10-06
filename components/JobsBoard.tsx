@@ -8,7 +8,10 @@ import FilterBar, { emptyFilters, type Filters } from "@/components/FilterBar";
 import Pagination from "@/components/Pagination";
 import EmailSignup from "@/components/EmailSignup";
 
-const LIMIT = 12;
+// Exported so app/page.tsx's server-rendered first page fetches exactly
+// this many jobs too — mismatched limits made the homepage render a huge
+// wall of cards (50) before the client ever re-fetches down to this size.
+export const LIMIT = 12;
 
 const FILTER_KEYS = [
   "q",
