@@ -194,6 +194,9 @@ export default function Footer() {
                 style={{ height: "44px", width: "auto" }}
               />
             </a>
+            <a href="https://lookingfortools.com/projects/jobnetwork?utm_source=badge" target="_blank" rel="noopener noreferrer">
+  <img src="https://lookingfortools.com/lookingfortools/images/badges/featured-on-light.svg" alt="Featured on Looking For Tools" style="height:44px;width:auto"/>
+</a>
   
           </div>
         </div>
