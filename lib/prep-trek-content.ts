@@ -45,6 +45,16 @@ export type PremiumTeaser = {
   secondaryCtaUrl?: string;
 };
 
+// A downloadable, nicely-typeset PDF version of this track's free content —
+// for people who find a long scrolling page harder to study from than a
+// file they can save, print, or read offline. Hosted as a static file in
+// /public rather than generated per-request.
+export type FreeDownload = {
+  url: string;
+  label: string;
+  note: string;
+};
+
 export type PrepTrack = {
   slug: string;
   name: string;
@@ -57,6 +67,7 @@ export type PrepTrack = {
   checklist: string[];
   resources: Resource[];
   coldMailTips: string[];
+  freeDownload?: FreeDownload;
   premium?: PremiumTeaser;
 };
 
@@ -196,6 +207,11 @@ export const prepTracks: PrepTrack[] = [
     emoji: "☕",
     overview:
       "Java interviews for fresher and 0-2 year roles lean heavily on fundamentals: OOP, collections, exceptions, and the few multithreading and JVM basics that come up again and again. This track covers 14 of the most common questions in depth — enough to walk in prepared, not just familiar.",
+    freeDownload: {
+      url: "/prep-trek/java-free-sample.pdf",
+      label: "Download the free PDF",
+      note: "Same 14 questions as below, plus 2 DSA mock problems and the 60-minute mock structure — typeset to actually study from, offline or on your phone.",
+    },
     commonQuestions: [
       {
         question: "What is the difference between JDK, JRE, and JVM?",
@@ -369,6 +385,221 @@ export const prepTracks: PrepTrack[] = [
       secondaryCtaLabel: "Book a 1:1 mock interview",
       secondaryCtaUrl: "https://topmate.io/getyourjob",
     },
+  },
+  {
+    slug: "hr-behavioral",
+    name: "HR & Behavioral Interview Prep",
+    tagline: "Works across every field — the round every interview has in common",
+    emoji: "🎯",
+    overview:
+      "Whatever role you're interviewing for, there's almost always an HR or behavioral round — and it's the one most people under-prepare for because it feels like 'just talking.' It isn't. It's scored the same way a technical round is, on structure and specifics, not just confidence. This track covers the questions that come up constantly, the tricks interviewers use to see how you handle pressure, and how to actually prepare instead of hoping you'll think of something in the moment.",
+    commonQuestions: [
+      {
+        question: "Tell me about yourself.",
+        answer:
+          "This isn't an invitation to recite your resume — they already have it. Use a short arc instead: where you started (your degree/background in one line), what you've built or learned since, and what you're looking for now, tied to this specific role. Keep it under 90 seconds. Practicing this one answer matters more than almost anything else, since it sets the tone for the whole interview.",
+      },
+      {
+        question: "What are your strengths and weaknesses?",
+        answer:
+          "For strengths: pick one that's actually relevant to the role, and immediately back it with a 10-second example — not just the word itself. For weaknesses: name a real one (not 'I work too hard' in disguise), and show what you're actively doing about it. A weakness with no action attached sounds like you haven't thought about it; a fake weakness sounds like you're dodging the question.",
+      },
+      {
+        question: "Why do you want to work here?",
+        answer:
+          "Generic answers ('great company, great culture') are instantly forgettable. Name one specific thing — a product, a value, something they're building or going through — and connect it to something real about you. This requires 10 minutes of actual research before the interview, which most candidates skip.",
+      },
+      {
+        question: "Why should we hire you over other candidates?",
+        answer:
+          "Don't compare yourself to invisible competitors you know nothing about. Instead, state plainly what you bring that directly matches what the role needs, with one concrete example. Confidence here comes from specificity, not volume.",
+      },
+      {
+        question: "Where do you see yourself in 5 years?",
+        answer:
+          "They're checking for realistic ambition and whether you'll stick around, not a rigid life plan. A safe, honest answer: name a direction of growth (more ownership, deeper skill in X) that plausibly builds on this exact role, without promising to become their CEO or admitting you'll probably leave in a year.",
+      },
+      {
+        question: "Why is there a gap in your resume / why did you leave your last role?",
+        answer:
+          "State the real reason plainly and briefly, then pivot to what you did with that time or what you learned from leaving. Over-explaining or sounding defensive draws more attention to it than the gap itself ever would.",
+      },
+      {
+        question: "What are your salary expectations?",
+        answer:
+          "Research a realistic range for the role, level, and location beforehand (Glassdoor, Levels.fyi, or simply asking people in your network) rather than guessing. Give a range, not a single number, and it's fair to ask what the budgeted range for the role is before you answer.",
+      },
+      {
+        question: "Do you have any questions for us?",
+        answer:
+          "Always say yes — this is scored too. Asking nothing reads as low interest. Prepare 2-3 real questions in advance: about the team, what success looks like in the first 90 days, or what the interviewer personally enjoys about working there. Avoid questions you could've answered yourself by reading their website.",
+      },
+    ],
+    learningPath: [
+      {
+        title: "Write your core answers down",
+        description:
+          "'Tell me about yourself,' your top strength, your real weakness, and 'why this company' — write these out fully once, then practice saying them, not reading them.",
+      },
+      {
+        title: "Build your story bank",
+        description:
+          "Collect 4-5 real stories from your work, projects, or college life that can each answer multiple behavioral questions — a conflict, a failure, a time you led something, a time you learned fast.",
+      },
+      {
+        title: "Learn to spot the trick questions",
+        description:
+          "Stress questions, contradiction checks, and silence tactics are common and designed to see how you react, not to find a 'correct' answer.",
+      },
+      {
+        title: "Practice out loud, not in your head",
+        description:
+          "An answer that sounds complete in your head is often rambling out loud. Say every answer out loud at least 3 times before the real interview.",
+      },
+    ],
+    roadmap: [
+      {
+        week: 1,
+        title: "Core answers",
+        goals: [
+          "Write a full 'tell me about yourself' answer and read it aloud until it's under 90 seconds without rushing",
+          "Pick one real strength and one real weakness, each with a concrete example or action attached",
+          "Research your target company for 15-20 minutes and write down 2 genuinely specific reasons you want to work there",
+        ],
+      },
+      {
+        week: 2,
+        title: "Story bank using STAR",
+        goals: [
+          "Learn the STAR structure (Situation, Task, Action, Result) if you haven't already",
+          "Write 4-5 real stories covering: a conflict, a failure or mistake, a time you led or took initiative, and a time you learned something fast",
+          "Map which story answers which common question — most stories can flex to answer 2-3 different questions",
+        ],
+      },
+      {
+        week: 3,
+        title: "Handling pressure & tricky questions",
+        goals: [
+          "Practice staying calm through silence — if an interviewer doesn't react to your answer, resist the urge to keep talking to fill the gap",
+          "Prepare an honest, non-defensive answer for your resume gap or weakest point before you're asked",
+          "Practice 2-3 salary/compensation questions with a researched range ready, not a guess",
+        ],
+      },
+      {
+        week: 4,
+        title: "Full mock & polish",
+        goals: [
+          "Do one full mock HR round, answering at least 8 of the common questions above out loud, timed",
+          "Record yourself once and watch it back — most people are harsher on themselves than needed, but filler words and rambling are easy to spot this way",
+          "Finalize your 2-3 questions to ask the interviewer, specific to each company you're interviewing with",
+        ],
+      },
+    ],
+    checklist: [
+      "Can say 'tell me about yourself' in under 90 seconds without sounding memorized",
+      "Have one real strength and one real weakness ready, each with a concrete example",
+      "Have 4-5 STAR stories ready, mapped to the questions they can answer",
+      "Researched a realistic salary range for this specific role and location",
+      "Have 2-3 genuine, specific questions ready to ask the interviewer",
+      "Practiced staying composed through silence or a flat reaction, without over-explaining",
+    ],
+    resources: [
+      { name: "Glassdoor Interview Questions", url: "https://www.glassdoor.com/Interview/index.htm", note: "Search real, company-specific interview questions and reported experiences" },
+      { name: "Levels.fyi", url: "https://www.levels.fyi", note: "Free, crowdsourced salary data by company, role and level" },
+      { name: "Indeed Career Guide", url: "https://www.indeed.com/career-advice/interviewing", note: "General behavioral interview guidance by question type" },
+    ],
+    coldMailTips: [
+      "The same honesty that works in an HR round works in a cold email — be specific about why this company, not generic.",
+      "Keep it short enough that a busy hiring manager reads the whole thing, not just the first line.",
+    ],
+  },
+  {
+    slug: "interviewer-tricks-and-tactics",
+    name: "Common Interview Tricks & Tactics",
+    tagline: "The curveballs interviewers throw on purpose — and how to handle them",
+    emoji: "🧠",
+    overview:
+      "Some of what happens in an interview isn't about testing your knowledge — it's about testing your composure. These tactics show up across every field and every company type, from campus placements to corporate interviews. None of them have a single 'correct' answer; what's being evaluated is how you react.",
+    commonQuestions: [
+      {
+        question: "The interviewer goes silent after your answer instead of reacting.",
+        answer:
+          "This is often deliberate, not a sign you got it wrong. The instinct to fill silence by rambling or adding caveats usually makes a good answer worse. Finish your answer, then stop — a calm pause on your end reads as confidence, not a mistake.",
+      },
+      {
+        question: "They ask the same question twice, worded differently, later in the interview.",
+        answer:
+          "This checks for consistency, not memory. Don't panic and change your story to seem more interesting — answer naturally each time. If your two answers genuinely conflict, address it briefly and honestly rather than pretending you didn't notice.",
+      },
+      {
+        question: "Rapid-fire questions with almost no time to think.",
+        answer:
+          "The goal is to see how you think under pressure, not to get a perfect answer to every single one. It's fine to say 'let me think for a second' once or twice — a brief pause reads better than a rushed, wrong answer.",
+      },
+      {
+        question: "A deliberately aggressive or skeptical tone ('stress interview').",
+        answer:
+          "Some interviewers push back hard on purpose to see if you get defensive or flustered. Stay polite and factual; don't match their energy. If a pushback is actually a fair point, it's fine to say so rather than defending a position just to avoid 'losing.'",
+      },
+      {
+        question: "'What's your current/expected salary?' asked very early, before much else.",
+        answer:
+          "This is sometimes a filtering tactic. It's reasonable to give a range or redirect briefly ('I'd like to learn more about the role first, but based on my research the range is roughly X') rather than anchoring yourself too early or too low.",
+      },
+      {
+        question: "They act uninterested, check their phone, or seem distracted.",
+        answer:
+          "This is sometimes used to see if it throws you off your answer. It may also just mean they're tired or busy — either way, reacting by rushing or under-explaining usually works against you. Keep your normal pace and depth.",
+      },
+    ],
+    learningPath: [
+      {
+        title: "Name the tactic, don't react to it",
+        description:
+          "Recognizing 'this is a stress tactic' or 'this is a silence test' in the moment makes it far easier to not take it personally.",
+      },
+      {
+        title: "Practice under mild discomfort",
+        description:
+          "Do at least one mock interview with a friend deliberately trying to rattle you — interrupting, staying silent, or pushing back — so the real thing feels familiar.",
+      },
+      {
+        title: "Separate confidence from certainty",
+        description:
+          "You don't need to be certain you're right to sound composed. 'Here's my reasoning' delivered calmly beats a hesitant 'um, I think so?' even when the content is similar.",
+      },
+    ],
+    roadmap: [
+      {
+        week: 1,
+        title: "Learn the common tactics",
+        goals: [
+          "Read through all six tactics above until you can name each one and what it's actually testing",
+          "Reflect on past interviews (yours or a friend's) and identify if any of these happened without you realizing it at the time",
+        ],
+      },
+      {
+        week: 2,
+        title: "Practice composure",
+        goals: [
+          "Do one mock interview where your partner deliberately stays silent after every answer",
+          "Do one mock interview with rapid-fire, low-think-time questions",
+          "Practice the phrase 'let me take a second to think about that' until it feels natural, not awkward",
+        ],
+      },
+    ],
+    checklist: [
+      "Can name at least 4 common interviewer tactics and what each is actually testing",
+      "Practiced at least one mock round designed to be deliberately uncomfortable",
+      "Have a calm, go-to phrase ready for when you need a moment to think",
+      "Know your researched salary range well enough to not be rattled by an early salary question",
+    ],
+    resources: [
+      { name: "Glassdoor Interview Questions", url: "https://www.glassdoor.com/Interview/index.htm", note: "Real reported interview experiences, including stress-interview accounts, by company" },
+    ],
+    coldMailTips: [
+      "The same composure that works against a stress tactic works in a cold follow-up — calm and specific beats eager and long.",
+    ],
   },
   {
     slug: "data-analytics",
