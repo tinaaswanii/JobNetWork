@@ -2,8 +2,9 @@ import type { Metadata } from "next";
 import { Suspense } from "react";
 import Link from "next/link";
 import { getJobsPage } from "@/lib/jobs";
-import JobsBoard from "@/components/JobsBoard";
+import JobsBoard, { LIMIT } from "@/components/JobsBoard";
 import { prepTracks } from "@/lib/prep-trek-content";
+import Testimonials from "@/components/Testimonials";
 
 export const revalidate = 300;
 
@@ -48,10 +49,13 @@ export const metadata: Metadata = {
 };
 
 export default async function HomePage() {
-  const initial = await getJobsPage({ limit: 50, offset: 0, sort_by: "newest" }).catch(() => ({
+  // Match the client's own page size (JobsBoard's LIMIT) — fetching more
+  // than that here just means a huge wall of cards on first paint that the
+  // client immediately throws away on its first real fetch.
+  const initial = await getJobsPage({ limit: LIMIT, offset: 0, sort_by: "newest" }).catch(() => ({
     items: [],
     total: 0,
-    limit: 50,
+    limit: LIMIT,
     offset: 0,
     has_more: false,
   }));
@@ -204,6 +208,8 @@ export default async function HomePage() {
           </div>
         </div>
       </section>
+
+      <Testimonials />
 
       {/* WhatsApp Community CTA */}
       <section className="px-6 pb-16 md:px-12">
