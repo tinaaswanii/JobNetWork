@@ -132,6 +132,18 @@ export async function getJobsPage(query: JobsQuery): Promise<JobsPageResult> {
     // generic Artha matches for the word "corporate" should show Kalp
     // first, not last.
     merged.push(...own, ...artha);
+  } else if (query.sort_by === "newest") {
+    // Honor "newest" literally. The interleave below (own_jobs dropped in
+    // at a fixed interval) is great for variety on a default browse, but it
+    // ignores actual dates — an own_job lands on its slot regardless of
+    // whether it's older or newer than the Artha jobs around it, which is
+    // exactly why "Newest first" looked broken. For this sort, skip the
+    // interleave and do a real chronological merge instead.
+    merged.push(
+      ...[...artha, ...own].sort(
+        (a, b) => new Date(b.posted_date).getTime() - new Date(a.posted_date).getTime()
+      )
+    );
   } else {
     // General browse, no search term: interleave own_jobs evenly through
     // the Artha feed instead of sorting by date and concatenating. A pure
