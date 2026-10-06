@@ -181,23 +181,31 @@ export default function Footer() {
               </svg>
               <span>Email</span>
             </a>
-
-            {/* ShipThing */}
-            <a
-              href="https://shipthing.com/projects/jobnetwork?utm_source=badge"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              <img
-                src="https://shipthing.com/shipthing/images/badges/featured-on-light.svg"
-                alt="Featured on ShipThing"
-                style={{ height: "44px", width: "auto" }}
-              />
-            </a>
-            <a href="https://lookingfortools.com/projects/jobnetwork?utm_source=badge" target="_blank" rel="noopener noreferrer">
-  <img src="https://lookingfortools.com/lookingfortools/images/badges/featured-on-light.svg" alt="Featured on Looking For Tools" style="height:44px;width:auto"/>
+{/* ShipThing */}
+<a
+  href="https://shipthing.com/projects/jobnetwork?utm_source=badge"
+  target="_blank"
+  rel="noopener noreferrer"
+>
+  <img
+    src="https://shipthing.com/shipthing/images/badges/featured-on-light.svg"
+    alt="Featured on ShipThing"
+    style={{ height: "44px", width: "auto" }}
+  />
 </a>
-  
+
+{/* Looking For Tools */}
+<a
+  href="https://lookingfortools.com/projects/jobnetwork?utm_source=badge"
+  target="_blank"
+  rel="noopener noreferrer"
+>
+  <img
+    src="https://lookingfortools.com/lookingfortools/images/badges/featured-on-light.svg"
+    alt="Featured on Looking For Tools"
+    style={{ height: "44px", width: "auto" }}
+  />
+</a>
           </div>
         </div>
 
