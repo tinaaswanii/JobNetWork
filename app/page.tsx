@@ -4,7 +4,7 @@ import Link from "next/link";
 import { getJobsPage } from "@/lib/jobs";
 import JobsBoard, { LIMIT } from "@/components/JobsBoard";
 import { prepTracks } from "@/lib/prep-trek-content";
-import Testimonials from "@/components/Testimonials";
+import { guides } from "@/lib/guides";
 
 export const revalidate = 300;
 
@@ -209,7 +209,55 @@ export default async function HomePage() {
         </div>
       </section>
 
-      <Testimonials />
+      {/* Guides teaser (testimonials now live on /testimonials) */}
+      <section className="border-t px-6 py-16 md:px-12">
+        <div className="mx-auto max-w-5xl">
+          <div className="flex flex-wrap items-end justify-between gap-4">
+            <div className="max-w-2xl">
+              <h2 className="font-display text-3xl md:text-4xl">
+                📚 Guides & Notes
+              </h2>
+              <p className="mt-3 text-muted-foreground">
+                Interview prep guides and 1:1 career calls, built from a real
+                placement season.
+              </p>
+            </div>
+            <Link
+              href="/guides"
+              className="text-sm font-semibold text-ink hover:text-ink/70"
+            >
+              See all guides →
+            </Link>
+          </div>
+
+          <div className="mt-8 grid gap-4 sm:grid-cols-2 md:grid-cols-3">
+            {guides
+              .filter((g) => g.group === "available")
+              .slice(0, 3)
+              .map((g) => (
+                <Link
+                  key={g.title}
+                  href="/guides"
+                  className="pinned-card block p-5 pl-7 transition hover:-translate-y-0.5"
+                >
+                  <div className="text-2xl">{g.emoji}</div>
+                  <h3 className="mt-3 font-semibold">{g.title}</h3>
+                  <p className="mt-2 text-sm leading-6 text-ink/70">
+                    {g.blurb}
+                  </p>
+                  <p className="mt-3 text-sm font-semibold">{g.price}</p>
+                </Link>
+              ))}
+          </div>
+
+          <Link
+            href="/testimonials"
+            className="mt-6 inline-block text-sm font-semibold text-ink hover:text-ink/70"
+          >
+            What people are saying →
+          </Link>
+        </div>
+      </section>
 
       {/* WhatsApp Community CTA */}
       <section className="px-6 pb-16 md:px-12">
