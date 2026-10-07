@@ -77,6 +77,8 @@ const socialLinks = [
 const exploreLinks = [
   { name: "Jobs", href: "/" },
   { name: "Prep Trek", href: "/prep-trek" },
+  { name: "Guides", href: "/guides" },
+  { name: "Testimonials", href: "/testimonials" },
   { name: "About", href: "/about" },
 ];
 
@@ -184,7 +186,7 @@ export default function Footer() {
 
             {/* Topmate */}
             <a
-              href="https://topmate.io/getyourjob/page/WRpfovg9ud?utm_medium=email&utm_source=spotlight#offers"
+              href="https://topmate.io/getyourjob?utm_source=public_profile&utm_campaign=getyourjob"
               target="_blank"
               rel="noopener noreferrer"
               aria-label="Book a 1:1 session with JobNetWork"
