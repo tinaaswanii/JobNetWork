@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { prepTracks } from "@/lib/prep-trek-content";
-import Testimonials from "@/components/Testimonials";
 
 const SITE_URL = "https://job-net-work.vercel.app";
 
@@ -131,7 +130,35 @@ export default function PrepTrekIndexPage() {
         </div>
       </section>
 
-      <Testimonials />
+      {/* Paid full guide on Topmate */}
+      <section className="mx-auto max-w-5xl px-6 pb-16 md:px-12">
+        <div className="pinned-card flex flex-col gap-4 p-6 pl-8 md:flex-row md:items-center md:justify-between md:p-8 md:pl-10">
+          <div>
+            <h2 className="font-display text-xl md:text-2xl">
+              🧭 Want the full Interview Prep Trek Guide?
+            </h2>
+            <p className="mt-2 max-w-xl text-sm leading-6 text-ink/70">
+              The complete PDF with all the questions, technical revision
+              points and HR guidance. Not a guarantee of a job, but a
+              structured way to prepare.
+            </p>
+          </div>
+          <a
+            href="https://topmate.io/getyourjob/2334509?utm_source=public_profile&utm_campaign=getyourjob"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex shrink-0 items-center justify-center rounded-lg bg-board px-6 py-3 text-sm font-semibold text-paper"
+          >
+            Get it on Topmate →
+          </a>
+        </div>
+        <Link
+          href="/guides"
+          className="mt-4 inline-block text-sm font-semibold text-ink hover:text-ink/70"
+        >
+          More guides and notes →
+        </Link>
+      </section>
     </main>
   );
 }
