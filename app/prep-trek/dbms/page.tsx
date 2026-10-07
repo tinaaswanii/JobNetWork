@@ -22,7 +22,7 @@ export const metadata: Metadata = {
 };
 
 export default function DbmsPage() {
-  const notes = guides.find((g) => g.title === "DBMS Notes");
+  const notes = guides.find((g) => g.title === "DBMS Prep Trek");
   const buyUrl = notes?.url;
 
   const jsonLd = {
