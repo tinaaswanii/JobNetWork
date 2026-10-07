@@ -68,18 +68,20 @@ export const guides: Guide[] = [
   },
 
   // ---- Next: core CS notes (order = launch order) ----
-  {
-    title: "DBMS Notes",
+    {
+    title: "DBMS PrepTrek",
     emoji: "🗄️",
-    price: "₹79",
-    blurb: "Everything DBMS interviewers ask, in one place.",
+    price: "₹29",
+    originalPrice: "₹199",
+    blurb:
+      "31 interview cards, 8 SQL queries with answers and 20 rapid-fire Q&As.",
     includes: [
-      "SQL basics, keys, normalization",
-      "ER model, transactions, ACID",
-      "Joins and indexing",
-      "Common interview questions",
+      "31 concept cards, from keys to isolation levels",
+      "8 SQL interview queries with answers",
+      "20 rapid-fire answers and a night-before checklist",
     ],
-    group: "next",
+    url: "https://topmate.io/getyourjob/2339522?utm_source=public_profile&utm_campaign=getyourjob",
+    group: "available",
   },
   {
     title: "SQL Notes + Practice Questions",
