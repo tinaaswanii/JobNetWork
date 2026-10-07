@@ -2,9 +2,6 @@ import type { MetadataRoute } from "next";
 import { supabaseAdmin } from "@/lib/supabase";
 import { prepTracks } from "@/lib/prep-trek-content";
 
-// Sitemaps can hold up to 50,000 URLs; cap well under that for now so this
-// stays fast and we're not submitting a sitemap a search engine will choke
-// on before the site has that much real traffic/content to justify it.
 const MAX_JOB_URLS = 2000;
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
@@ -29,7 +26,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       changeFrequency: "monthly",
       priority: 0.7,
     },
-        {
+    {
       url: `${baseUrl}/prep-trek/dbms`,
       lastModified: new Date(),
       changeFrequency: "monthly",
@@ -53,8 +50,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       changeFrequency: "monthly",
       priority: 0.6,
     },
-    ...prepTracks.map((t) => ({
-      url: `${baseUrl}/prep-trek/${t.slug}`,
+    ...prepTracks.map((track) => ({
+      url: `${baseUrl}/prep-trek/${track.slug}`,
       lastModified: new Date(),
       changeFrequency: "monthly" as const,
       priority: 0.6,
@@ -70,6 +67,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       .eq("is_active", true)
       .order("posted_date", { ascending: false })
       .limit(MAX_JOB_URLS),
+
     db
       .from("cached_jobs")
       .select("slug, last_seen_at")
@@ -78,15 +76,16 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   ]);
 
   const jobEntries: MetadataRoute.Sitemap = [
-    ...(ownJobs ?? []).map((row) => ({
-      url: `${baseUrl}/jobs/${row.id}`,
-      lastModified: new Date(row.posted_date),
+    ...(ownJobs ?? []).map((job) => ({
+      url: `${baseUrl}/jobs/${job.id}`,
+      lastModified: new Date(job.posted_date),
       changeFrequency: "weekly" as const,
       priority: 0.8,
     })),
-    ...(cachedJobs ?? []).map((row) => ({
-      url: `${baseUrl}/jobs/${row.slug}`,
-      lastModified: new Date(row.last_seen_at),
+
+    ...(cachedJobs ?? []).map((job) => ({
+      url: `${baseUrl}/jobs/${job.slug}`,
+      lastModified: new Date(job.last_seen_at),
       changeFrequency: "weekly" as const,
       priority: 0.8,
     })),
