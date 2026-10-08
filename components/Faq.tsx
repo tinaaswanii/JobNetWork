@@ -5,7 +5,7 @@ const faqs = [
   },
   {
     q: "Who is it for?",
-    a: "Students, freshers and early-career job seekers first. Listings cover entry-level up to senior roles, so use the experience filter to narrow them down.",
+    a: "Anyone looking for work. Listings run from internships and entry-level roles to experienced and senior positions, so use the experience filter to narrow them down. The paid 1:1 calls and guides on Topmate are aimed at students and freshers.",
   },
   {
     q: "Where do the jobs come from?",
@@ -37,7 +37,7 @@ export default function Faq() {
   };
 
   return (
-    <section className="border-t px-6 py-16 md:px-12">
+    <section className="border-t px-6 py-16 md:px-12 md:py-20">
       {/* eslint-disable-next-line react/no-danger */}
       <script
         type="application/ld+json"
@@ -45,23 +45,23 @@ export default function Faq() {
       />
 
       <div className="mx-auto max-w-3xl">
-        <h2 className="font-display text-3xl md:text-4xl">
+        <h2 className="text-3xl md:text-4xl">
           Questions, answered
         </h2>
 
-        <div className="mt-8 divide-y divide-ink/10 rounded-xl border border-ink/10 bg-white">
+        <div className="mt-8 divide-y rounded-2xl border bg-white">
           {faqs.map((f) => (
             <details key={f.q} className="group px-5 py-4">
               <summary className="flex cursor-pointer list-none items-center justify-between gap-4 font-medium [&::-webkit-details-marker]:hidden">
                 {f.q}
                 <span
                   aria-hidden="true"
-                  className="text-xl text-ink/40 transition group-open:rotate-45"
+                  className="text-xl text-muted-foreground transition group-open:rotate-45"
                 >
                   +
                 </span>
               </summary>
-              <p className="mt-3 text-sm leading-6 text-ink/70">{f.a}</p>
+              <p className="mt-3 text-sm leading-6 text-muted-foreground">{f.a}</p>
             </details>
           ))}
         </div>
