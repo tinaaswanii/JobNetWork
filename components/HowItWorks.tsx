@@ -2,21 +2,21 @@ import Link from "next/link";
 
 const steps = [
   {
-    n: "1",
+    n: "01",
     title: "Search",
     text: "Filter by role, job type, work mode and experience level, then open a job for the full details.",
     href: "#jobs",
     cta: "Browse jobs",
   },
   {
-    n: "2",
+    n: "02",
     title: "Match your resume",
     text: "Upload a PDF resume from any job card to see how your skills line up with that role.",
     href: "/match",
     cta: "Try the match",
   },
   {
-    n: "3",
+    n: "03",
     title: "Prepare",
     text: "Practise the questions interviewers actually ask, with short tap-and-try cards.",
     href: "/prep-trek",
@@ -25,34 +25,31 @@ const steps = [
 ];
 
 export default function HowItWorks() {
+  const cls = "mt-5 inline-block text-sm font-semibold text-denim hover:underline";
   return (
-    <section className="border-t px-6 py-16 md:px-12">
+    <section className="border-t bg-white px-6 py-16 md:px-12 md:py-20">
       <div className="mx-auto max-w-5xl">
-        <h2 className="font-display text-3xl md:text-4xl">How it works</h2>
-        <p className="mt-3 max-w-2xl text-ink/70">
+        <h2 className="text-3xl md:text-4xl">How it works</h2>
+        <p className="mt-3 max-w-2xl text-muted-foreground">
           Three steps from searching to interview-ready. Free to use.
         </p>
 
-        <ol className="mt-10 grid gap-6 md:grid-cols-3">
+        <ol className="mt-10 grid overflow-hidden rounded-2xl border md:grid-cols-3 md:divide-x">
           {steps.map((s) => (
-            <li key={s.n} className="pinned-card p-6 pl-9">
-              <span className="flex h-9 w-9 items-center justify-center rounded-full bg-board font-display text-lg text-paper">
+            <li key={s.n} className="border-b p-7 last:border-b-0 md:border-b-0">
+              <span className="text-sm font-semibold tracking-wider text-board">
                 {s.n}
               </span>
-              <h3 className="mt-4 font-display text-xl">{s.title}</h3>
-              <p className="mt-2 text-sm leading-6 text-ink/70">{s.text}</p>
+              <h3 className="mt-3 text-xl">{s.title}</h3>
+              <p className="mt-2 text-sm leading-6 text-muted-foreground">
+                {s.text}
+              </p>
               {s.href.startsWith("#") ? (
-                <a
-                  href={s.href}
-                  className="mt-4 inline-block text-sm font-semibold text-denim hover:underline"
-                >
+                <a href={s.href} className={cls}>
                   {s.cta} →
                 </a>
               ) : (
-                <Link
-                  href={s.href}
-                  className="mt-4 inline-block text-sm font-semibold text-denim hover:underline"
-                >
+                <Link href={s.href} className={cls}>
                   {s.cta} →
                 </Link>
               )}
