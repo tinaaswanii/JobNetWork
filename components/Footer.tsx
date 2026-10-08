@@ -92,12 +92,8 @@ export default function Footer() {
             <h2 className="font-display text-2xl">JobNetWork</h2>
 
             <p className="mt-3 max-w-md text-sm leading-6 text-muted-foreground md:max-w-sm">
-              Jobs, internships and career opportunities for students,
-              freshers and early-career job seekers.
-            </p>
-
-            <p className="mt-4 text-sm font-medium">
-              Stay calm. Start applying.
+              Jobs, internships and career opportunities at every level, from
+              first jobs to senior roles.
             </p>
           </div>
 
@@ -245,6 +241,10 @@ export default function Footer() {
         <div className="mt-8 border-t pt-6 text-center">
           <p className="text-xs text-muted-foreground">
             © {new Date().getFullYear()} JobNetWork. All rights reserved.
+          </p>
+          <p className="mx-auto mt-2 max-w-xl text-xs text-muted-foreground">
+            Some listings may be sponsored or earn us a referral fee when you
+            apply. It never costs you anything.
           </p>
         </div>
       </div>
