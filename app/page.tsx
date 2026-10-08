@@ -16,19 +16,19 @@ const WHATSAPP_URL = "https://chat.whatsapp.com/L9DG89VrT4V2UFjFkpv0Ok";
 
 export const metadata: Metadata = {
   title:
-    "JobNetWork — Internships, Jobs & Placements for Students & Freshers in India",
+    "JobNetWork — Jobs & Internships in India, From Entry-Level to Experienced",
   description:
-    "Find internships, entry-level jobs, and placement opportunities across tech, sales, marketing, finance, healthcare, design and more — updated in real time for students, freshers, and recent graduates in India.",
+    "Find jobs and internships across tech, sales, marketing, finance, healthcare, design and more, from entry-level to experienced roles, updated in real time. Free interview prep and resume match included.",
   keywords: [
     "internships India",
     "jobs for freshers",
-    "student jobs",
+    "experienced jobs India",
     "entry level jobs India",
     "campus placements",
     "remote internships",
-    "part time jobs students",
+    "part time jobs",
     "job board India",
-    "fresher hiring 2026",
+    "remote jobs India",
     "internship finder",
     "placement resources",
   ],
@@ -37,16 +37,16 @@ export const metadata: Metadata = {
     type: "website",
     url: SITE_URL,
     siteName: "JobNetWork",
-    title: "JobNetWork — Internships, Jobs & Placements for Students",
+    title: "JobNetWork — Jobs & Internships in India, Entry-Level to Experienced",
     description:
-      "Real internships, entry-level and placement opportunities across every field, updated in real time for students and freshers.",
+      "Real jobs and internships across every field and level, updated in real time.",
     images: [{ url: `${SITE_URL}/Logo.png`, width: 512, height: 512 }],
   },
   twitter: {
     card: "summary",
-    title: "JobNetWork — Internships, Jobs & Placements for Students",
+    title: "JobNetWork — Jobs & Internships in India, Entry-Level to Experienced",
     description:
-      "Real internships and entry-level opportunities across every field, updated in real time.",
+      "Real jobs and internships across every field and level, updated in real time.",
     images: [`${SITE_URL}/Logo.png`],
   },
 };
@@ -69,7 +69,7 @@ export default async function HomePage() {
     name: "JobNetWork",
     url: SITE_URL,
     description:
-      "Internships, jobs and placement resources for students, freshers and recent graduates across every field, updated in real time.",
+      "Jobs, internships and placement resources across every field and experience level, updated in real time.",
     potentialAction: {
       "@type": "SearchAction",
       target: `${SITE_URL}/?q={search_term_string}`,
@@ -86,7 +86,7 @@ export default async function HomePage() {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
 
-      <HomeHero total={initial.total} />
+      <HomeHero total={initial.total} jobs={initial.items.slice(0, 3)} />
 
       {/* Jobs */}
       <div id="jobs" className="scroll-mt-16">
@@ -98,22 +98,17 @@ export default async function HomePage() {
       <HowItWorks />
 
       {/* Prep Trek teaser */}
-      <section className="border-t px-6 py-16 md:px-12">
+      <section className="border-t bg-white px-6 py-16 md:px-12 md:py-20">
         <div className="mx-auto max-w-5xl">
           <div className="flex flex-wrap items-end justify-between gap-4">
             <div className="max-w-2xl">
-              <h2 className="font-display text-3xl md:text-4xl">
-                🧭 Prep Trek — get interview-ready
-              </h2>
+              <h2 className="text-3xl md:text-4xl">Prep Trek: get interview-ready</h2>
               <p className="mt-3 text-muted-foreground">
                 Common interview questions with real answers, a short
-                learning path, and cold-mail tips — by field.
+                learning path, and cold-mail tips, by field.
               </p>
             </div>
-            <Link
-              href="/prep-trek"
-              className="text-sm font-semibold text-ink hover:text-ink/70"
-            >
+            <Link href="/prep-trek" className="text-sm font-semibold text-denim hover:underline">
               See all tracks →
             </Link>
           </div>
@@ -123,12 +118,14 @@ export default async function HomePage() {
               <Link
                 key={track.slug}
                 href={`/prep-trek/${track.slug}`}
-                className="pinned-card block p-5 pl-7 transition hover:-translate-y-0.5"
+                className="pinned-card block py-6"
               >
-                <div className="text-2xl">{track.emoji}</div>
-                <h3 className="mt-3 font-semibold">{track.name}</h3>
-                <p className="mt-2 text-sm leading-6 text-ink/70">
+                <h3 className="text-lg">{track.name}</h3>
+                <p className="mt-2 text-sm leading-6 text-muted-foreground">
                   {track.tagline}
+                </p>
+                <p className="mt-4 text-xs font-medium text-board">
+                  {track.commonQuestions.length} questions · {track.roadmap.length}-week roadmap
                 </p>
               </Link>
             ))}
@@ -136,23 +133,18 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* Guides teaser (testimonials now live on /testimonials) */}
-      <section className="border-t px-6 py-16 md:px-12">
+      {/* Guides teaser (testimonials live on /testimonials) */}
+      <section className="border-t px-6 py-16 md:px-12 md:py-20">
         <div className="mx-auto max-w-5xl">
           <div className="flex flex-wrap items-end justify-between gap-4">
             <div className="max-w-2xl">
-              <h2 className="font-display text-3xl md:text-4xl">
-                📚 Guides & Notes
-              </h2>
+              <h2 className="text-3xl md:text-4xl">Guides & notes</h2>
               <p className="mt-3 text-muted-foreground">
-                Interview prep guides and 1:1 career calls, built from a real
-                placement season.
+                Interview prep guides and 1:1 career calls for students and
+                freshers, built from a real placement season.
               </p>
             </div>
-            <Link
-              href="/guides"
-              className="text-sm font-semibold text-ink hover:text-ink/70"
-            >
+            <Link href="/guides" className="text-sm font-semibold text-denim hover:underline">
               See all guides →
             </Link>
           </div>
@@ -162,25 +154,24 @@ export default async function HomePage() {
               .filter((g) => g.group === "available")
               .slice(0, 3)
               .map((g) => (
-                <Link
-                  key={g.title}
-                  href="/guides"
-                  className="pinned-card block p-5 pl-7 transition hover:-translate-y-0.5"
-                >
-                  <div className="text-2xl">{g.emoji}</div>
-                  <h3 className="mt-3 font-semibold">{g.title}</h3>
-                  <p className="mt-2 text-sm leading-6 text-ink/70">
+                <Link key={g.title} href="/guides" className="pinned-card flex flex-col py-6">
+                  <h3 className="text-lg">{g.title}</h3>
+                  <p className="mt-2 flex-1 text-sm leading-6 text-muted-foreground">
                     {g.blurb}
                   </p>
-                  <p className="mt-3 text-sm font-semibold">{g.price}</p>
+                  <p className="mt-4 text-sm font-semibold">
+                    {g.price}
+                    {"originalPrice" in g && g.originalPrice ? (
+                      <span className="ml-2 font-normal text-muted-foreground line-through">
+                        {g.originalPrice}
+                      </span>
+                    ) : null}
+                  </p>
                 </Link>
               ))}
           </div>
 
-          <Link
-            href="/testimonials"
-            className="mt-6 inline-block text-sm font-semibold text-ink hover:text-ink/70"
-          >
+          <Link href="/testimonials" className="mt-6 inline-block text-sm font-semibold text-denim hover:underline">
             What people are saying →
           </Link>
         </div>
@@ -189,32 +180,23 @@ export default async function HomePage() {
       <Faq />
 
       {/* WhatsApp Community CTA */}
-      <section className="px-6 pb-16 md:px-12">
-        <div className="mx-auto max-w-5xl">
-          <div className="pinned-card rounded-xl p-7 pl-10 md:p-10 md:pl-12">
-            <div className="max-w-2xl">
-              <div className="text-3xl">📲</div>
-
-              <h2 className="mt-4 font-display text-3xl md:text-4xl">
-                Get Jobs Directly on WhatsApp
-              </h2>
-
-              <p className="mt-4 leading-7 text-ink/70">
-                New opportunities are regularly shared with our community.
-                Join us to receive jobs, internships and fresher opportunities
-                directly on WhatsApp.
-              </p>
-
-              <a
-                href={WHATSAPP_URL}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="mt-6 inline-flex items-center rounded-lg border border-[#25D366] bg-[#25D366] px-5 py-3 text-sm font-semibold text-white transition hover:bg-[#1da851]"
-              >
-                Join WhatsApp Community →
-              </a>
-            </div>
+      <section className="bg-boardDark px-6 py-16 text-white md:px-12 md:py-20">
+        <div className="mx-auto flex max-w-5xl flex-col gap-6 md:flex-row md:items-center md:justify-between">
+          <div className="max-w-xl">
+            <h2 className="text-3xl md:text-4xl">Get jobs directly on WhatsApp</h2>
+            <p className="mt-3 leading-7 text-white/75">
+              New jobs and internships, from entry-level to experienced
+              roles, shared regularly with our community.
+            </p>
           </div>
+          <a
+            href={WHATSAPP_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex shrink-0 items-center justify-center rounded-lg bg-mustard px-6 py-3 text-sm font-semibold text-ink transition hover:brightness-95"
+          >
+            Join the community →
+          </a>
         </div>
       </section>
     </main>
