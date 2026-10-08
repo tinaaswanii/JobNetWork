@@ -43,4 +43,12 @@ export const testimonials: Testimonial[] = [
     name: "Viggy",
     role: "JobNetWork community member",
   },
+  {
+    quote:
+      "Finding a job is one thing. Finding the right opportunities consistently is another.\n\nThat’s what I found useful about JobNetWork. It doesn’t just share openings, it creates a place where students and professionals can stay connected to new opportunities, resources, hackathons and guides.\n\nIt’s still growing, but the idea behind it is genuinely useful.",
+    name: "Harshit Raghuwanshi",
+    role: "MBA Candidate (Marketing) · JobNetWork community member",
+    linkedin:
+      "https://www.linkedin.com/in/harshit-raghuwanshi-8288b2243/",
+  },
 ];
