@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import Footer from "@/components/Footer";
+import SiteHeader from "@/components/SiteHeader";
 
 const SITE_URL = "https://job-net-work.vercel.app";
 
@@ -53,6 +54,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   />      </head>
 
       <body className="font-body bg-paper text-ink">
+        <SiteHeader />
         {children}
         <Footer />
       </body>
