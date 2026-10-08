@@ -8,7 +8,7 @@ const SITE_URL = "https://job-net-work.vercel.app";
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: {
-    default: "JobNetWork — Jobs & Internships for Students",
+    default: "JobNetWork — Jobs & Internships in India",
     template: "%s | JobNetWork",
   },
   description:
@@ -38,7 +38,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     crossOrigin="anonymous"
   />
   <link
-    href="https://fonts.googleapis.com/css2?family=Fraunces:wght@500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap"
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
     rel="stylesheet"
   />
 
@@ -53,7 +53,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     crossOrigin="anonymous"
   />      </head>
 
-      <body className="font-body bg-paper text-ink">
+      <body className="font-body antialiased bg-paper text-ink">
         <SiteHeader />
         {children}
         <Footer />
