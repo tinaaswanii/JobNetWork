@@ -183,20 +183,30 @@ export default async function HomePage() {
       <section className="bg-boardDark px-6 py-16 text-white md:px-12 md:py-20">
         <div className="mx-auto flex max-w-5xl flex-col gap-6 md:flex-row md:items-center md:justify-between">
           <div className="max-w-xl">
-            <h2 className="text-3xl md:text-4xl">Get jobs directly on WhatsApp</h2>
+            <h2 className="text-3xl md:text-4xl">Get jobs directly on WhatsApp or Telegram</h2>
             <p className="mt-3 leading-7 text-white/75">
               New jobs and internships, from entry-level to experienced
               roles, shared regularly with our community.
             </p>
           </div>
-          <a
-            href={WHATSAPP_URL}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex shrink-0 items-center justify-center rounded-lg bg-mustard px-6 py-3 text-sm font-semibold text-ink transition hover:brightness-95"
-          >
-            Join the community →
-          </a>
+          <div className="flex shrink-0 flex-col gap-3 sm:flex-row">
+            <a
+              href={WHATSAPP_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center justify-center rounded-lg bg-mustard px-6 py-3 text-sm font-semibold text-ink transition hover:brightness-95"
+            >
+              Join on WhatsApp →
+            </a>
+            <a
+              href="https://t.me/job_net_work"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center justify-center rounded-lg border border-white/30 px-6 py-3 text-sm font-semibold text-white transition hover:bg-white/10"
+            >
+              Join on Telegram →
+            </a>
+          </div>
         </div>
       </section>
     </main>
