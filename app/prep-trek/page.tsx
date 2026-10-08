@@ -101,29 +101,30 @@ export default function PrepTrekIndexPage() {
           </span>
         </a>
       </section>
+
       {/* Subject cards: short, tappable interview cards by subject */}
-      <section className="mx-auto max-w-5xl px-6 pt-6 md:px-12">
-        <Link
-          href="/prep-trek/dbms"
-          className="flex flex-col gap-3 rounded-xl border border-ink/20 bg-white p-6 pl-8 transition hover:-translate-y-0.5 md:flex-row md:items-center md:justify-between md:p-8 md:pl-10"
-        >
-          <div>
+      <section className="mx-auto grid max-w-5xl gap-5 px-6 pt-6 md:grid-cols-2 md:px-12">
+        {[
+          { href: "/prep-trek/dbms", emoji: "🗄️", name: "DBMS in 10 cards", text: "Keys, normalization, ACID, joins, indexing." },
+          { href: "/prep-trek/sql", emoji: "🧮", name: "SQL in 10 cards", text: "Query order, GROUP BY, joins, window functions, CTEs." },
+        ].map((s) => (
+          <Link
+            key={s.href}
+            href={s.href}
+            className="block rounded-xl border border-ink/20 bg-white p-6 pl-8 transition hover:-translate-y-0.5"
+          >
             <span className="inline-block rounded-full bg-mustard px-3 py-1 text-xs font-semibold uppercase tracking-wide text-ink">
               Free · 10 cards
             </span>
-            <h2 className="mt-3 font-display text-xl md:text-2xl">
-              🗄️ DBMS in 10 cards
+            <h2 className="mt-3 font-display text-xl">
+              {s.emoji} {s.name}
             </h2>
-            <p className="mt-2 max-w-xl text-sm leading-6 text-ink/70">
-              Keys, normalization, ACID, joins, indexing. Tap, try, remember.
-              About 15 minutes.
-            </p>
-          </div>
-          <span className="inline-flex shrink-0 items-center justify-center rounded-lg bg-board px-6 py-3 text-sm font-semibold text-paper">
-            Start →
-          </span>
-        </Link>
+            <p className="mt-2 text-sm leading-6 text-ink/70">{s.text}</p>
+            <p className="mt-3 text-sm font-semibold text-denim">Start →</p>
+          </Link>
+        ))}
       </section>
+
       <section className="mx-auto max-w-5xl px-6 py-12 md:px-12">
         <div className="grid gap-5 md:grid-cols-2">
           {prepTracks.map((track) => (
