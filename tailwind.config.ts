@@ -1,26 +1,31 @@
 import type { Config } from "tailwindcss";
 
-// Design plan (campus-noticeboard concept):
-// Color — ink #1B2B22 (text/dark surfaces), board #3B5544 (corkboard green header),
-//         paper #FCF9F0 (index-card cream), mustard #C98D2C (pins/CTAs), denim #2C5F8A (links/tags)
-// Type  — Fraunces (display serif, headline personality) + IBM Plex Sans (body/UI)
-// Layout — left-aligned index-card grid, pinned-note hero, no rounded SaaS-card sameness
+// Design plan (clean & professional, 60-30-10):
+// 60% neutral  — paper #F7F8F6 page, white cards
+// 30% brand    — deep green: board #0E4A33 (buttons, accents), boardDark #072A1D (hero/CTA bands)
+// 10% accent   — amber #F2B33D (single highlight: badges, key CTA)
+// Type — Inter throughout, weight and size carry the hierarchy.
 
 const config: Config = {
   content: ["./app/**/*.{ts,tsx}", "./components/**/*.{ts,tsx}"],
   theme: {
     extend: {
       colors: {
-        ink: "#1B2B22",
-        board: "#3B5544",
-        boardDark: "#28392E",
-        paper: "#FCF9F0",
-        mustard: "#C98D2C",
-        denim: "#2C5F8A",
+        ink: "#0E1B14",
+        board: "#0E4A33",
+        boardDark: "#072A1D",
+        paper: "#F7F8F6",
+        mustard: "#F2B33D",
+        denim: "#0A6B45",
+        muted: "#EEF1EE",
+        "muted-foreground": "#5C6B62",
+      },
+      borderColor: {
+        DEFAULT: "#E2E7E3",
       },
       fontFamily: {
-        display: ["Fraunces", "serif"],
-        body: ["IBM Plex Sans", "sans-serif"],
+        display: ["Inter", "system-ui", "sans-serif"],
+        body: ["Inter", "system-ui", "sans-serif"],
       },
     },
   },
