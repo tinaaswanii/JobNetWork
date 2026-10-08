@@ -12,16 +12,12 @@ const faqs = [
     a: "From partner job feeds plus listings we add ourselves, so you see openings from many companies in one place. The Apply button on each card takes you to the application page.",
   },
   {
-    q: "Do you earn anything when I apply?",
-    a: "Some listings may be sponsored or earn us a referral fee when you apply. It doesn't cost you anything.",
-  },
-  {
     q: "How does the resume match work?",
     a: "Upload a PDF resume (under 5 MB) from any job card and see how its skills line up with that job. Treat it as a guide, not a verdict.",
   },
   {
     q: "How do I get new jobs without checking the site?",
-    a: "Join our WhatsApp community, or sign up for email alerts under the job list.",
+    a: "Join our WhatsApp community or Telegram channel, or sign up for email alerts under the job list.",
   },
 ];
 
