@@ -5,6 +5,9 @@ import { getJobsPage } from "@/lib/jobs";
 import JobsBoard, { LIMIT } from "@/components/JobsBoard";
 import { prepTracks } from "@/lib/prep-trek-content";
 import { guides } from "@/lib/guides";
+import HomeHero from "@/components/HomeHero";
+import HowItWorks from "@/components/HowItWorks";
+import Faq from "@/components/Faq";
 
 export const revalidate = 300;
 
@@ -83,92 +86,16 @@ export default async function HomePage() {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
 
-      {/* Hero */}
-      <header className="bg-board text-paper px-6 py-10 md:px-12">
-        <div className="max-w-5xl mx-auto flex flex-col gap-3">
-          <div className="flex items-center gap-4">
-            <img
-              src="/Logo.png"
-              alt="JobNetWork logo"
-              className="w-20 h-20 object-contain rounded-full bg-white"
-            />
-
-            <h1 className="font-display text-3xl md:text-4xl">
-              JobNetWork — Internships & Jobs for Students and Freshers
-            </h1>
-          </div>
-
-          <p className="text-paper/80 max-w-md">
-            Internships, entry-level jobs, and placement opportunities for
-            students, freshers and recent graduates — across tech, sales,
-            marketing, finance, healthcare and more — all in one place,
-            updated in real time.
-          </p>
-        </div>
-      </header>
+      <HomeHero total={initial.total} />
 
       {/* Jobs */}
-      <Suspense fallback={null}>
-        <JobsBoard initialJobs={initial.items} />
-      </Suspense>
+      <div id="jobs" className="scroll-mt-16">
+        <Suspense fallback={null}>
+          <JobsBoard initialJobs={initial.items} />
+        </Suspense>
+      </div>
 
-      {/* Why JobNetWork */}
-      <section className="border-t px-6 py-16 md:px-12">
-        <div className="mx-auto max-w-5xl">
-          <div className="max-w-2xl">
-            <h2 className="font-display text-3xl md:text-4xl">
-              Why JobNetWork?
-            </h2>
-
-            <p className="mt-3 text-muted-foreground">
-              Finding jobs and internships can get scattered across different
-              websites, company pages and online communities. We’re building
-              JobNetWork to make that process a little simpler.
-            </p>
-          </div>
-
-          <div className="mt-10 grid gap-6 md:grid-cols-3">
-            <div className="rounded-xl border p-6">
-              <div className="text-2xl">🔎</div>
-
-              <h3 className="mt-4 font-semibold">
-                Find opportunities in one place
-              </h3>
-
-              <p className="mt-2 text-sm text-muted-foreground">
-                Browse jobs, internships and fresher opportunities without
-                having to search through multiple places.
-              </p>
-            </div>
-
-            <div className="rounded-xl border p-6">
-              <div className="text-2xl">📲</div>
-
-              <h3 className="mt-4 font-semibold">
-                Get new opportunities on WhatsApp
-              </h3>
-
-              <p className="mt-2 text-sm text-muted-foreground">
-                Join our community to receive newly shared opportunities
-                directly in your WhatsApp.
-              </p>
-            </div>
-
-            <div className="rounded-xl border p-6">
-              <div className="text-2xl">🎓</div>
-
-              <h3 className="mt-4 font-semibold">
-                Built for students & freshers
-              </h3>
-
-              <p className="mt-2 text-sm text-muted-foreground">
-                We focus on opportunities that are relevant to students,
-                recent graduates and people starting their careers.
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
+      <HowItWorks />
 
       {/* Prep Trek teaser */}
       <section className="border-t px-6 py-16 md:px-12">
@@ -258,6 +185,8 @@ export default async function HomePage() {
           </Link>
         </div>
       </section>
+
+      <Faq />
 
       {/* WhatsApp Community CTA */}
       <section className="px-6 pb-16 md:px-12">
