@@ -7,7 +7,7 @@ import { usePathname } from "next/navigation";
 const WHATSAPP_URL = "https://chat.whatsapp.com/L9DG89VrT4V2UFjFkpv0Ok";
 
 const links = [
-  { name: "Jobs", href: "/" },
+  { name: "Jobs", href: "/jobs" },
   { name: "Match resume", href: "/match" },
   { name: "Prep Trek", href: "/prep-trek" },
   { name: "Guides", href: "/guides" },
