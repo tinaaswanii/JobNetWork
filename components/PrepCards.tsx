@@ -356,7 +356,7 @@ export default function PrepCards({
 
   return (
     <div>
-      <div className="sticky top-0 z-10 border-b bg-paper/95 px-6 py-3 backdrop-blur md:px-12">
+      <div className="sticky top-14 z-10 border-b bg-paper/95 px-6 py-3 backdrop-blur md:px-12">
         <div className="mx-auto flex max-w-3xl items-center gap-3">
           <p className="shrink-0 text-sm font-semibold">
             {count} of {cards.length} done
