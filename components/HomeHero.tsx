@@ -31,7 +31,7 @@ const quickLinks = [
   },
   {
     href: WHATSAPP_URL,
-    title: "Jobs on WhatsApp",
+    title: "Jobs on WhatsApp & Telegram",
     text: "New openings shared in our community.",
     icon: "M21 11.5a8.4 8.4 0 0 1-9 8.5 9.2 9.2 0 0 1-4-.9L3 20l1.1-4.1A8.3 8.3 0 0 1 3 11.5 8.5 8.5 0 1 1 21 11.5z",
     external: true,
