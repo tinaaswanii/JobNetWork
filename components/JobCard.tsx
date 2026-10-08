@@ -3,18 +3,26 @@ import type { PublicJob } from "@/lib/types";
 
 function formatSalary(job: PublicJob) {
   if (!job.salary_min && !job.salary_max) return null;
-  const curr = job.salary_curr ?? "USD";
-  const fmt = (n: number) => new Intl.NumberFormat("en-US").format(n);
+  const curr = (job.salary_curr ?? "").toUpperCase();
+  const isInr = curr === "INR";
+  const prefix = isInr ? "₹" : curr ? `${curr} ` : "";
+  // Indian digit grouping (1,00,000) for rupees, standard grouping otherwise.
+  const fmt = (n: number) =>
+    new Intl.NumberFormat(isInr ? "en-IN" : "en-US", {
+      maximumFractionDigits: 0,
+    }).format(n);
   if (job.salary_min && job.salary_max) {
-    return `${curr} ${fmt(job.salary_min)}-${fmt(job.salary_max)}`;
+    return `${prefix}${fmt(job.salary_min)} - ${prefix}${fmt(job.salary_max)}`;
   }
-  return `${curr} ${fmt(job.salary_min ?? job.salary_max!)}+`;
+  return `${prefix}${fmt(job.salary_min ?? job.salary_max!)}+`;
+}
+
+function ageInDays(dateStr: string) {
+  return Math.floor((Date.now() - new Date(dateStr).getTime()) / 86400000);
 }
 
 function timeAgo(dateStr: string) {
-  const days = Math.floor(
-    (Date.now() - new Date(dateStr).getTime()) / 86400000
-  );
+  const days = ageInDays(dateStr);
   if (days <= 0) return "Posted today";
   if (days === 1) return "Posted yesterday";
   return `Posted ${days} days ago`;
@@ -22,6 +30,7 @@ function timeAgo(dateStr: string) {
 
 export default function JobCard({ job }: { job: PublicJob }) {
   const salary = formatSalary(job);
+  const isNew = ageInDays(job.posted_date) <= 2;
   const visibleSkills = (job.skills ?? []).slice(0, 4);
   const extraSkillCount = (job.skills ?? []).length - visibleSkills.length;
 
@@ -56,9 +65,16 @@ export default function JobCard({ job }: { job: PublicJob }) {
         )}
 
         <div className="min-w-0 flex-1">
-          <h3 className="font-display text-lg leading-snug text-ink truncate">
-            {job.title}
-          </h3>
+          <div className="flex items-center gap-2">
+            <h3 className="truncate font-display text-lg leading-snug text-ink">
+              {job.title}
+            </h3>
+            {isNew && (
+              <span className="shrink-0 rounded-full bg-mustard px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-ink">
+                New
+              </span>
+            )}
+          </div>
 
           <p className="text-sm text-ink/70">{job.company}</p>
 
