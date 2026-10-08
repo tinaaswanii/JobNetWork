@@ -49,36 +49,36 @@ export default function JobCard({ job }: { job: PublicJob }) {
   )}`;
 
   return (
-    <div className="pinned-card p-5 pl-6 hover:border-mustard transition-colors">
+    <div className="pinned-card py-5">
       <Link href={`/jobs/${job.slug}`} className="flex items-start gap-4">
         {job.logo ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img
             src={job.logo}
             alt=""
-            className="h-10 w-10 object-contain shrink-0"
+            className="h-11 w-11 shrink-0 rounded-lg border bg-white object-contain p-1"
           />
         ) : (
-          <div className="h-10 w-10 shrink-0 bg-board text-paper flex items-center justify-center font-display text-lg">
+          <div className="h-11 w-11 shrink-0 rounded-lg bg-board text-white flex items-center justify-center text-base font-semibold">
             {job.company.charAt(0)}
           </div>
         )}
 
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-2">
-            <h3 className="truncate font-display text-lg leading-snug text-ink">
+            <h3 className="truncate text-base font-semibold leading-snug text-ink">
               {job.title}
             </h3>
             {isNew && (
-              <span className="shrink-0 rounded-full bg-mustard px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-ink">
+              <span className="shrink-0 rounded-md bg-mustard px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-ink">
                 New
               </span>
             )}
           </div>
 
-          <p className="text-sm text-ink/70">{job.company}</p>
+          <p className="text-sm text-muted-foreground">{job.company}</p>
 
-          <div className="mt-2 flex flex-wrap gap-x-3 gap-y-1 text-sm text-ink/60">
+          <div className="mt-2 flex flex-wrap gap-x-3 gap-y-1 text-sm text-muted-foreground">
             {job.location && <span>{job.location}</span>}
             {job.job_type && (
               <span className="capitalize">
@@ -95,20 +95,20 @@ export default function JobCard({ job }: { job: PublicJob }) {
               {visibleSkills.map((skill) => (
                 <span
                   key={skill}
-                  className="rounded-full bg-board/10 px-2 py-0.5 text-xs text-ink/70"
+                  className="rounded-md bg-muted px-2 py-0.5 text-xs text-ink/80"
                 >
                   {skill}
                 </span>
               ))}
               {extraSkillCount > 0 && (
-                <span className="rounded-full bg-board/10 px-2 py-0.5 text-xs text-ink/50">
+                <span className="rounded-md bg-muted px-2 py-0.5 text-xs text-muted-foreground">
                   +{extraSkillCount} more
                 </span>
               )}
             </div>
           )}
 
-          <p className="mt-2 text-xs text-ink/50">
+          <p className="mt-2 text-xs text-muted-foreground">
             {timeAgo(job.posted_date)}
           </p>
         </div>
@@ -119,15 +119,15 @@ export default function JobCard({ job }: { job: PublicJob }) {
           href={job.url}
           target="_blank"
           rel="noopener noreferrer"
-          className="inline-block rounded-lg bg-denim px-3 py-2 text-sm font-medium text-paper hover:opacity-90"
+          className="inline-block rounded-lg bg-board px-4 py-2 text-sm font-medium text-white transition hover:bg-[#0b3a28]"
         >
           Apply →
         </a>
         <Link
           href={matchHref}
-          className="inline-block rounded-lg bg-mustard px-3 py-2 text-sm font-medium text-ink hover:opacity-90"
+          className="inline-block rounded-lg border px-4 py-2 text-sm font-medium text-ink transition hover:bg-muted"
         >
-          Match My Resume
+          Match my resume
         </Link>
       </div>
     </div>
