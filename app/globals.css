@@ -2,35 +2,42 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Safety net: nothing should ever be able to push the page wider than the
-   viewport on mobile. Without this, a single unbroken long string (a URL,
-   an email, a long word) inside a flex/grid child can silently force the
-   whole page wider, which makes mobile browsers shrink-to-fit the entire
-   page — the "everything looks zoomed out" symptom. */
+/* Safety net: nothing should ever push the page wider than the viewport. */
 html,
 body {
   max-width: 100%;
   overflow-x: hidden;
 }
 
-/* Index-card look: a small "pin" dot at the top-left instead of a drop shadow,
-   a slightly torn/uneven left edge via clip-path, thin ink border instead of
-   the generic soft-grey-shadow rounded card. */
-.pinned-card {
-  position: relative;
-  border: 1px solid #e4ddc9;
-  background: #fffdf7;
+h1 {
+  font-weight: 700;
+  letter-spacing: -0.025em;
 }
-.pinned-card::before {
-  content: "";
-  position: absolute;
-  top: 10px;
-  left: 10px;
-  width: 8px;
-  height: 8px;
-  border-radius: 999px;
-  background: theme("colors.mustard");
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.25);
+h2,
+h3,
+h4 {
+  font-weight: 600;
+  letter-spacing: -0.015em;
+}
+
+/* Standard card used across the site: white, hairline border, soft shadow. */
+.pinned-card {
+  background: #fff;
+  border: 1px solid #e2e7e3;
+  border-radius: 14px;
+  box-shadow: 0 1px 2px rgba(14, 27, 20, 0.04);
+  padding-inline: 1.5rem !important;
+  transition: border-color 0.15s, box-shadow 0.15s, transform 0.15s;
+}
+@media (min-width: 768px) {
+  .pinned-card {
+    padding-inline: 1.75rem !important;
+  }
+}
+a.pinned-card:hover,
+.pinned-card:hover {
+  border-color: #b9c7bd;
+  box-shadow: 0 6px 20px rgba(14, 27, 20, 0.07);
 }
 
 :focus-visible {
