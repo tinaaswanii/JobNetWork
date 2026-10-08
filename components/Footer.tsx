@@ -28,6 +28,20 @@ const socialLinks = [
     ),
   },
   {
+    name: "Telegram",
+    href: "https://t.me/job_net_work",
+    icon: (
+      <svg
+        viewBox="0 0 24 24"
+        fill="currentColor"
+        className="h-5 w-5"
+        aria-hidden="true"
+      >
+        <path d="M21.9 4.3 18.7 19.5c-.2 1-.9 1.3-1.7.8l-4.8-3.5-2.3 2.2c-.3.3-.5.5-1 .5l.3-4.9 8.9-8c.4-.3-.1-.5-.6-.2L6.5 13.3 1.8 11.8c-1-.3-1-1 .2-1.5L20.4 3.2c.9-.3 1.6.2 1.5 1.1z" />
+      </svg>
+    ),
+  },
+  {
     name: "Newsletter",
     href: "https://www.linkedin.com/newsletters/jobnetwork-job-drops-7509184400451010561",
     icon: (
@@ -241,10 +255,6 @@ export default function Footer() {
         <div className="mt-8 border-t pt-6 text-center">
           <p className="text-xs text-muted-foreground">
             © {new Date().getFullYear()} JobNetWork. All rights reserved.
-          </p>
-          <p className="mx-auto mt-2 max-w-xl text-xs text-muted-foreground">
-            Some listings may be sponsored or earn us a referral fee when you
-            apply. It never costs you anything.
           </p>
         </div>
       </div>
