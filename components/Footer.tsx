@@ -246,6 +246,10 @@ export default function Footer() {
           <p className="text-xs text-muted-foreground">
             © {new Date().getFullYear()} JobNetWork. All rights reserved.
           </p>
+                    <p className="mx-auto mt-2 max-w-xl text-xs text-muted-foreground">
+            Some listings may be sponsored or earn us a referral fee when you
+            apply. It never costs you anything.
+          </p>
         </div>
       </div>
     </footer>
