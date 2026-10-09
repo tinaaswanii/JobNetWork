@@ -20,7 +20,7 @@ export default function TestimonialsPage() {
             ← Back to jobs
           </Link>
           <h1 className="mt-4 font-display text-4xl md:text-5xl">
-            💬 Testimonials
+            Testimonials
           </h1>
           <p className="mt-4 max-w-2xl text-paper/80">
             What people in the JobNetWork community have said.
