@@ -94,7 +94,7 @@ export const guides: Guide[] = [
       "Window functions",
       "Common interview queries",
     ],
-    group: "next",
+    group: "available",
   },
   {
     title: "Computer Networks Notes",
