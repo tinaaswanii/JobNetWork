@@ -15,9 +15,8 @@ function GuideCard({ g }: { g: Guide }) {
   const live = Boolean(g.url);
 
   return (
-    <div className="pinned-card flex flex-col p-6 pl-8">
+    <div className="pinned-card flex flex-col p-6">
       <div className="flex items-start justify-between gap-2">
-        <div className="text-3xl">{g.emoji}</div>
         {!live && (
           <span className="rounded-full bg-mustard px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wide text-ink">
             Coming soon
@@ -94,7 +93,7 @@ export default function GuidesPage() {
             ← Back to jobs
           </Link>
           <h1 className="mt-4 font-display text-4xl md:text-5xl">
-            📚 Guides & Notes
+            Guides & Notes
           </h1>
           <p className="mt-4 max-w-2xl text-paper/80">
             Practical preparation material based on my own placement season.
@@ -115,13 +114,13 @@ export default function GuidesPage() {
       <section className="mx-auto max-w-5xl px-6 pt-10 md:px-12">
         <Link
           href="/prep-trek/common-questions.html"
-          className="block rounded-xl border-2 border-board p-6 pl-8 transition hover:-translate-y-0.5"
+          className="block rounded-xl border-2 border-board p-6 transition hover:-translate-y-0.5"
         >
           <span className="inline-block rounded-full bg-board px-3 py-1 text-xs font-semibold uppercase tracking-wide text-paper">
             Free
           </span>
           <h2 className="mt-3 font-display text-xl md:text-2xl">
-            🎤 Start with the free interview questions
+            Start with the free interview questions
           </h2>
           <p className="mt-2 text-sm text-ink/70">
             7 free flashcards with sample answers. Like them? The full guide is
