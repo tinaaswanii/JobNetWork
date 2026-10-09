@@ -22,7 +22,7 @@ export const metadata: Metadata = {
 };
 
 export default function SqlPage() {
-  const notes = guides.find((g) => g.title === "SQL Notes + Practice Questions");
+  const notes = guides.find((g) => g.title === "SQL PrepTrek");
   const buyUrl = notes?.url;
 
   const jsonLd = {
