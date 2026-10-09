@@ -86,7 +86,7 @@ export const guides: Guide[] = [
   {
     title: "SQL Notes + Practice Questions",
     emoji: "🧮",
-    price: "₹79",
+    price: "₹29",
     blurb: "From SELECT to window functions, with practice.",
     includes: [
       "SELECT, WHERE, GROUP BY",
