@@ -80,21 +80,22 @@ export const guides: Guide[] = [
       "8 SQL interview queries with answers",
       "20 rapid-fire answers and a night-before checklist",
     ],
-    url: "https://topmate.io/getyourjob/new/tLzZ0PYs2H",
+    url: "https://topmate.io/getyourjob/2339522?utm_source=public_profile&utm_campaign=getyourjob",
     group: "available",
   },
   {
-    title: "SQL Notes + Practice Questions",
+    title: "SQL PrepTrek",
     emoji: "🧮",
     price: "₹29",
-    blurb: "From SELECT to window functions, with practice.",
+    originalPrice: "₹199",
+    blurb:
+      "24 interview cards, 15 solved queries and 17 rapid-fire Q&As in a 30-page PDF.",
     includes: [
-      "SELECT, WHERE, GROUP BY",
-      "Joins, subqueries, aggregates",
-      "Window functions",
-      "Common interview queries",
+      "24 concept cards, from query order to window functions",
+      "15 solved practice queries",
+      "17 rapid-fire answers and a night-before checklist",
     ],
-    url: "https://topmate.io/getyourjob/new/tLzZ0PYs2H"
+    url: "https://topmate.io/getyourjob/new/tLzZ0PYs2H",
     group: "available",
   },
   {
