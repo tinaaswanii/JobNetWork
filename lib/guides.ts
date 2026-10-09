@@ -80,7 +80,7 @@ export const guides: Guide[] = [
       "8 SQL interview queries with answers",
       "20 rapid-fire answers and a night-before checklist",
     ],
-    url: "https://topmate.io/getyourjob/2339522?utm_source=public_profile&utm_campaign=getyourjob",
+    url: "https://topmate.io/getyourjob/new/tLzZ0PYs2H",
     group: "available",
   },
   {
@@ -94,6 +94,7 @@ export const guides: Guide[] = [
       "Window functions",
       "Common interview queries",
     ],
+    url: "https://topmate.io/getyourjob/new/tLzZ0PYs2H"
     group: "available",
   },
   {
