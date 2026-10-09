@@ -74,7 +74,7 @@ export default function AboutPage() {
               "Career resources and updates",
               "Opportunities across different locations",
             ].map((item) => (
-              <div key={item} className="pinned-card p-5 pl-7">
+              <div key={item} className="pinned-card p-5">
                 <p className="text-ink/80">{item}</p>
               </div>
             ))}
@@ -87,7 +87,7 @@ export default function AboutPage() {
 
           <div className="mt-6 grid gap-6 md:grid-cols-3">
             <div className="rounded-xl border p-6">
-              <div className="text-2xl">🔎</div>
+              <div className="text-sm font-semibold tracking-wider text-board">01</div>
 
               <h3 className="mt-4 font-semibold">Browse</h3>
 
@@ -98,7 +98,7 @@ export default function AboutPage() {
             </div>
 
             <div className="rounded-xl border p-6">
-              <div className="text-2xl">📲</div>
+              <div className="text-sm font-semibold tracking-wider text-board">02</div>
 
               <h3 className="mt-4 font-semibold">Stay updated</h3>
 
@@ -109,7 +109,7 @@ export default function AboutPage() {
             </div>
 
             <div className="rounded-xl border p-6">
-              <div className="text-2xl">📰</div>
+              <div className="text-sm font-semibold tracking-wider text-board">03</div>
 
               <h3 className="mt-4 font-semibold">Follow our updates</h3>
 
@@ -139,7 +139,7 @@ export default function AboutPage() {
         </div>
 
         {/* Free access / safety */}
-        <div className="pinned-card p-6 pl-8">
+        <div className="pinned-card p-6">
           <h2 className="font-display text-2xl">Free for job seekers</h2>
 
           <p className="mt-3 leading-7 text-ink/75">
