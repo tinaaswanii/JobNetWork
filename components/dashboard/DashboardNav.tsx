@@ -6,13 +6,15 @@ import { usePathname } from "next/navigation";
 const items = [
   { name: "Overview", href: "/dashboard" },
   { name: "Applications", href: "/dashboard/applications" },
+  { name: "Interviews", href: "/dashboard/interviews" },
+  { name: "Follow-ups", href: "/dashboard/follow-ups" },
   { name: "Saved jobs", href: "/dashboard/saved-jobs" },
 ];
 
 export default function DashboardNav() {
   const pathname = usePathname();
   return (
-    <nav aria-label="Dashboard" className="mb-8 flex gap-1 border-b">
+    <nav aria-label="Dashboard" className="mb-8 flex gap-1 overflow-x-auto whitespace-nowrap border-b">
       {items.map((i) => {
         const active = i.href === "/dashboard" ? pathname === i.href : pathname.startsWith(i.href);
         return (

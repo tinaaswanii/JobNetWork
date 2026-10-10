@@ -74,7 +74,7 @@ export function Dialog({ title, onClose, children }: { title: string; onClose: (
   );
 }
 
-function Field({ label, error, children }: { label: string; error?: string; children: React.ReactNode }) {
+export function Field({ label, error, children }: { label: string; error?: string; children: React.ReactNode }) {
   return (
     <label className="block text-sm">
       <span className="mb-1 block font-medium">{label}</span>

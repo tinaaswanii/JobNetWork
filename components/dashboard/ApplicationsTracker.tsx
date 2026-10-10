@@ -10,6 +10,7 @@ import {
   formatDate,
 } from "@/lib/applications";
 import { deleteApplication, setApplicationStatus } from "@/app/dashboard/applications/actions";
+import ApplicationTimeline from "@/components/dashboard/ApplicationTimeline";
 import { ApplicationForm, Dialog, inputCls } from "@/components/dashboard/ApplicationForm";
 
 type Modal =
@@ -289,6 +290,7 @@ function ApplicationDetails({ a, onEdit, onDelete }: { a: Application; onEdit: (
           <p className="whitespace-pre-wrap rounded-lg bg-muted/60 p-3 text-sm">{a.notes}</p>
         </div>
       )}
+      <ApplicationTimeline applicationId={a.id} label={`${a.job_title} — ${a.company_name}`} />
       <div className="mt-6 flex justify-end gap-2">
         <button onClick={onDelete} className="rounded-lg border px-4 py-2 text-sm text-red-700">
           Delete
