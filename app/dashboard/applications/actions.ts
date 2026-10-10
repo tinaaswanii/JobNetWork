@@ -11,7 +11,9 @@ import {
   validateApplication,
 } from "@/lib/applications";
 
-export type ActionResult = { ok: true } | { ok: false; error: string; fieldErrors?: FieldErrors };
+export type ActionResult =
+  | { ok: true; id?: string; existing?: boolean }
+  | { ok: false; error: string; fieldErrors?: FieldErrors };
 
 const UNAUTH: ActionResult = { ok: false, error: "Your session expired. Please sign in again." };
 
@@ -51,16 +53,42 @@ export async function createApplication(input: ApplicationInput): Promise<Action
   const fieldErrors = validateApplication(input);
   if (Object.keys(fieldErrors).length) return { ok: false, error: "Please fix the highlighted fields.", fieldErrors };
 
+  // Optional link to a public job. Plain text id (slug or uuid); not a security boundary.
+  const jobId = typeof input.job_id === "string" && input.job_id.trim() ? input.job_id.trim().slice(0, 200) : null;
+
+  if (jobId) {
+    // Already tracking this job? Return that application instead of duplicating.
+    const { data: existing } = await s.supabase
+      .from("applications")
+      .select("id")
+      .eq("user_id", s.userId)
+      .eq("job_id", jobId)
+      .maybeSingle();
+    if (existing) return { ok: true, id: existing.id, existing: true };
+  }
+
   const { data, error } = await s.supabase
     .from("applications")
-    .insert({ ...toRow(input), user_id: s.userId })
+    .insert({ ...toRow(input), job_id: jobId, user_id: s.userId })
     .select("id")
     .single();
-  if (error || !data) return { ok: false, error: "Couldn't save the application. Please try again." };
+  if (error || !data) {
+    // Unique (user_id, job_id) race: another tab created it between check and insert.
+    if (jobId && error?.code === "23505") {
+      const { data: again } = await s.supabase
+        .from("applications")
+        .select("id")
+        .eq("user_id", s.userId)
+        .eq("job_id", jobId)
+        .maybeSingle();
+      if (again) return { ok: true, id: again.id, existing: true };
+    }
+    return { ok: false, error: "Couldn't save the application. Please try again." };
+  }
 
   await logActivity(s, data.id, "created", `Added with status "${input.status}"`);
   refresh();
-  return { ok: true };
+  return { ok: true, id: data.id };
 }
 
 export async function updateApplication(id: string, input: ApplicationInput): Promise<ActionResult> {

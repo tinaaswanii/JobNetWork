@@ -1,5 +1,6 @@
 import Link from "next/link";
 import type { PublicJob } from "@/lib/types";
+import JobActions from "@/components/jobs/JobActions";
 
 function formatSalary(job: PublicJob) {
   if (!job.salary_min && !job.salary_max) return null;
@@ -129,6 +130,14 @@ export default function JobCard({ job }: { job: PublicJob }) {
         >
           Match my resume
         </Link>
+        <JobActions job={{
+            job_id: job.slug,
+            title: job.title,
+            company: job.company,
+            location: job.location,
+            url: job.url,
+            job_type: job.job_type,
+          }} />
       </div>
     </div>
   );

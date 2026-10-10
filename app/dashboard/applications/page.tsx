@@ -11,7 +11,7 @@ export const metadata: Metadata = {
 export default async function ApplicationsPage({
   searchParams,
 }: {
-  searchParams: { new?: string };
+  searchParams: { new?: string; open?: string };
 }) {
   const { data, error } = await supabaseServer()
     .from("applications")
@@ -23,6 +23,7 @@ export default async function ApplicationsPage({
     <ApplicationsTracker
       applications={(data ?? []) as Application[]}
       openNew={searchParams.new === "1"}
+      openId={searchParams.open}
     />
   );
 }
