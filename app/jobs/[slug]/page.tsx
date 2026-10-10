@@ -5,6 +5,7 @@ import { supabaseAdmin } from "@/lib/supabase";
 import { getArthaJobBySlug } from "@/lib/job-cache";
 import { htmlToText, sanitizeJobHtml } from "@/lib/html";
 import type { PublicJob } from "@/lib/types";
+import JobActions from "@/components/jobs/JobActions";
 
 export const revalidate = 3600;
 
@@ -263,6 +264,14 @@ export default async function JobDetailPage({
             >
               Match my resume
             </Link>
+            <JobActions job={{
+            job_id: job.slug,
+            title: job.title,
+            company: job.company,
+            location: job.location,
+            url: job.url,
+            job_type: job.job_type,
+          }} />
           </div>
 
           <div

@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { supabaseBrowser } from "@/lib/auth/client";
 
 const WHATSAPP_URL = "https://chat.whatsapp.com/L9DG89VrT4V2UFjFkpv0Ok";
 
@@ -21,6 +22,17 @@ function isActive(pathname: string, href: string) {
 export default function SiteHeader() {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
+  const [signedIn, setSignedIn] = useState<boolean | null>(null);
+
+  // Reflect auth state client-side so public pages stay statically cacheable.
+  useEffect(() => {
+    const supabase = supabaseBrowser();
+    supabase.auth.getUser().then(({ data }) => setSignedIn(!!data.user));
+    const { data: sub } = supabase.auth.onAuthStateChange((_e, session) =>
+      setSignedIn(!!session?.user)
+    );
+    return () => sub.subscription.unsubscribe();
+  }, []);
 
   // Close the mobile menu after navigating.
   useEffect(() => setOpen(false), [pathname]);
@@ -55,14 +67,32 @@ export default function SiteHeader() {
           ))}
         </nav>
 
-        <a
-          href={WHATSAPP_URL}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="hidden rounded-lg bg-board px-3.5 py-1.5 text-sm font-semibold text-white transition hover:bg-[#0b3a28] md:inline-flex"
-        >
-          Join WhatsApp
-        </a>
+        <div className="hidden items-center gap-3 md:flex">
+          {signedIn ? (
+            <>
+              <Link href="/dashboard" className="text-sm font-medium text-muted-foreground hover:text-ink">
+                Dashboard
+              </Link>
+              <form action="/auth/signout" method="post">
+                <button type="submit" className="text-sm font-medium text-muted-foreground hover:text-ink">
+                  Log out
+                </button>
+              </form>
+            </>
+          ) : signedIn === false ? (
+            <Link href="/login" className="text-sm font-medium text-muted-foreground hover:text-ink">
+              Log in
+            </Link>
+          ) : null}
+          <a
+            href={WHATSAPP_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex rounded-lg bg-board px-3.5 py-1.5 text-sm font-semibold text-white transition hover:bg-[#0b3a28]"
+          >
+            Join WhatsApp
+          </a>
+        </div>
 
         <button
           type="button"
@@ -95,6 +125,16 @@ export default function SiteHeader() {
                 {l.name}
               </Link>
             ))}
+            {signedIn ? (
+              <>
+                <Link href="/dashboard" className="rounded-lg px-3 py-2.5 text-sm text-muted-foreground">Dashboard</Link>
+                <form action="/auth/signout" method="post">
+                  <button type="submit" className="w-full rounded-lg px-3 py-2.5 text-left text-sm text-muted-foreground">Log out</button>
+                </form>
+              </>
+            ) : signedIn === false ? (
+              <Link href="/login" className="rounded-lg px-3 py-2.5 text-sm text-muted-foreground">Log in</Link>
+            ) : null}
             <a
               href={WHATSAPP_URL}
               target="_blank"
