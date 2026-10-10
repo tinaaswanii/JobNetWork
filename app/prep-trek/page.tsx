@@ -1,182 +1,135 @@
 import type { Metadata } from "next";
+import Link from "next/link";
+import { prepTracks } from "@/lib/prep-trek-content";
+
+const SITE_URL = "https://job-net-work.vercel.app";
 
 export const metadata: Metadata = {
-  title: "About JobNetWork",
+  title: "Prep Trek — Interview Prep & Study Paths",
   description:
-    "Learn about JobNetWork, a platform helping students, freshers and early-career job seekers find jobs, internships and career opportunities.",
+    "Free interview prep by field: common interview questions with real answers, a short learning path, and cold-mail tips — for software engineering, data, sales, marketing, support/ops and design roles.",
+  alternates: { canonical: `${SITE_URL}/prep-trek` },
+  openGraph: {
+    type: "website",
+    url: `${SITE_URL}/prep-trek`,
+    siteName: "JobNetWork",
+    title: "Prep Trek — Interview Prep & Study Paths | JobNetWork",
+    description:
+      "Common interview questions with real answers, a short learning path, and cold-mail tips — organized by field.",
+  },
 };
 
-export default function AboutPage() {
+export default function PrepTrekIndexPage() {
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "CollectionPage",
+    name: "Prep Trek — Interview Prep & Study Paths",
+    url: `${SITE_URL}/prep-trek`,
+    description:
+      "Interview prep tracks by field: common questions, answers, and learning paths.",
+    hasPart: prepTracks.map((t) => ({
+      "@type": "WebPage",
+      name: t.name,
+      url: `${SITE_URL}/prep-trek/${t.slug}`,
+    })),
+  };
+
   return (
     <main className="min-h-screen bg-paper">
+      {/* eslint-disable-next-line react/no-danger */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
+
       {/* Hero */}
       <header className="bg-board text-paper px-6 py-12 md:px-12">
         <div className="mx-auto max-w-5xl">
-          <h1 className="font-display text-4xl md:text-5xl">
-            About JobNetWork
-          </h1>
+          <h1 className="font-display text-4xl md:text-5xl">🧭 Prep Trek</h1>
 
           <p className="mt-4 max-w-2xl text-paper/80">
-            Making jobs, internships and early-career opportunities easier to
-            find and keep up with.
+            Interviews aren't just about knowing your field — they're about
+            knowing what you'll be asked. Pick your track for common
+            questions with real answers, a short learning path, and what
+            actually works in a cold email.
           </p>
         </div>
       </header>
 
-      <section className="mx-auto max-w-4xl space-y-12 px-6 py-12 md:px-12">
-        {/* Why we started */}
-        <div>
-          <h2 className="font-display text-2xl">Why we started JobNetWork</h2>
-
-          <p className="mt-3 leading-7 text-ink/75">
-            Finding a job or internship can mean searching through job
-            platforms, company career pages, LinkedIn posts and different
-            online communities.
-          </p>
-
-          <p className="mt-3 leading-7 text-ink/75">
-            We started building JobNetWork with a simple goal — to make
-            opportunities easier to find and keep track of, especially for
-            students, freshers and people starting their careers.
-          </p>
-        </div>
-
-        {/* What JobNetWork is */}
-        <div>
-          <h2 className="font-display text-2xl">What is JobNetWork?</h2>
-
-          <p className="mt-3 leading-7 text-ink/75">
-            JobNetWork is a job discovery platform focused on students,
-            freshers and early-career job seekers. We bring jobs, internships
-            and other career opportunities together so they are easier to
-            discover.
-          </p>
-
-          <p className="mt-3 leading-7 text-ink/75">
-            Alongside the website, we share newly added opportunities through
-            our WhatsApp community and LinkedIn newsletter, giving people
-            different ways to stay updated.
-          </p>
-        </div>
-
-        {/* What you can find */}
-        <div>
-          <h2 className="font-display text-2xl">
-            What you can find on JobNetWork
-          </h2>
-
-          <div className="mt-5 grid gap-4 md:grid-cols-2">
-            {[
-              "Jobs across different roles and experience levels",
-              "Internships and apprenticeships",
-              "Fresher and graduate opportunities",
-              "Student and early-career opportunities",
-              "Career resources and updates",
-              "Opportunities across different locations",
-            ].map((item) => (
-              <div key={item} className="pinned-card p-5">
-                <p className="text-ink/80">{item}</p>
-              </div>
-            ))}
+      {/* Founder note — real credibility, not a generic "about us" blurb */}
+      <section className="border-b px-6 py-10 md:px-12">
+        <div className="mx-auto max-w-5xl">
+          <div className="pinned-card flex flex-col gap-4 p-6 pl-8 md:flex-row md:items-center md:gap-8 md:p-8 md:pl-10">
+            <div className="text-4xl">👋</div>
+            <p className="text-sm leading-7 text-ink/75 md:text-base">
+              <span className="font-semibold text-ink">
+                Built by someone who's actually been through it.
+              </span>{" "}
+              I'm Tina — a BCA graduate who went into placement season with
+              the same last-minute panic Prep Trek exists to fix. I ended up
+              with 4 offers (Accenture, Deloitte, Innove8, and Cognizant) and
+              got my resume shortlisted at Google and Amazon. These are the
+              same notes and drills I actually used to prepare — I'm a job
+              seeker too, not a career coach writing from the outside.
+            </p>
           </div>
-        </div>
-
-        {/* How it works */}
-        <div>
-          <h2 className="font-display text-2xl">How we share opportunities</h2>
-
-          <div className="mt-6 grid gap-6 md:grid-cols-3">
-            <div className="rounded-xl border p-6">
-              <div className="text-sm font-semibold tracking-wider text-board">01</div>
-
-              <h3 className="mt-4 font-semibold">Browse</h3>
-
-              <p className="mt-2 text-sm leading-6 text-ink/70">
-                Explore available jobs and internships through the JobNetWork
-                website.
-              </p>
-            </div>
-
-            <div className="rounded-xl border p-6">
-              <div className="text-sm font-semibold tracking-wider text-board">02</div>
-
-              <h3 className="mt-4 font-semibold">Stay updated</h3>
-
-              <p className="mt-2 text-sm leading-6 text-ink/70">
-                Join our WhatsApp community to receive newly shared
-                opportunities directly.
-              </p>
-            </div>
-
-            <div className="rounded-xl border p-6">
-              <div className="text-sm font-semibold tracking-wider text-board">03</div>
-
-              <h3 className="mt-4 font-semibold">Follow our updates</h3>
-
-              <p className="mt-2 text-sm leading-6 text-ink/70">
-                Follow our LinkedIn newsletter for job opportunities and
-                career-related updates.
-              </p>
-            </div>
-          </div>
-        </div>
-
-        {/* Growing with the community */}
-        <div>
-          <h2 className="font-display text-2xl">Growing with the community</h2>
-
-          <p className="mt-3 leading-7 text-ink/75">
-            JobNetWork is still growing. We’re continuously improving the
-            website, adding new opportunities and listening to feedback from
-            the people who use it.
-          </p>
-
-          <p className="mt-3 leading-7 text-ink/75">
-            Our goal is to build something genuinely useful for students and
-            early-career job seekers rather than simply adding another place
-            to search for jobs.
-          </p>
-        </div>
-
-        {/* Free access / safety */}
-        <div className="pinned-card p-6">
-          <h2 className="font-display text-2xl">Free for job seekers</h2>
-
-          <p className="mt-3 leading-7 text-ink/75">
-            JobNetWork does not charge candidates a registration fee to access
-            or apply for the opportunities listed on the platform.
-          </p>
-
-          <p className="mt-3 leading-7 text-ink/75">
-            Always check the original employer or application page before
-            applying, and never send money to someone simply because they
-            promise a job or internship.
-          </p>
-        </div>
-
-        {/* Goal */}
-        <div>
-          <h2 className="font-display text-2xl">What we’re building toward</h2>
-
-          <p className="mt-3 leading-7 text-ink/75">
-            We want JobNetWork to become a useful place for students, freshers
-            and early-career job seekers to discover opportunities, stay
-            updated and access helpful career resources.
-          </p>
-        </div>
-
-        {/* Closing */}
-        <div className="border-t border-ink/10 pt-8">
-          <p className="font-display text-xl">
-            Stay calm. Start applying.
-          </p>
-
-          <p className="mt-3 text-sm text-ink/60">
-            — The JobNetWork team
-          </p>
         </div>
       </section>
+
+      {/* Featured: interactive flashcard page, not a track, so it's called
+          out on its own rather than squeezed into the track grid below */}
+      <section className="mx-auto max-w-5xl px-6 pt-12 md:px-12">
+        <a
+          href="/prep-trek/common-questions.html"
+          className="flex flex-col gap-4 rounded-xl border-2 border-board bg-paper p-6 pl-8 transition hover:-translate-y-0.5 md:flex-row md:items-center md:justify-between md:p-8 md:pl-10"
+        >
+          <div>
+            <span className="inline-block rounded-full bg-board px-3 py-1 text-xs font-semibold uppercase tracking-wide text-paper">
+              Interactive
+            </span>
+            <h2 className="mt-3 font-display text-xl md:text-2xl">
+              🎤 Interview Questions, Answered Like a Pro
+            </h2>
+            <p className="mt-2 max-w-xl text-sm leading-6 text-ink/70">
+              7 tappable flashcards with the exact structure to answer the
+              questions every interviewer asks — tell me about yourself,
+              weaknesses, STAR, and more. Free, no sign-up.
+            </p>
+          </div>
+          <span className="inline-flex shrink-0 items-center justify-center rounded-lg bg-board px-6 py-3 text-sm font-semibold text-paper">
+            Open flashcards →
+          </span>
+        </a>
+      </section>
+
+      <section className="mx-auto max-w-5xl px-6 py-12 md:px-12">
+        <div className="grid gap-5 md:grid-cols-2">
+          {prepTracks.map((track) => (
+            <Link
+              key={track.slug}
+              href={`/prep-trek/${track.slug}`}
+              className="pinned-card block p-6 pl-8 transition hover:-translate-y-0.5"
+            >
+              <div className="flex items-start justify-between gap-2">
+                <div className="text-3xl">{track.emoji}</div>
+                {track.premium && (
+                  <span className="rounded-full bg-mustard px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wide text-ink">
+                    Premium available
+                  </span>
+                )}
+              </div>
+              <h2 className="mt-3 font-display text-xl">{track.name}</h2>
+              <p className="mt-2 text-sm leading-6 text-ink/70">
+                {track.tagline}
+              </p>
+              <p className="mt-3 text-xs font-medium uppercase tracking-wide text-ink/40">
+                {track.commonQuestions.length} questions · {track.roadmap.length}-week roadmap →
+              </p>
+            </Link>
+          ))}
+        </div>
+      </section>
+
     </main>
   );
 }
-
