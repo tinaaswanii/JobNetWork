@@ -128,6 +128,17 @@ export default function PrepTrackPage({
                 </a>
               </div>
             )}
+
+            {track.interactiveUrl && (
+              <div className="mt-5 border-t border-ink/10 pt-5">
+                <a
+                  href={track.interactiveUrl}
+                  className="inline-flex items-center text-sm font-semibold text-ink underline decoration-mustard decoration-2 underline-offset-4 hover:text-ink/70"
+                >
+                  🎤 Prefer tappable flashcards? Try the interactive version →
+                </a>
+              </div>
+            )}
           </div>
         )}
 

@@ -68,6 +68,10 @@ export type PrepTrack = {
   resources: Resource[];
   coldMailTips: string[];
   freeDownload?: FreeDownload;
+  // An optional on-page interactive version of a track's free content —
+  // tap-to-flip flashcards, same style as /prep-trek/common-questions.html —
+  // for people who'd rather study on-screen than download a PDF.
+  interactiveUrl?: string;
   premium?: PremiumTeaser;
 };
 
@@ -212,6 +216,7 @@ export const prepTracks: PrepTrack[] = [
       label: "Download the free PDF",
       note: "Same 14 questions as below, plus 2 DSA mock problems and the 60-minute mock structure — typeset to actually study from, offline or on your phone.",
     },
+    interactiveUrl: "/prep-trek/java-questions.html",
     commonQuestions: [
       {
         question: "What is the difference between JDK, JRE, and JVM?",
