@@ -517,6 +517,19 @@ export const prepTracks: PrepTrack[] = [
       "The same honesty that works in an HR round works in a cold email — be specific about why this company, not generic.",
       "Keep it short enough that a busy hiring manager reads the whole thing, not just the first line.",
     ],
+    premium: {
+      heading: "Prep Trek Premium: Interview Prep Trek Guide",
+      intro:
+        "This free track covers the questions and structure — the full guide is the same practical PDF built from Tina's own placement season, with worked answers and day-of-interview tips to study offline.",
+      bullets: [
+        "Common interview questions with answers",
+        "Technical revision points",
+        "HR and technical interview guidance",
+        "Practical tips for interview day",
+      ],
+      ctaLabel: "Get the full guide on Topmate",
+      ctaUrl: "https://topmate.io/getyourjob/2334509?utm_source=public_profile&utm_campaign=getyourjob",
+    },
   },
   {
     slug: "interviewer-tricks-and-tactics",
@@ -605,6 +618,19 @@ export const prepTracks: PrepTrack[] = [
     coldMailTips: [
       "The same composure that works against a stress tactic works in a cold follow-up — calm and specific beats eager and long.",
     ],
+    premium: {
+      heading: "Prep Trek Premium: Interview Prep Trek Guide",
+      intro:
+        "These tactics show up in every field. The full guide is the same practical PDF built from Tina's own placement season, with worked answers and day-of-interview tips to study offline.",
+      bullets: [
+        "Common interview questions with answers",
+        "Technical revision points",
+        "HR and technical interview guidance",
+        "Practical tips for interview day",
+      ],
+      ctaLabel: "Get the full guide on Topmate",
+      ctaUrl: "https://topmate.io/getyourjob/2334509?utm_source=public_profile&utm_campaign=getyourjob",
+    },
   },
   {
     slug: "data-analytics",

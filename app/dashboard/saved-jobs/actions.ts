@@ -48,7 +48,10 @@ export async function saveJob(job: JobSnapshot): Promise<SaveResult> {
     },
     { onConflict: "user_id,job_id", ignoreDuplicates: true }
   );
-  if (error) return { ok: false, error: "Couldn't save this job. Please try again." };
+  if (error) {
+    console.error("[saveJob] upsert failed:", error);
+    return { ok: false, error: "Couldn't save this job. Please try again." };
+  }
   revalidatePath("/dashboard/saved-jobs");
   return { ok: true };
 }
@@ -62,7 +65,10 @@ export async function removeSavedJob(jobId: string): Promise<SaveResult> {
     .delete()
     .eq("user_id", data.user.id)
     .eq("job_id", jobId);
-  if (error) return { ok: false, error: "Couldn't remove this job. Please try again." };
+  if (error) {
+    console.error("[removeSavedJob] delete failed:", error);
+    return { ok: false, error: "Couldn't remove this job. Please try again." };
+  }
   revalidatePath("/dashboard/saved-jobs");
   return { ok: true };
 }
