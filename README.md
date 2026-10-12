@@ -1,6 +1,6 @@
 # JobNetWork — student job listings (artha.link + your own postings)
 
-Stack: **Next.js 14 (App Router) + Supabase (Postgres/Auth) + Vercel (hosting + cron) + Resend (email digests)**.
+Stack: **Next.js 14 (App Router) + Supabase (Postgres/Auth) + Vercel (hosting + cron) + Brevo (email alerts)**.
 Reasoning: it's the fastest path for a solo founder to a real production site —
 Supabase gives you a database, auth, and a dashboard without running your own server;
 Vercel gives you hosting + built-in cron for the email digest and price scrape jobs; both have generous free tiers.
@@ -49,7 +49,7 @@ The stub uses `cheerio` for static HTML; if a target site needs JS rendering, sw
 
 ## Email automation (new-jobs digest)
 
-`components/EmailSignup.tsx` collects an email + saved filters into the `subscribers` table. `app/api/cron/email-digest/route.ts` runs daily (see `vercel.json`), pulls jobs posted since each subscriber's `last_sent_at`, and sends via Resend (resend.com — 3,000 free emails/month, dead simple API, better deliverability out of the box than raw SMTP). Swap in SendGrid/Postmark if you prefer; the calling code is a 10-line change.
+`components/EmailSignup.tsx` collects an email + saved filters into the `subscribers` table. `app/api/cron/email-digest/route.ts` runs daily (see `vercel.json`), pulls jobs posted since each subscriber's `last_sent_at`, and sends via Brevo (set `BREVO_API_KEY` and a verified `EMAIL_FROM`; check it with `/api/cron/email-check?key=CRON_SECRET`). Swap in SendGrid/Postmark if you prefer; the calling code is a 10-line change.
 
 ## Monetization notes (from what's live in 2026)
 

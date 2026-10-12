@@ -7,6 +7,7 @@ export default function EmailSignup({ filters }: { filters: Filters }) {
   const [email, setEmail] = useState("");
   const [skills, setSkills] = useState("");
   const [status, setStatus] = useState<"idle" | "saving" | "done" | "error">("idle");
+  const [emailSent, setEmailSent] = useState(true);
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
@@ -32,6 +33,8 @@ export default function EmailSignup({ filters }: { filters: Filters }) {
         body: JSON.stringify({ email, filters: alertFilters }),
       });
       if (!res.ok) throw new Error();
+      const body = await res.json().catch(() => ({}));
+      setEmailSent(body.emailSent !== false);
       setStatus("done");
     } catch {
       setStatus("error");
@@ -41,7 +44,9 @@ export default function EmailSignup({ filters }: { filters: Filters }) {
   if (status === "done") {
     return (
       <p className="text-sm text-board">
-        Check your inbox to confirm — you'll get new matching jobs by email.
+        {emailSent
+          ? "You're subscribed — check your inbox for a welcome email. New matching jobs will arrive by email."
+          : "You're subscribed — new matching jobs will arrive by email. (Our welcome email is delayed; we'll retry shortly.)"}
       </p>
     );
   }

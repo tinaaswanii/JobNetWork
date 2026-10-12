@@ -1,15 +1,15 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase";
+import { emailConfigured, sendEmail, welcomeEmail } from "@/lib/email";
+
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 export async function POST(req: NextRequest) {
-  const { email, filters } = await req.json();
+  const { email, filters } = await req.json().catch(() => ({}));
 
-  if (!email || typeof email !== "string" || !email.includes("@")) {
+  if (!email || typeof email !== "string" || email.length > 254 || !EMAIL_RE.test(email.trim())) {
     return NextResponse.json(
-      {
-        success: false,
-        error: { code: "VALIDATION_ERROR", message: "Valid email required." },
-      },
+      { success: false, error: { code: "VALIDATION_ERROR", message: "Valid email required." } },
       { status: 400 }
     );
   }
@@ -17,18 +17,16 @@ export async function POST(req: NextRequest) {
   const cleanEmail = email.trim().toLowerCase();
   const db = supabaseAdmin();
 
-  // Save the subscription FIRST, unconditionally — this is the part that actually
-  // matters (you get matched jobs by email going forward). Whether the one-time
-  // "you're subscribed" confirmation email sends successfully is secondary and
-  // should never block this from working.
-  const { error } = await db
+  // Save the subscription FIRST — that's what matters. The welcome email is
+  // best-effort and never blocks it, but its outcome is now RECORDED
+  // (welcome_sent_at / welcome_error) and failed ones are retried by the daily cron.
+  const { data: sub, error } = await db
     .from("subscribers")
-    .upsert(
-      { email: cleanEmail, filters: filters ?? {}, confirmed: true },
-      { onConflict: "email" }
-    );
+    .upsert({ email: cleanEmail, filters: filters ?? {}, confirmed: true }, { onConflict: "email" })
+    .select("id, welcome_sent_at, unsubscribe_token")
+    .single();
 
-  if (error) {
+  if (error || !sub) {
     console.error("[api/subscribe] supabase error", error);
     return NextResponse.json(
       { success: false, error: { code: "INTERNAL_ERROR", message: "Couldn't save subscription." } },
@@ -36,53 +34,23 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  // Confirmation email is best-effort from here — if Brevo isn't configured or the
-  // send fails, the subscription is still saved and the person still gets matches
-  // from the digest cron; we just log it instead of failing the whole request.
-  if (!process.env.BREVO_API_KEY || !process.env.EMAIL_FROM) {
-    console.warn("[api/subscribe] Brevo not configured — subscription saved, confirmation email skipped");
+  if (sub.welcome_sent_at) return NextResponse.json({ success: true, emailSent: true, alreadyWelcomed: true });
+
+  if (!emailConfigured()) {
+    console.warn("[api/subscribe] BREVO_API_KEY / EMAIL_FROM missing — welcome email skipped");
+    await db.from("subscribers").update({ welcome_error: "Email not configured (BREVO_API_KEY / EMAIL_FROM)" }).eq("id", sub.id);
     return NextResponse.json({ success: true, emailSent: false });
   }
 
-  try {
-    const res = await fetch("https://api.brevo.com/v3/smtp/email", {
-      method: "POST",
-      headers: {
-        "api-key": process.env.BREVO_API_KEY,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        sender: parseFromHeader(process.env.EMAIL_FROM),
-        to: [{ email: cleanEmail }],
-        subject: "JobNetWork email alerts are active",
-        htmlContent: `
-          <div style="font-family:Arial,sans-serif;max-width:600px;margin:auto;padding:24px;">
-            <h2>JobNetWork email alerts are active</h2>
-            <p>You are now subscribed to receive new jobs matching your selected filters.</p>
-            <p>We'll email you when new matching jobs are available.</p>
-            <p style="margin-top:24px;">— JobNetWork</p>
-          </div>
-        `,
-      }),
-    });
+  const mail = welcomeEmail({ keywords: filters?.niche_keywords, token: sub.unsubscribe_token });
+  const result = await sendEmail({ to: cleanEmail, ...mail, unsubscribeToken: sub.unsubscribe_token });
 
-    if (!res.ok) {
-      const body = await res.text();
-      console.error(`[api/subscribe] Brevo send failed (${res.status}): ${body}`);
-      return NextResponse.json({ success: true, emailSent: false });
-    }
-
+  if (result.ok) {
+    await db.from("subscribers").update({ welcome_sent_at: new Date().toISOString(), welcome_error: null }).eq("id", sub.id);
     return NextResponse.json({ success: true, emailSent: true });
-  } catch (err) {
-    console.error("[api/subscribe] Brevo error", err);
-    return NextResponse.json({ success: true, emailSent: false });
   }
-}
 
-function parseFromHeader(value: string): { name?: string; email: string } {
-  const match = value.match(/^(.*)<(.+)>$/);
-  if (match) {
-    return { name: match[1].trim() || undefined, email: match[2].trim() };
-  }
-  return { email: value.trim() };
+  console.error(`[api/subscribe] Brevo send failed (${result.status ?? "network"}): ${result.error}`);
+  await db.from("subscribers").update({ welcome_error: `${result.status ?? ""} ${result.error}`.trim().slice(0, 500) }).eq("id", sub.id);
+  return NextResponse.json({ success: true, emailSent: false });
 }
