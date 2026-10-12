@@ -9,6 +9,7 @@ const items = [
   { name: "Interviews", href: "/dashboard/interviews" },
   { name: "Follow-ups", href: "/dashboard/follow-ups" },
   { name: "Saved jobs", href: "/dashboard/saved-jobs" },
+  { name: "Job alerts", href: "/dashboard/alerts" },
 ];
 
 export default function DashboardNav() {
