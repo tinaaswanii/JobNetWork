@@ -174,8 +174,6 @@ export default function PrepTrekIndexPage() {
           ))}
         </div>
       </section>
-
-      <Testimonials />
     </main>
   );
 }
