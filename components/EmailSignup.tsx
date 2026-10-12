@@ -45,7 +45,7 @@ export default function EmailSignup({ filters }: { filters: Filters }) {
     return (
       <p className="text-sm text-board">
         {emailSent
-          ? "You're subscribed. Check your inbox — and your spam or promotions folder — for a welcome email. If it's in spam, mark it "Not spam" so future job alerts reach you."
+          ? "You're subscribed. Check your inbox — and your spam or promotions folder — for a welcome email. If it's in spam, mark it Not spam so future job alerts reach you."
           : "You're subscribed — new matching jobs will arrive by email. (Our welcome email is delayed; we'll retry shortly.)"}
       </p>
     );
