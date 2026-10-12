@@ -103,6 +103,50 @@ export default function PrepTrekIndexPage() {
         </a>
       </section>
 
+      {/* Featured: CS fundamentals as tappable cards, not tracks — same
+          interactive format as the flashcards above, one page per subject */}
+      <section className="mx-auto max-w-5xl px-6 pt-12 md:px-12">
+        <h2 className="font-display text-xl md:text-2xl">
+          CS fundamentals, card by card
+        </h2>
+        <p className="mt-2 max-w-xl text-sm leading-6 text-ink/60">
+          A one-line answer, a picture, a quick try-it and the trap for each
+          question. About 15 minutes per subject, free, no sign-up.
+        </p>
+        <div className="mt-5 grid gap-4 sm:grid-cols-3">
+          <a
+            href="/prep-trek/dbms"
+            className="pinned-card block p-5 pl-7 transition hover:-translate-y-0.5"
+          >
+            <div className="text-2xl">🗄️</div>
+            <h3 className="mt-3 font-semibold">DBMS</h3>
+            <p className="mt-2 text-sm leading-6 text-ink/70">
+              10 cards — keys, normalization, ACID, joins, indexing
+            </p>
+          </a>
+          <a
+            href="/prep-trek/sql"
+            className="pinned-card block p-5 pl-7 transition hover:-translate-y-0.5"
+          >
+            <div className="text-2xl">🧮</div>
+            <h3 className="mt-3 font-semibold">SQL</h3>
+            <p className="mt-2 text-sm leading-6 text-ink/70">
+              10 cards — query order, joins, window functions
+            </p>
+          </a>
+          <a
+            href="/prep-trek/computer-networks"
+            className="pinned-card block p-5 pl-7 transition hover:-translate-y-0.5"
+          >
+            <div className="text-2xl">🌐</div>
+            <h3 className="mt-3 font-semibold">Computer Networks</h3>
+            <p className="mt-2 text-sm leading-6 text-ink/70">
+              10 cards — OSI/TCP-IP, DNS, HTTPS, subnetting, ports
+            </p>
+          </a>
+        </div>
+      </section>
+
       <section className="mx-auto max-w-5xl px-6 py-12 md:px-12">
         <div className="grid gap-5 md:grid-cols-2">
           {prepTracks.map((track) => (
