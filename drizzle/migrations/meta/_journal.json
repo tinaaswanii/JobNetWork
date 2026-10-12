@@ -1,0 +1,20 @@
+{
+  "version": "7",
+  "dialect": "postgresql",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "7",
+      "when": 1791613494282,
+      "tag": "0000_init_profiles_applications",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1791616482431,
+      "tag": "0001_create_cached_jobs_table_for_job_detail_lookups",
+      "breakpoints": true
+    }
+  ]
+}
