@@ -1,6 +1,5 @@
 {
-  "crons": [
-    { "path": "/api/cron/email-digest", "schedule": "0 8 * * *" },
-    { "path": "/api/cron/price-scrape", "schedule": "0 9 * * *" }
-  ]
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "framework": null,
+  "buildCommand": "vite build"
 }
