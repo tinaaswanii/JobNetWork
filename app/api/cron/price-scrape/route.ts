@@ -20,7 +20,7 @@ const SOURCES: { source: string; url: string; selector: string }[] = [
 
 export async function GET(req: NextRequest) {
   const auth = req.headers.get("authorization");
-  if (auth !== `Bearer ${process.env.CRON_SECRET}`) {
+  if (!process.env.CRON_SECRET || auth !== `Bearer ${process.env.CRON_SECRET}`) {
     return NextResponse.json({ success: false, error: "unauthorized" }, { status: 401 });
   }
 
