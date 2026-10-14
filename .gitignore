@@ -1,6 +1,32 @@
+# dependencies
 node_modules
+
+# next.js / build output
 .next
+out
+*.tsbuildinfo
+next-env.d.ts
+
+# environment files — NEVER commit real values; only .env.example is tracked
 .env
-.env.local
+.env.*
+!.env.example
+
+# vercel
 .vercel
+
+# logs, editor, OS
 *.log
+npm-debug.log*
+.DS_Store
+.idea
+.vscode/*
+!.vscode/extensions.json
+
+# python (app.py helper)
+__pycache__/
+*.pyc
+seen_jobs.json
+
+# test output
+coverage
