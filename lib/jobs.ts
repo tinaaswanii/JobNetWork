@@ -1,202 +1,273 @@
-import { fetchJobs, ArthaApiError, type PublicJob, type JobsQuery } from "@/lib/artha";
-import { supabaseAdmin } from "@/lib/supabase";
-import { cacheArthaJobsInBackground, fetchCachedJobs } from "@/lib/job-cache";
+"use client";
 
-export type JobsPageResult = {
-  items: PublicJob[];
-  total: number;
-  limit: number;
-  offset: number;
-  has_more: boolean;
-};
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useRouter, useSearchParams, usePathname } from "next/navigation";
+import type { PublicJob } from "@/lib/types";
+import JobCard from "@/components/JobCard";
+import FilterBar, { emptyFilters, type Filters } from "@/components/FilterBar";
+import Pagination from "@/components/Pagination";
+import EmailSignup from "@/components/EmailSignup";
 
-// Turn one of your own_jobs rows into the same shape as artha.link's PublicJob,
-// so the frontend renders both feeds with one component.
-function normalizeOwnJob(row: any): PublicJob {
-  return {
-    id: `own_${row.id}`,
-    slug: row.id,
-    title: row.title,
-    company: row.company,
-    logo: row.logo,
-    description: row.description,
-    location: row.location,
-    city: row.city,
-    state: row.state,
-    country: row.country,
-    job_type: row.job_type,
-    salary_min: row.salary_min,
-    salary_max: row.salary_max,
-    salary_curr: row.salary_curr,
-    exp_min: null,
-    exp_max: null,
-    exp_unit: null,
-    skills: row.skills ?? [],
-    posted_date: row.posted_date,
-    url: row.apply_url, // your own listings link straight to your own apply URL
-  };
-}
+// Exported so app/page.tsx's server-rendered first page fetches exactly
+// this many jobs too — mismatched limits made the homepage render a huge
+// wall of cards (50) before the client ever re-fetches down to this size.
+export const LIMIT = 12;
 
-// Typed as `any` deliberately: lib/supabase.ts's createClient() isn't given a
-// Database generic, so the .from()/.select() chain has no concrete row type to
-// narrow to here, and the two callers below apply .select() differently
-// (one for rows, one for a count-only head request), so they don't share an
-// exact builder type anyway.
-function applyOwnJobFilters(q: any, query: JobsQuery) {
-  let scoped = q;
-  if (query.q) {
-    const search = query.q.trim();
-    scoped = scoped.or(
-      `title.ilike.%${search}%,company.ilike.%${search}%,description.ilike.%${search}%,location.ilike.%${search}%,city.ilike.%${search}%,state.ilike.%${search}%,country.ilike.%${search}%`
-    );
+const FILTER_KEYS = [
+  "q",
+  "job_type",
+  "work_mode",
+  "exp_level",
+  "sort_by",
+  "location",
+] as const;
+
+function filtersFromSearchParams(sp: URLSearchParams): Filters {
+  const out = { ...emptyFilters };
+  for (const key of FILTER_KEYS) {
+    const v = sp.get(key);
+    if (v) out[key] = v;
   }
-  if (query.location) scoped = scoped.eq("country", query.location);
-  if (query.job_type) scoped = scoped.eq("job_type", query.job_type);
-  if (query.work_mode) scoped = scoped.eq("work_mode", query.work_mode);
-  if (query.company) scoped = scoped.ilike("company", `%${query.company}%`);
-  return scoped;
+  return out;
 }
 
-async function fetchOwnJobs(query: JobsQuery) {
-  const db = supabaseAdmin();
-  const q = applyOwnJobFilters(db.from("own_jobs").select("*").eq("is_active", true), query);
+export default function JobsBoard({
+  initialJobs,
+}: {
+  initialJobs: PublicJob[];
+}) {
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
 
-  const { data, error } = await q.order("posted_date", { ascending: false }).limit(20);
-  if (error) {
-    console.error("[lib/jobs] supabase error", error);
-    return [];
-  }
-  return data ?? [];
-}
+  const urlOffset = useMemo(() => {
+    const o = parseInt(searchParams.get("offset") ?? "0", 10);
+    return Number.isFinite(o) && o >= 0 ? o : 0;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
-async function fetchOwnJobsCount(query: JobsQuery) {
-  const db = supabaseAdmin();
-  const q = applyOwnJobFilters(
-    db.from("own_jobs").select("*", { count: "exact", head: true }).eq("is_active", true),
-    query
+  const urlHasFilters = useMemo(
+    () => FILTER_KEYS.some((k) => searchParams.get(k)),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    []
   );
 
-  const { count, error } = await q;
-  if (error) {
-    console.error("[lib/jobs] supabase count error", error);
-    return 0;
-  }
-  return count ?? 0;
-}
+  const [filters, setFiltersState] = useState<Filters>(() =>
+    urlHasFilters ? filtersFromSearchParams(searchParams) : emptyFilters
+  );
+  const [offset, setOffsetState] = useState(urlOffset);
+  const [jobs, setJobs] = useState<PublicJob[]>(initialJobs);
+  const [total, setTotal] = useState(initialJobs.length);
+  const [fetchState, setFetchState] = useState<
+    "loading" | "ready" | "error" | "rate_limited"
+  >(initialJobs.length > 0 ? "ready" : "loading");
+  const [errorMessage, setErrorMessage] = useState("");
 
-// Merges the Artha feed with your own_jobs table. Used by both
-// app/api/jobs/route.ts (for client-side filtering/pagination) and
-// app/page.tsx (for the initial server-rendered page, so real job content
-// — not just a loading shell — is present in the HTML search engines see).
-export async function getJobsPage(query: JobsQuery): Promise<JobsPageResult> {
-  const isSearching = Boolean(query.q && query.q.trim());
+  const skipNextFetch = useRef(
+    initialJobs.length > 0 && !urlHasFilters && urlOffset === 0
+  );
 
-  // Artha's own search is fuzzy against its ~500K+ job pool — a query like
-  // "corporate" can match loads of jobs that only mention the word deep in
-  // a description, not the job itself. When searching, ask Artha for a
-  // bigger pool up front so there's enough left over after we filter that
-  // pool down to genuine title/company matches below.
-  const arthaQuery: JobsQuery = isSearching
-    ? { ...query, limit: Math.max(query.limit ?? 10, 100) }
-    : query;
-
-  // Attempt live Artha fetch first; on upstream failure (expired key, network
-  // error, 429, etc.), fall back to cached_jobs in Supabase without failing the page.
-  const arthaPromise = fetchJobs(arthaQuery).catch(async (err) => {
-    console.warn(
-      `[lib/jobs] Artha API failed (${err instanceof Error ? err.message : "unknown"}). Falling back to cached_jobs.`
-    );
-    return fetchCachedJobs(arthaQuery);
-  });
-
-  const [arthaResult, ownRows, ownTotal] = await Promise.all([
-    arthaPromise,
-    query.offset === 0 ? fetchOwnJobs(query) : Promise.resolve([]),
-    fetchOwnJobsCount(query),
-  ]);
-
-  const ownAsJobs = ownRows.map(normalizeOwnJob);
-
-  // Strict search: only keep Artha results whose title or company actually
-  // contains every word that was searched for, rather than trusting
-  // whatever loosely-relevant set Artha's own fuzzy matching returned.
-  let arthaItems = arthaResult.items;
-  if (isSearching) {
-    const terms = query.q!.trim().toLowerCase().split(/\s+/).filter(Boolean);
-    arthaItems = arthaItems.filter((job) => {
-      const haystack = `${job.title} ${job.company}`.toLowerCase();
-      return terms.every((term) => haystack.includes(term));
-    });
-  }
-
-  const merged: PublicJob[] = [];
-  const artha = [...arthaItems];
-  const own = [...ownAsJobs];
-
-  if (isSearching) {
-    // When actively searching, a matching own_job is a curated, specific
-    // match to what was typed — it should lead the results, not get buried
-    // behind Artha's much larger (and often only loosely related) result
-    // set. E.g. searching "Kalp Corporate" with 1 own_job match against 50
-    // generic Artha matches for the word "corporate" should show Kalp
-    // first, not last.
-    merged.push(...own, ...artha);
-  } else if (query.sort_by === "newest") {
-    // Honor "newest" literally. The interleave below (own_jobs dropped in
-    // at a fixed interval) is great for variety on a default browse, but it
-    // ignores actual dates — an own_job lands on its slot regardless of
-    // whether it's older or newer than the Artha jobs around it, which is
-    // exactly why "Newest first" looked broken. For this sort, skip the
-    // interleave and do a real chronological merge instead.
-    merged.push(
-      ...[...artha, ...own].sort(
-        (a, b) => new Date(b.posted_date).getTime() - new Date(a.posted_date).getTime()
-      )
-    );
-  } else {
-    // General browse, no search term: interleave own_jobs evenly through
-    // the Artha feed instead of sorting by date and concatenating. A pure
-    // date-sort clusters all own_jobs into one block at the top whenever
-    // they share a posted_date (e.g. right after a bulk CSV import), which
-    // looks like "my jobs first, then everything else" rather than a
-    // genuine mix — even though it's technically sorted.
-    // Roughly one of your own jobs per this many Artha jobs, so a handful
-    // of own_jobs doesn't get diluted across a huge Artha page, and a large
-    // own_jobs batch doesn't dominate a small Artha page either.
-    const INTERVAL = own.length > 0 ? Math.max(1, Math.round(artha.length / own.length)) : Infinity;
-
-    let arthaIdx = 0;
-    while (arthaIdx < artha.length || own.length > 0) {
-      for (let i = 0; i < INTERVAL && arthaIdx < artha.length; i++) {
-        merged.push(artha[arthaIdx++]);
+  const syncUrl = useCallback(
+    (nextFilters: Filters, nextOffset: number) => {
+      const params = new URLSearchParams();
+      for (const key of FILTER_KEYS) {
+        const v = nextFilters[key];
+        if (v && v !== emptyFilters[key]) params.set(key, v);
       }
-      if (own.length > 0) {
-        merged.push(own.shift()!);
+      if (nextOffset > 0) params.set("offset", String(nextOffset));
+      const qs = params.toString();
+      router.replace(qs ? `${pathname}?${qs}` : pathname, { scroll: false });
+    },
+    [router, pathname]
+  );
+
+  const setFilters = useCallback(
+    (f: Filters) => {
+      setFiltersState(f);
+      setOffsetState(0);
+      syncUrl(f, 0);
+    },
+    [syncUrl]
+  );
+
+  const setOffset = useCallback(
+    (o: number) => {
+      setOffsetState(o);
+      syncUrl(filters, o);
+    },
+    [filters, syncUrl]
+  );
+
+  useEffect(() => {
+    if (skipNextFetch.current) {
+      skipNextFetch.current = false;
+      return;
+    }
+
+    let cancelled = false;
+
+    async function load() {
+      setFetchState("loading");
+
+      const params = new URLSearchParams({
+        limit: String(LIMIT),
+        offset: String(offset),
+      });
+
+      Object.entries(filters).forEach(([key, value]) => {
+        if (value) params.set(key, value);
+      });
+
+      try {
+        const res = await fetch(`/api/jobs?${params.toString()}`);
+        const body = await res.json();
+
+        if (cancelled) return;
+
+        if (res.status === 429) {
+          setFetchState("rate_limited");
+          setErrorMessage("Job listings are refreshing — try again in a moment.");
+          return;
+        }
+
+        if (!body.success) {
+          setFetchState("error");
+          setErrorMessage(body.error?.message ?? "Couldn't load jobs.");
+          return;
+        }
+
+        setJobs(body.data.items);
+        setTotal(body.data.total);
+        setFetchState("ready");
+      } catch {
+        if (!cancelled) {
+          setFetchState("error");
+          setErrorMessage("Couldn't reach the server — check your connection.");
+        }
       }
     }
-  }
 
-  // Once we've strictly filtered, Artha's own reported `total` no longer
-  // matches what's actually on screen — it still reflects their fuzzy
-  // match count. Use the real filtered count instead when searching, and
-  // treat the page as complete (no further pagination) since a strict
-  // title/company match set is typically small enough to fit on one page.
-  const combinedTotal = isSearching ? merged.length : arthaResult.total + ownTotal;
+    load();
 
-  const hasMore = isSearching ? false : arthaResult.offset + arthaResult.limit < combinedTotal;
+    return () => {
+      cancelled = true;
+    };
+  }, [
+    filters.q,
+    filters.job_type,
+    filters.work_mode,
+    filters.exp_level,
+    filters.sort_by,
+    filters.location,
+    offset,
+  ]);
 
-  // Fire-and-forget: every Artha job that passes through here gets a
-  // chance at a stable, indexable /jobs/[slug] page (see lib/job-cache.ts).
-  // Never awaited — must not slow down or ever fail the actual response.
-  cacheArthaJobsInBackground(merged);
+  const isEmpty = fetchState === "ready" && jobs.length === 0;
 
-  return {
-    items: merged,
-    total: combinedTotal,
-    limit: arthaResult.limit,
-    offset: arthaResult.offset,
-    has_more: hasMore,
-  };
+  return (
+    <>
+      <div className="max-w-5xl mx-auto px-6 md:px-12 -mt-6">
+        <FilterBar value={filters} onChange={setFilters} />
+      </div>
+
+      <section className="max-w-5xl mx-auto px-6 md:px-12 py-10">
+        {fetchState === "loading" && (
+          <div className="space-y-4" aria-live="polite">
+            {Array.from({ length: 4 }).map((_, i) => (
+              <div key={i} className="pinned-card p-5 pl-6 h-24 animate-pulse bg-ink/5" />
+            ))}
+          </div>
+        )}
+
+        {fetchState === "error" && (
+          <div className="pinned-card p-6 pl-7">
+            <p className="font-display text-lg">Job listings temporarily unavailable</p>
+            <p className="text-sm text-ink/60 mt-1">
+              {errorMessage || "We are currently refreshing our job feeds. Please check back in a few minutes."}
+            </p>
+            <div className="mt-4 flex flex-wrap gap-3">
+              <button
+                type="button"
+                onClick={() => window.location.reload()}
+                className="rounded-lg border px-3 py-1.5 text-xs font-semibold text-ink transition hover:bg-ink/5"
+              >
+                Retry
+              </button>
+              <a
+                href="/match"
+                className="rounded-lg border px-3 py-1.5 text-xs font-semibold text-ink transition hover:bg-ink/5"
+              >
+                Match resume
+              </a>
+              <a
+                href="/prep-trek"
+                className="rounded-lg border px-3 py-1.5 text-xs font-semibold text-ink transition hover:bg-ink/5"
+              >
+                Explore Prep Trek
+              </a>
+            </div>
+          </div>
+        )}
+
+        {fetchState === "rate_limited" && (
+          <div className="pinned-card p-6 pl-7">
+            <p className="font-display text-lg">One moment</p>
+            <p className="text-sm text-ink/60 mt-1">{errorMessage}</p>
+          </div>
+        )}
+
+        {isEmpty && (
+          <div className="pinned-card p-6 pl-7">
+            <p className="font-display text-lg">No matches yet</p>
+            <p className="text-sm text-ink/60 mt-1">
+              Try widening a filter, or clear your search to see everything.
+            </p>
+          </div>
+        )}
+
+        {fetchState === "ready" && !isEmpty && (
+          <>
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+              {jobs.map((job) => (
+                <JobCard key={job.id} job={job} />
+              ))}
+            </div>
+
+            <Pagination offset={offset} limit={LIMIT} total={total} onChange={setOffset} />
+          </>
+        )}
+
+        <div className="mt-10 pt-6 border-t border-ink/10">
+          <p className="font-display text-lg mb-2">Get new matches by email</p>
+          <EmailSignup filters={filters} />
+        </div>
+        <div className="mt-12 border-t border-ink/10 pt-8">
+          <h2 className="font-display text-2xl">About JobNetWork</h2>
+
+          <p className="mt-3 max-w-3xl leading-7 text-ink/70">
+            JobNetWork brings jobs, internships and career opportunities
+            together in one place for students, freshers, working
+            professionals and recent graduates — across tech, sales,
+            marketing, finance, healthcare, operations, design, customer
+            support and more.
+          </p>
+
+          <p className="mt-3 max-w-3xl leading-7 text-ink/70">
+            We regularly add remote, hybrid and on-site opportunities from
+            different companies and sources, updated in real time, making it
+            easier to search, filter and find roles that match your
+            interests, skills and experience level — from entry-level and
+            internships to senior positions.
+          </p>
+
+          <a
+            href="/about"
+            className="mt-5 inline-block rounded-lg border border-ink/20 bg-paper px-4 py-2 text-sm font-medium text-ink transition hover:bg-ink/5"
+          >
+            Learn more about JobNetWork
+          </a>
+        </div>
+      </section>
+    </>
+  );
 }
-
-export { ArthaApiError };
