@@ -80,14 +80,23 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Lovable App" },
-      { name: "description", content: "Lovable Generated Project" },
-      { name: "author", content: "Lovable" },
-      { property: "og:title", content: "Lovable App" },
-      { property: "og:description", content: "Lovable Generated Project" },
+      { title: "JobNetWork — Jobs & Internships in India" },
+      {
+        name: "description",
+        content:
+          "Real internships, part-time and entry-level roles, and placement opportunities across every field — updated in real time.",
+      },
+      { property: "og:title", content: "JobNetWork — Jobs & Internships in India" },
+      {
+        property: "og:description",
+        content:
+          "Real internships, part-time and entry-level roles, and placement opportunities across every field — updated in real time.",
+      },
       { property: "og:type", content: "website" },
-      { name: "twitter:card", content: "summary_large_image" },
-      { name: "twitter:site", content: "@Lovable" },
+      { property: "og:site_name", content: "JobNetWork" },
+      { name: "twitter:card", content: "summary" },
+      // Carried over from the original site's layout.
+      { name: "google-adsense-account", content: "ca-pub-1266008745090944" },
     ],
     links: [
       {
@@ -95,6 +104,19 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         href: appCss,
       },
       { rel: "icon", href: "/favicon.ico", type: "image/x-icon" },
+      { rel: "preconnect", href: "https://fonts.googleapis.com" },
+      { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
+      {
+        rel: "stylesheet",
+        href: "https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap",
+      },
+    ],
+    scripts: [
+      {
+        async: true,
+        src: "https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1266008745090944",
+        crossOrigin: "anonymous",
+      },
     ],
   }),
   shellComponent: RootShell,

@@ -11,10 +11,23 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
+import { Route as SiteRouteImport } from './routes/_site'
 import { Route as AuthRouteImport } from './routes/auth'
+import { Route as LoginRouteImport } from './routes/login'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
+import { Route as SiteAboutRouteImport } from './routes/_site/about'
+import { Route as SiteGuidesRouteImport } from './routes/_site/guides'
+import { Route as SiteMatchRouteImport } from './routes/_site/match'
+import { Route as SiteTestimonialsRouteImport } from './routes/_site/testimonials'
+import { Route as ApiMatchRouteImport } from './routes/api/match'
+import { Route as AuthCallbackRouteImport } from './routes/auth_.callback'
 import { Route as JobsIndexRouteImport } from './routes/jobs/index'
 import { Route as JobsSlugRouteImport } from './routes/jobs/$slug'
+import { Route as SitePrepTrekIndexRouteImport } from './routes/_site/prep-trek/index'
+import { Route as SitePrepTrekSlugRouteImport } from './routes/_site/prep-trek/$slug'
+import { Route as SitePrepTrekComputerNetworksRouteImport } from './routes/_site/prep-trek/computer-networks'
+import { Route as SitePrepTrekDbmsRouteImport } from './routes/_site/prep-trek/dbms'
+import { Route as SitePrepTrekSqlRouteImport } from './routes/_site/prep-trek/sql'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -25,15 +38,54 @@ const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
   id: '/_authenticated',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SiteRoute = SiteRouteImport.update({
+  id: '/_site',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthRoute = AuthRouteImport.update({
   id: '/auth',
   path: '/auth',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LoginRoute = LoginRouteImport.update({
+  id: '/login',
+  path: '/login',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
   id: '/dashboard',
   path: '/dashboard',
   getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const SiteAboutRoute = SiteAboutRouteImport.update({
+  id: '/about',
+  path: '/about',
+  getParentRoute: () => SiteRoute,
+} as any)
+const SiteGuidesRoute = SiteGuidesRouteImport.update({
+  id: '/guides',
+  path: '/guides',
+  getParentRoute: () => SiteRoute,
+} as any)
+const SiteMatchRoute = SiteMatchRouteImport.update({
+  id: '/match',
+  path: '/match',
+  getParentRoute: () => SiteRoute,
+} as any)
+const SiteTestimonialsRoute = SiteTestimonialsRouteImport.update({
+  id: '/testimonials',
+  path: '/testimonials',
+  getParentRoute: () => SiteRoute,
+} as any)
+const ApiMatchRoute = ApiMatchRouteImport.update({
+  id: '/api/match',
+  path: '/api/match',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthCallbackRoute = AuthCallbackRouteImport.update({
+  id: '/auth_/callback',
+  path: '/auth/callback',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const JobsIndexRoute = JobsIndexRouteImport.update({
   id: '/jobs/',
@@ -45,49 +97,163 @@ const JobsSlugRoute = JobsSlugRouteImport.update({
   path: '/jobs/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SitePrepTrekIndexRoute = SitePrepTrekIndexRouteImport.update({
+  id: '/prep-trek/',
+  path: '/prep-trek/',
+  getParentRoute: () => SiteRoute,
+} as any)
+const SitePrepTrekSlugRoute = SitePrepTrekSlugRouteImport.update({
+  id: '/prep-trek/$slug',
+  path: '/prep-trek/$slug',
+  getParentRoute: () => SiteRoute,
+} as any)
+const SitePrepTrekComputerNetworksRoute =
+  SitePrepTrekComputerNetworksRouteImport.update({
+    id: '/prep-trek/computer-networks',
+    path: '/prep-trek/computer-networks',
+    getParentRoute: () => SiteRoute,
+  } as any)
+const SitePrepTrekDbmsRoute = SitePrepTrekDbmsRouteImport.update({
+  id: '/prep-trek/dbms',
+  path: '/prep-trek/dbms',
+  getParentRoute: () => SiteRoute,
+} as any)
+const SitePrepTrekSqlRoute = SitePrepTrekSqlRouteImport.update({
+  id: '/prep-trek/sql',
+  path: '/prep-trek/sql',
+  getParentRoute: () => SiteRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/login': typeof LoginRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
+  '/about': typeof SiteAboutRoute
+  '/guides': typeof SiteGuidesRoute
+  '/match': typeof SiteMatchRoute
+  '/testimonials': typeof SiteTestimonialsRoute
+  '/api/match': typeof ApiMatchRoute
+  '/auth/callback': typeof AuthCallbackRoute
   '/jobs/$slug': typeof JobsSlugRoute
   '/jobs/': typeof JobsIndexRoute
+  '/prep-trek/$slug': typeof SitePrepTrekSlugRoute
+  '/prep-trek/computer-networks': typeof SitePrepTrekComputerNetworksRoute
+  '/prep-trek/dbms': typeof SitePrepTrekDbmsRoute
+  '/prep-trek/sql': typeof SitePrepTrekSqlRoute
+  '/prep-trek/': typeof SitePrepTrekIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/login': typeof LoginRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
+  '/about': typeof SiteAboutRoute
+  '/guides': typeof SiteGuidesRoute
+  '/match': typeof SiteMatchRoute
+  '/testimonials': typeof SiteTestimonialsRoute
+  '/api/match': typeof ApiMatchRoute
+  '/auth/callback': typeof AuthCallbackRoute
   '/jobs/$slug': typeof JobsSlugRoute
   '/jobs': typeof JobsIndexRoute
+  '/prep-trek/$slug': typeof SitePrepTrekSlugRoute
+  '/prep-trek/computer-networks': typeof SitePrepTrekComputerNetworksRoute
+  '/prep-trek/dbms': typeof SitePrepTrekDbmsRoute
+  '/prep-trek/sql': typeof SitePrepTrekSqlRoute
+  '/prep-trek': typeof SitePrepTrekIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
+  '/_site': typeof SiteRouteWithChildren
   '/auth': typeof AuthRoute
+  '/login': typeof LoginRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
+  '/_site/about': typeof SiteAboutRoute
+  '/_site/guides': typeof SiteGuidesRoute
+  '/_site/match': typeof SiteMatchRoute
+  '/_site/testimonials': typeof SiteTestimonialsRoute
+  '/api/match': typeof ApiMatchRoute
+  '/auth_/callback': typeof AuthCallbackRoute
   '/jobs/$slug': typeof JobsSlugRoute
   '/jobs/': typeof JobsIndexRoute
+  '/_site/prep-trek/$slug': typeof SitePrepTrekSlugRoute
+  '/_site/prep-trek/computer-networks': typeof SitePrepTrekComputerNetworksRoute
+  '/_site/prep-trek/dbms': typeof SitePrepTrekDbmsRoute
+  '/_site/prep-trek/sql': typeof SitePrepTrekSqlRoute
+  '/_site/prep-trek/': typeof SitePrepTrekIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/auth' | '/dashboard' | '/jobs/$slug' | '/jobs/'
+  fullPaths:
+    | '/'
+    | '/auth'
+    | '/login'
+    | '/dashboard'
+    | '/about'
+    | '/guides'
+    | '/match'
+    | '/testimonials'
+    | '/api/match'
+    | '/auth/callback'
+    | '/jobs/$slug'
+    | '/jobs/'
+    | '/prep-trek/$slug'
+    | '/prep-trek/computer-networks'
+    | '/prep-trek/dbms'
+    | '/prep-trek/sql'
+    | '/prep-trek/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/auth' | '/dashboard' | '/jobs/$slug' | '/jobs'
+  to:
+    | '/'
+    | '/auth'
+    | '/login'
+    | '/dashboard'
+    | '/about'
+    | '/guides'
+    | '/match'
+    | '/testimonials'
+    | '/api/match'
+    | '/auth/callback'
+    | '/jobs/$slug'
+    | '/jobs'
+    | '/prep-trek/$slug'
+    | '/prep-trek/computer-networks'
+    | '/prep-trek/dbms'
+    | '/prep-trek/sql'
+    | '/prep-trek'
   id:
     | '__root__'
     | '/'
     | '/_authenticated'
+    | '/_site'
     | '/auth'
+    | '/login'
     | '/_authenticated/dashboard'
+    | '/_site/about'
+    | '/_site/guides'
+    | '/_site/match'
+    | '/_site/testimonials'
+    | '/api/match'
+    | '/auth_/callback'
     | '/jobs/$slug'
     | '/jobs/'
+    | '/_site/prep-trek/$slug'
+    | '/_site/prep-trek/computer-networks'
+    | '/_site/prep-trek/dbms'
+    | '/_site/prep-trek/sql'
+    | '/_site/prep-trek/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
+  SiteRoute: typeof SiteRouteWithChildren
   AuthRoute: typeof AuthRoute
+  LoginRoute: typeof LoginRoute
+  ApiMatchRoute: typeof ApiMatchRoute
+  AuthCallbackRoute: typeof AuthCallbackRoute
   JobsSlugRoute: typeof JobsSlugRoute
   JobsIndexRoute: typeof JobsIndexRoute
 }
@@ -108,11 +274,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedRouteRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_site': {
+      id: '/_site'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof SiteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/auth': {
       id: '/auth'
       path: '/auth'
       fullPath: '/auth'
       preLoaderRoute: typeof AuthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/login': {
+      id: '/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof LoginRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_authenticated/dashboard': {
@@ -121,6 +301,48 @@ declare module '@tanstack/react-router' {
       fullPath: '/dashboard'
       preLoaderRoute: typeof AuthenticatedDashboardRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_site/about': {
+      id: '/_site/about'
+      path: '/about'
+      fullPath: '/about'
+      preLoaderRoute: typeof SiteAboutRouteImport
+      parentRoute: typeof SiteRoute
+    }
+    '/_site/guides': {
+      id: '/_site/guides'
+      path: '/guides'
+      fullPath: '/guides'
+      preLoaderRoute: typeof SiteGuidesRouteImport
+      parentRoute: typeof SiteRoute
+    }
+    '/_site/match': {
+      id: '/_site/match'
+      path: '/match'
+      fullPath: '/match'
+      preLoaderRoute: typeof SiteMatchRouteImport
+      parentRoute: typeof SiteRoute
+    }
+    '/_site/testimonials': {
+      id: '/_site/testimonials'
+      path: '/testimonials'
+      fullPath: '/testimonials'
+      preLoaderRoute: typeof SiteTestimonialsRouteImport
+      parentRoute: typeof SiteRoute
+    }
+    '/api/match': {
+      id: '/api/match'
+      path: '/api/match'
+      fullPath: '/api/match'
+      preLoaderRoute: typeof ApiMatchRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/auth_/callback': {
+      id: '/auth_/callback'
+      path: '/auth/callback'
+      fullPath: '/auth/callback'
+      preLoaderRoute: typeof AuthCallbackRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/jobs/': {
       id: '/jobs/'
@@ -136,6 +358,41 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof JobsSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_site/prep-trek/': {
+      id: '/_site/prep-trek/'
+      path: '/prep-trek'
+      fullPath: '/prep-trek/'
+      preLoaderRoute: typeof SitePrepTrekIndexRouteImport
+      parentRoute: typeof SiteRoute
+    }
+    '/_site/prep-trek/$slug': {
+      id: '/_site/prep-trek/$slug'
+      path: '/prep-trek/$slug'
+      fullPath: '/prep-trek/$slug'
+      preLoaderRoute: typeof SitePrepTrekSlugRouteImport
+      parentRoute: typeof SiteRoute
+    }
+    '/_site/prep-trek/computer-networks': {
+      id: '/_site/prep-trek/computer-networks'
+      path: '/prep-trek/computer-networks'
+      fullPath: '/prep-trek/computer-networks'
+      preLoaderRoute: typeof SitePrepTrekComputerNetworksRouteImport
+      parentRoute: typeof SiteRoute
+    }
+    '/_site/prep-trek/dbms': {
+      id: '/_site/prep-trek/dbms'
+      path: '/prep-trek/dbms'
+      fullPath: '/prep-trek/dbms'
+      preLoaderRoute: typeof SitePrepTrekDbmsRouteImport
+      parentRoute: typeof SiteRoute
+    }
+    '/_site/prep-trek/sql': {
+      id: '/_site/prep-trek/sql'
+      path: '/prep-trek/sql'
+      fullPath: '/prep-trek/sql'
+      preLoaderRoute: typeof SitePrepTrekSqlRouteImport
+      parentRoute: typeof SiteRoute
+    }
   }
 }
 
@@ -150,10 +407,40 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
 const AuthenticatedRouteRouteWithChildren =
   AuthenticatedRouteRoute._addFileChildren(AuthenticatedRouteRouteChildren)
 
+interface SiteRouteChildren {
+  SiteAboutRoute: typeof SiteAboutRoute
+  SiteGuidesRoute: typeof SiteGuidesRoute
+  SiteMatchRoute: typeof SiteMatchRoute
+  SiteTestimonialsRoute: typeof SiteTestimonialsRoute
+  SitePrepTrekSlugRoute: typeof SitePrepTrekSlugRoute
+  SitePrepTrekComputerNetworksRoute: typeof SitePrepTrekComputerNetworksRoute
+  SitePrepTrekDbmsRoute: typeof SitePrepTrekDbmsRoute
+  SitePrepTrekSqlRoute: typeof SitePrepTrekSqlRoute
+  SitePrepTrekIndexRoute: typeof SitePrepTrekIndexRoute
+}
+
+const SiteRouteChildren: SiteRouteChildren = {
+  SiteAboutRoute: SiteAboutRoute,
+  SiteGuidesRoute: SiteGuidesRoute,
+  SiteMatchRoute: SiteMatchRoute,
+  SiteTestimonialsRoute: SiteTestimonialsRoute,
+  SitePrepTrekSlugRoute: SitePrepTrekSlugRoute,
+  SitePrepTrekComputerNetworksRoute: SitePrepTrekComputerNetworksRoute,
+  SitePrepTrekDbmsRoute: SitePrepTrekDbmsRoute,
+  SitePrepTrekSqlRoute: SitePrepTrekSqlRoute,
+  SitePrepTrekIndexRoute: SitePrepTrekIndexRoute,
+}
+
+const SiteRouteWithChildren = SiteRoute._addFileChildren(SiteRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
+  SiteRoute: SiteRouteWithChildren,
   AuthRoute: AuthRoute,
+  LoginRoute: LoginRoute,
+  ApiMatchRoute: ApiMatchRoute,
+  AuthCallbackRoute: AuthCallbackRoute,
   JobsSlugRoute: JobsSlugRoute,
   JobsIndexRoute: JobsIndexRoute,
 }

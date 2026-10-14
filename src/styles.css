@@ -47,6 +47,19 @@
   --color-sidebar-ring: var(--sidebar-ring);
 }
 
+/* Named palette tokens used by the public pages ported from the original
+   site (text-ink, bg-board, bg-boardDark, bg-paper, bg-mustard, text-denim). */
+@theme {
+  --color-ink: #0e1b14;
+  --color-board: #0e4a33;
+  --color-boardDark: #072a1d;
+  --color-paper: #f7f8f6;
+  --color-mustard: #f2b33d;
+  --color-denim: #0a6b45;
+  --font-display: "Inter", system-ui, sans-serif;
+  --font-body: "Inter", system-ui, sans-serif;
+}
+
 /* JobNetWork palette: paper / deep green / amber accent, Inter throughout */
 :root {
   --radius: 0.625rem;

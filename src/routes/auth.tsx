@@ -1,12 +1,28 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { Briefcase } from "lucide-react";
-import { lovable } from "@/integrations/lovable/index";
+import { signInWithGoogle } from "@/lib/auth/google-sign-in";
+import { safeNext } from "@/lib/auth/safe-next";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 
+type AuthSearch = { error?: string | undefined; next?: string | undefined };
+
+const str = (v: unknown) => (typeof v === "string" && v ? v : undefined);
+
+const ERROR_MESSAGES: Record<string, string> = {
+  cancelled: "Sign-in was cancelled. You can try again whenever you're ready.",
+  provider: "Google reported a problem signing you in. Please try again.",
+  missing_code: "The sign-in link was incomplete. Please try again.",
+  exchange: "We couldn't complete sign-in. Please try again.",
+};
+
 export const Route = createFileRoute("/auth")({
+  validateSearch: (search: Record<string, unknown>): AuthSearch => ({
+    error: str(search["error"]),
+    next: str(search["next"]),
+  }),
   head: () => ({
     meta: [
       { title: "Sign in — JobNetWork Tracker" },
@@ -20,21 +36,22 @@ export const Route = createFileRoute("/auth")({
 
 function AuthPage() {
   const navigate = useNavigate();
-  const [error, setError] = useState<string | null>(null);
+  const { error: errorCode, next } = Route.useSearch();
+  const [error, setError] = useState<string | null>(
+    errorCode ? (ERROR_MESSAGES[errorCode] ?? "Something went wrong signing you in.") : null,
+  );
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     supabase.auth.getUser().then(({ data }) => {
-      if (data.user) navigate({ to: "/dashboard", replace: true });
+      if (data.user) window.location.replace(safeNext(next));
     });
-  }, [navigate]);
+  }, [next]);
 
   async function handleGoogleSignIn() {
     setLoading(true);
     setError(null);
-    const result = await lovable.auth.signInWithOAuth("google", {
-      redirect_uri: window.location.origin,
-    });
+    const result = await signInWithGoogle(next);
     if (result.error) {
       setError("Sign-in failed. Please try again.");
       setLoading(false);
