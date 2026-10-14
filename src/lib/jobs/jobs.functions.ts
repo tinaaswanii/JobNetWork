@@ -1,4 +1,5 @@
 import { createServerFn } from "@tanstack/react-start";
+import { getArthaBaseUrl } from "@/lib/jobs/artha-config";
 import type {
   ArthaFilters,
   JobsPageResult,
@@ -10,10 +11,9 @@ import type {
 // The API key is read inside the handlers — never at module scope and
 // never exposed to the browser.
 
-// Default matches the original repo (.env.example). Override with the
-// ARTHA_BASE_URL secret if artha.link gives you a different API address.
-const BASE_URL =
-  process.env["ARTHA_BASE_URL"] ?? "https://api-usa.artha.link/api/v1";
+// Base URL comes from artha-config.ts (default https://api.artha.link/api/v1,
+// override with the ARTHA_BASE_URL environment variable).
+const BASE_URL = getArthaBaseUrl();
 
 class ArthaApiError extends Error {
   constructor(
