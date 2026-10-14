@@ -83,6 +83,10 @@ export async function createApplication(input: ApplicationInput): Promise<Action
         .maybeSingle();
       if (again) return { ok: true, id: again.id, existing: true };
     }
+    // Logged server-side (Vercel function logs) so a schema/RLS mismatch is
+    // diagnosable without guessing — the client still only sees the generic
+    // message below.
+    console.error("[createApplication] insert failed:", error);
     return { ok: false, error: "Couldn't save the application. Please try again." };
   }
 
@@ -110,7 +114,10 @@ export async function updateApplication(id: string, input: ApplicationInput): Pr
     .update(toRow(input))
     .eq("id", id)
     .eq("user_id", s.userId);
-  if (error) return { ok: false, error: "Couldn't save changes. Please try again." };
+  if (error) {
+    console.error("[updateApplication] update failed:", error);
+    return { ok: false, error: "Couldn't save changes. Please try again." };
+  }
 
   if (prev.status !== input.status)
     await logActivity(s, id, "status_changed", `Status: ${prev.status} → ${input.status}`);
@@ -137,7 +144,10 @@ export async function setApplicationStatus(id: string, status: string): Promise<
     .update({ status })
     .eq("id", id)
     .eq("user_id", s.userId);
-  if (error) return { ok: false, error: "Couldn't update the status. Please try again." };
+  if (error) {
+    console.error("[setApplicationStatus] update failed:", error);
+    return { ok: false, error: "Couldn't update the status. Please try again." };
+  }
 
   await logActivity(s, id, "status_changed", `Status: ${prev.status} → ${status}`);
   refresh();
@@ -148,7 +158,10 @@ export async function deleteApplication(id: string): Promise<ActionResult> {
   const s = await session();
   if (!s) return UNAUTH;
   const { error } = await s.supabase.from("applications").delete().eq("id", id).eq("user_id", s.userId);
-  if (error) return { ok: false, error: "Couldn't delete the application. Please try again." };
+  if (error) {
+    console.error("[deleteApplication] delete failed:", error);
+    return { ok: false, error: "Couldn't delete the application. Please try again." };
+  }
   refresh();
   return { ok: true };
 }
