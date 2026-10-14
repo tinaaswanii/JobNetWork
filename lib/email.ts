@@ -22,6 +22,16 @@ export function esc(s: string) {
   return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
 }
 
+function htmlToText(html: string) {
+  return html
+    .replace(/<a [^>]*href="([^"]+)"[^>]*>([\s\S]*?)<\/a>/gi, "$2 ($1)")
+    .replace(/<\/(p|div|tr|h2)>/gi, "\n")
+    .replace(/<[^>]+>/g, "")
+    .replace(/&amp;/g, "&").replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&quot;/g, '"')
+    .replace(/\n{3,}/g, "\n\n")
+    .trim();
+}
+
 export const unsubscribeUrl = (token: string) => `${SITE_URL}/api/unsubscribe?token=${encodeURIComponent(token)}`;
 
 export async function sendEmail(opts: {
@@ -44,6 +54,8 @@ export async function sendEmail(opts: {
         to: [{ email: opts.to }],
         subject: opts.subject,
         htmlContent: opts.html,
+        // Plain-text alternative: messages with both parts score better with spam filters.
+        textContent: htmlToText(opts.html),
         ...(opts.unsubscribeToken
           ? { headers: { "List-Unsubscribe": `<${unsubscribeUrl(opts.unsubscribeToken)}>` } }
           : {}),

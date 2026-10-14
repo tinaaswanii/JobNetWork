@@ -1,14 +1,8 @@
-<!-- LOVABLE:BEGIN -->
-> [!IMPORTANT]
-> This project is connected to [Lovable](https://lovable.dev). Avoid rewriting
-> published git history — force pushing, or rebasing/amending/squashing commits
-> that are already pushed — as it rewrites history on Lovable's side and the
-> user will likely lose their project history.
->
-> Commits you push to the connected branch sync back to Lovable and show up in
-> the editor, so keep the branch in a working state.
-<!-- LOVABLE:END -->
+# JobNetWork Architecture & Engineering Guide
 
-## Architecture decisions
-- Job detail pages must be served from `public.cached_jobs` (populated by the getJobs server fn, read by getJobBySlug) — the Artha feed has no single-job endpoint; ported from the original repo's lib/job-cache.ts.
-- The admin Supabase client is imported dynamically inside server-fn handlers only (`await import("@/integrations/supabase/client.server")`) — *.functions.ts modules ship to the client bundle.
+## Architecture
+- Next.js 14 App Router application deployed on Vercel with Node 22 engine.
+- Authentication and database hosted on Supabase (`@supabase/ssr` with cookie-based session management).
+- Job listings originate from Artha Public Jobs API with automatic fallback to Supabase `cached_jobs` and `own_jobs`.
+- Job detail pages are served from `public.cached_jobs` (populated on listings browse, read by `getArthaJobBySlug`).
+- Supabase queries on behalf of users use `supabaseServer()` (enforcing RLS). Administrative/cron operations use `supabaseAdmin()`.

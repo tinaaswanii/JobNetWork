@@ -1,5 +1,5 @@
 import { supabaseAdmin } from "@/lib/supabase";
-import { fetchJobs } from "@/lib/artha";
+import { fetchJobs, type JobsQuery, type JobsResponse } from "@/lib/artha";
 import type { PublicJob } from "@/lib/types";
 
 // Opportunistically upserts every Artha-sourced job (never own_jobs — those
@@ -121,4 +121,64 @@ export async function getArthaJobBySlug(slug: string): Promise<PublicJob | null>
   }
 
   return null;
+}
+
+/**
+ * Fallback query to cached_jobs in Supabase when the upstream Artha API
+ * is unreachable, rate-limited, or has an expired API key.
+ * Preserves the exact JobsResponse contract, filtering, sorting, and pagination.
+ */
+export async function fetchCachedJobs(query: JobsQuery = {}): Promise<JobsResponse> {
+  const limit = Math.max(1, query.limit ?? 10);
+  const offset = Math.max(0, query.offset ?? 0);
+
+  try {
+    if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY) {
+      return { items: [], total: 0, limit, offset, has_more: false };
+    }
+
+    const db = supabaseAdmin();
+    let q = db.from("cached_jobs").select("*", { count: "exact" });
+
+    if (query.q && query.q.trim()) {
+      const search = query.q.trim();
+      q = q.or(
+        `title.ilike.%${search}%,company.ilike.%${search}%,description.ilike.%${search}%,location.ilike.%${search}%,city.ilike.%${search}%,state.ilike.%${search}%,country.ilike.%${search}%`
+      );
+    }
+    if (query.location) {
+      q = q.or(`country.ilike.%${query.location}%,location.ilike.%${query.location}%`);
+    }
+    if (query.job_type) {
+      q = q.eq("job_type", query.job_type);
+    }
+    if (query.company) {
+      q = q.ilike("company", `%${query.company}%`);
+    }
+
+    if (query.sort_by === "newest") {
+      q = q.order("posted_date", { ascending: false, nullsFirst: false });
+    } else {
+      q = q.order("last_seen_at", { ascending: false, nullsFirst: false });
+    }
+
+    q = q.range(offset, offset + limit - 1);
+
+    const { data, count, error } = await q;
+
+    if (error) {
+      console.warn("[job-cache] fetchCachedJobs Supabase query warning:", error.message);
+      return { items: [], total: 0, limit, offset, has_more: false };
+    }
+
+    const rows = (data ?? []) as CachedJobRow[];
+    const items = rows.map(rowToPublicJob);
+    const total = typeof count === "number" ? count : items.length;
+    const has_more = offset + limit < total;
+
+    return { items, total, limit, offset, has_more };
+  } catch (err) {
+    console.warn("[job-cache] fetchCachedJobs unexpected error:", err);
+    return { items: [], total: 0, limit, offset, has_more: false };
+  }
 }

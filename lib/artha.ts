@@ -56,24 +56,39 @@ export interface FilterOption {
 }
 
 export class ArthaApiError extends Error {
+  code: string;
+  status: number;
+  requestId?: string;
+
   constructor(
-    public code: string,
+    code: string,
     message: string,
-    public status: number,
-    public requestId?: string
+    status: number,
+    requestId?: string
   ) {
     super(message);
     this.name = "ArthaApiError";
+    this.code = code;
+    this.status = status;
+    this.requestId = requestId;
   }
 }
 
-const BASE_URL = process.env.ARTHA_BASE_URL ?? "https://api.artha.link/api/v1";
+export const ARTHA_DEFAULT_BASE_URL = "https://api.artha.link/api/v1";
+
+/** ARTHA_BASE_URL if set to a non-empty value, otherwise the default host. */
+export function getArthaBaseUrl(env: Record<string, string | undefined> = process.env): string {
+  const override = env["ARTHA_BASE_URL"]?.trim();
+  return (override || ARTHA_DEFAULT_BASE_URL).replace(/\/+$/, "");
+}
 
 function authHeaders(): HeadersInit {
-  const key = process.env.ARTHA_API_KEY;
+  const key = process.env.ARTHA_API_KEY?.trim();
   if (!key) {
-    throw new Error(
-      "ARTHA_API_KEY is not set. Add it to your environment (never hardcode it)."
+    throw new ArthaApiError(
+      "MISSING_API_KEY",
+      "ARTHA_API_KEY is not set. Add it to your environment (never hardcode it).",
+      401
     );
   }
   return { "X-API-Key": key };
@@ -84,7 +99,8 @@ function authHeaders(): HeadersInit {
  * and a single automatic retry on 429 using the Retry-After header.
  */
 async function arthaFetch<T>(path: string, searchParams?: URLSearchParams): Promise<T> {
-  const url = `${BASE_URL}${path}${searchParams ? `?${searchParams.toString()}` : ""}`;
+  const baseUrl = getArthaBaseUrl();
+  const url = `${baseUrl}${path}${searchParams ? `?${searchParams.toString()}` : ""}`;
 
   const doFetch = async () => {
     const res = await fetch(url, {

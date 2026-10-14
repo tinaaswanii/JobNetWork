@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { getUser, supabaseServer } from "@/lib/auth/server";
+import { formatInZone, todayIST } from "@/lib/datetime";
+import { isOverdue } from "@/lib/follow-ups";
 import {
   type Application,
   STATUSES,
@@ -25,6 +27,33 @@ export default async function DashboardPage() {
     .select("id, company_name, job_title, status, applied_at, updated_at")
     .order("updated_at", { ascending: false });
   if (error) throw new Error(error.message);
+
+  const today = todayIST();
+  const [ints, fus] = await Promise.all([
+    supabase
+      .from("interviews")
+      .select("id, scheduled_at, timezone, round, applications(company_name, job_title)")
+      .eq("status", "scheduled")
+      .gte("scheduled_at", new Date().toISOString())
+      .order("scheduled_at", { ascending: true })
+      .limit(5),
+    supabase
+      .from("follow_ups")
+      .select("id, title, due_date, status, applications(company_name, job_title)")
+      .eq("status", "pending")
+      .order("due_date", { ascending: true })
+      .limit(5),
+  ]);
+  // Supabase types a to-one embed as an array; normalise to one object.
+  const one = <T,>(v: T | T[] | null | undefined) => (Array.isArray(v) ? v[0] : v) ?? null;
+  const upcomingInterviews = (ints.data ?? []) as unknown as {
+    id: string; scheduled_at: string; timezone: string; round: string | null;
+    applications: { company_name: string; job_title: string } | { company_name: string; job_title: string }[] | null;
+  }[];
+  const pendingFollowUps = (fus.data ?? []) as unknown as {
+    id: string; title: string; due_date: string; status: "pending";
+    applications: { company_name: string; job_title: string } | { company_name: string; job_title: string }[] | null;
+  }[];
 
   const apps = (data ?? []) as Pick<
     Application,
@@ -136,10 +165,62 @@ export default async function DashboardPage() {
       </div>
 
       <section className="rounded-2xl border bg-white p-5">
-        <h2 className="mb-2 font-semibold">Upcoming tasks</h2>
-        <p className="text-sm text-muted-foreground">
-          No upcoming tasks. Interviews and follow-ups you schedule will show up here.
-        </p>
+        <h2 className="mb-3 font-semibold">Upcoming tasks</h2>
+        {upcomingInterviews.length === 0 && pendingFollowUps.length === 0 ? (
+          <p className="text-sm text-muted-foreground">
+            No upcoming tasks. Interviews and follow-ups you schedule will show up here.
+          </p>
+        ) : (
+          <div className="grid gap-6 md:grid-cols-2">
+            <div>
+              <div className="mb-2 flex items-center justify-between text-sm">
+                <span className="font-medium">Interviews</span>
+                <Link href="/dashboard/interviews" className="text-board hover:underline">View all</Link>
+              </div>
+              {upcomingInterviews.length === 0 ? (
+                <p className="text-sm text-muted-foreground">None scheduled.</p>
+              ) : (
+                <ul className="space-y-2 text-sm">
+                  {upcomingInterviews.map((i) => {
+                    const app = one(i.applications);
+                    return (
+                      <li key={i.id}>
+                        <div className="font-medium">{app ? `${app.job_title} — ${app.company_name}` : "Interview"}</div>
+                        <div className="text-muted-foreground">
+                          {formatInZone(i.scheduled_at, i.timezone)}{i.round ? ` · ${i.round}` : ""}
+                        </div>
+                      </li>
+                    );
+                  })}
+                </ul>
+              )}
+            </div>
+            <div>
+              <div className="mb-2 flex items-center justify-between text-sm">
+                <span className="font-medium">Follow-ups</span>
+                <Link href="/dashboard/follow-ups" className="text-board hover:underline">View all</Link>
+              </div>
+              {pendingFollowUps.length === 0 ? (
+                <p className="text-sm text-muted-foreground">Nothing pending.</p>
+              ) : (
+                <ul className="space-y-2 text-sm">
+                  {pendingFollowUps.map((f) => {
+                    const app = one(f.applications);
+                    const late = isOverdue(f, today);
+                    return (
+                      <li key={f.id}>
+                        <div className="font-medium">{f.title}</div>
+                        <div className={late ? "text-red-700" : "text-muted-foreground"}>
+                          {late ? "Overdue — " : "Due "}{formatDate(f.due_date)}{app ? ` · ${app.company_name}` : ""}
+                        </div>
+                      </li>
+                    );
+                  })}
+                </ul>
+              )}
+            </div>
+          </div>
+        )}
       </section>
     </div>
   );

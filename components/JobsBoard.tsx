@@ -181,8 +181,31 @@ export default function JobsBoard({
 
         {fetchState === "error" && (
           <div className="pinned-card p-6 pl-7">
-            <p className="font-display text-lg">Couldn't load listings</p>
-            <p className="text-sm text-ink/60 mt-1">{errorMessage}</p>
+            <p className="font-display text-lg">Job listings temporarily unavailable</p>
+            <p className="text-sm text-ink/60 mt-1">
+              {errorMessage || "We are currently refreshing our job feeds. Please check back in a few minutes."}
+            </p>
+            <div className="mt-4 flex flex-wrap gap-3">
+              <button
+                type="button"
+                onClick={() => window.location.reload()}
+                className="rounded-lg border px-3 py-1.5 text-xs font-semibold text-ink transition hover:bg-ink/5"
+              >
+                Retry
+              </button>
+              <a
+                href="/match"
+                className="rounded-lg border px-3 py-1.5 text-xs font-semibold text-ink transition hover:bg-ink/5"
+              >
+                Match resume
+              </a>
+              <a
+                href="/prep-trek"
+                className="rounded-lg border px-3 py-1.5 text-xs font-semibold text-ink transition hover:bg-ink/5"
+              >
+                Explore Prep Trek
+              </a>
+            </div>
           </div>
         )}
 

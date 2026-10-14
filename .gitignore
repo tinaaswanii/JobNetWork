@@ -1,37 +1,32 @@
-# Logs
-logs
-*.log
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-pnpm-debug.log*
-lerna-debug.log*
-
+# dependencies
 node_modules
-dist
-dist-ssr
-.output
-.vinxi
-.tanstack/**
-.nitro
-*.local
 
-# Wrangler / Cloudflare
-.wrangler/
-.dev.vars
+# next.js / build output
+.next
+out
+*.tsbuildinfo
+next-env.d.ts
 
-# Editor directories and files
-.vscode/*
-!.vscode/extensions.json
-.idea
-.DS_Store
-*.suo
-*.ntvs*
-*.njsproj
-*.sln
-*.sw?
-
-# Local environment files (keep .env.example tracked)
+# environment files — NEVER commit real values; only .env.example is tracked
 .env
 .env.*
 !.env.example
+
+# vercel
+.vercel
+
+# logs, editor, OS
+*.log
+npm-debug.log*
+.DS_Store
+.idea
+.vscode/*
+!.vscode/extensions.json
+
+# python (app.py helper)
+__pycache__/
+*.pyc
+seen_jobs.json
+
+# test output
+coverage

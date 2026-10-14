@@ -1,6 +1,6 @@
 import { fetchJobs, ArthaApiError, type PublicJob, type JobsQuery } from "@/lib/artha";
 import { supabaseAdmin } from "@/lib/supabase";
-import { cacheArthaJobsInBackground } from "@/lib/job-cache";
+import { cacheArthaJobsInBackground, fetchCachedJobs } from "@/lib/job-cache";
 
 export type JobsPageResult = {
   items: PublicJob[];
@@ -100,8 +100,17 @@ export async function getJobsPage(query: JobsQuery): Promise<JobsPageResult> {
     ? { ...query, limit: Math.max(query.limit ?? 10, 100) }
     : query;
 
+  // Attempt live Artha fetch first; on upstream failure (expired key, network
+  // error, 429, etc.), fall back to cached_jobs in Supabase without failing the page.
+  const arthaPromise = fetchJobs(arthaQuery).catch(async (err) => {
+    console.warn(
+      `[lib/jobs] Artha API failed (${err instanceof Error ? err.message : "unknown"}). Falling back to cached_jobs.`
+    );
+    return fetchCachedJobs(arthaQuery);
+  });
+
   const [arthaResult, ownRows, ownTotal] = await Promise.all([
-    fetchJobs(arthaQuery),
+    arthaPromise,
     query.offset === 0 ? fetchOwnJobs(query) : Promise.resolve([]),
     fetchOwnJobsCount(query),
   ]);

@@ -31,8 +31,15 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ success: true, data: result });
   } catch (err) {
     if (err instanceof ArthaApiError) {
+      console.warn(`[api/jobs] upstream ArthaApiError (${err.code}):`, err.message);
       return NextResponse.json(
-        { success: false, error: { code: err.code, message: err.message } },
+        {
+          success: false,
+          error: {
+            code: err.code,
+            message: "Job listings are temporarily unavailable. Please try again shortly.",
+          },
+        },
         { status: err.status }
       );
     }
