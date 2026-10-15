@@ -20,6 +20,21 @@ body {
   background-color: #101e38 !important;
 }
 
+header.sticky {
+  background-color: rgba(9, 21, 43, 0.9) !important;
+  border-color: #263653 !important;
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: #8295b7 !important;
+}
+
+option {
+  background: #101e38;
+  color: #eaf0ff;
+}
+
 .border,
 .border-b,
 .border-t,
