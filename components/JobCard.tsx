@@ -87,7 +87,7 @@ export default function JobCard({ job }: { job: PublicJob }) {
             )}
           </div>
 
-          <h3 className="mt-1.5 text-base font-semibold leading-snug text-ink group-hover:text-board md:text-lg">
+          <h3 className="mt-1.5 text-base font-semibold leading-snug text-ink group-hover:text-denim md:text-lg">
             {job.title}
           </h3>
           <p className="text-sm font-medium text-ink/70">{job.company}</p>
@@ -122,7 +122,7 @@ export default function JobCard({ job }: { job: PublicJob }) {
         {applyExpired ? (
           <Link
             href={`/jobs/${job.slug}`}
-            className="inline-flex min-h-[40px] items-center rounded-lg bg-board px-4 py-2 text-sm font-semibold text-white transition hover:bg-[#0b3a28]"
+            className="inline-flex min-h-[40px] items-center rounded-lg bg-board px-4 py-2 text-sm font-semibold text-white transition hover:brightness-110"
           >
             View job →
           </Link>
@@ -132,7 +132,7 @@ export default function JobCard({ job }: { job: PublicJob }) {
             target="_blank"
             rel="noopener noreferrer"
             aria-label={`Apply to ${job.title} at ${job.company} (opens in a new tab)`}
-            className="inline-flex min-h-[40px] items-center rounded-lg bg-board px-4 py-2 text-sm font-semibold text-white transition hover:bg-[#0b3a28]"
+            className="inline-flex min-h-[40px] items-center rounded-lg bg-board px-4 py-2 text-sm font-semibold text-white transition hover:brightness-110"
           >
             Apply →
           </a>
