@@ -61,6 +61,7 @@ export default async function HomePage() {
     limit: LIMIT,
     offset: 0,
     has_more: false,
+    sources: { artha: "unavailable" as const },
   }));
 
   const jsonLd = {
@@ -91,7 +92,7 @@ export default async function HomePage() {
       {/* Jobs */}
       <div id="jobs" className="scroll-mt-16">
         <Suspense fallback={null}>
-          <JobsBoard initialJobs={initial.items} />
+          <JobsBoard initialJobs={initial.items} initialTotal={initial.total} initialSources={initial.sources} />
         </Suspense>
       </div>
 

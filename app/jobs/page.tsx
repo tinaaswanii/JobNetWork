@@ -33,6 +33,7 @@ export default async function JobsPage() {
     limit: LIMIT,
     offset: 0,
     has_more: false,
+    sources: { artha: "unavailable" as const },
   }));
 
   return (
@@ -51,7 +52,7 @@ export default async function JobsPage() {
       </header>
 
       <Suspense fallback={null}>
-        <JobsBoard initialJobs={initial.items} />
+        <JobsBoard initialJobs={initial.items} initialTotal={initial.total} initialSources={initial.sources} />
       </Suspense>
     </main>
   );

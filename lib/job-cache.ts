@@ -9,8 +9,20 @@ import type { PublicJob } from "@/lib/types";
 export function cacheArthaJobsInBackground(jobs: PublicJob[]) {
   const arthaJobs = jobs.filter((j) => !j.id.startsWith("own_"));
   if (arthaJobs.length === 0) return;
+  // Caching is optional: a missing Supabase admin configuration must never
+  // turn a successful live Artha response into a failed listings request.
+  if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY) {
+    console.warn("[job-cache] skipping background cache: Supabase admin env is not configured");
+    return;
+  }
 
-  const db = supabaseAdmin();
+  let db: ReturnType<typeof supabaseAdmin>;
+  try {
+    db = supabaseAdmin();
+  } catch (err) {
+    console.warn("[job-cache] skipping background cache: Supabase admin client could not initialize", err);
+    return;
+  }
   const rows = arthaJobs.map((j) => ({
     slug: j.slug,
     title: j.title,
