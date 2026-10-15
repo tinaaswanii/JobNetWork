@@ -18,6 +18,8 @@ export const metadata: Metadata = {
   robots: { index: false, follow: false },
 };
 
+const panel = "rounded-2xl border border-white/10 bg-gradient-to-br from-[#121f3d] to-[#0d192f] p-5";
+
 export default async function DashboardPage() {
   const user = await getUser();
   const supabase = supabaseServer();
@@ -62,35 +64,55 @@ export default async function DashboardPage() {
   const m = computeMetrics(apps);
   const recent = apps.slice(0, 5);
   const first = ((user?.user_metadata?.full_name as string | undefined) ?? "").split(" ")[0];
+  const hasOverdue = pendingFollowUps.some((f) => isOverdue(f, today));
 
   const cards = [
-    { label: "Total applications", value: String(m.total) },
-    { label: "Interviews", value: String(m.interviews) },
-    { label: "Offers", value: String(m.offers) },
-    { label: "Response rate", value: m.responseRate === null ? "—" : `${m.responseRate}%` },
+    { label: "Total applications", value: String(m.total), accent: "bg-board" },
+    { label: "Interviews", value: String(m.interviews), accent: "bg-mustard" },
+    { label: "Offers", value: String(m.offers), accent: "bg-emerald-400" },
+    { label: "Response rate", value: m.responseRate === null ? "—" : `${m.responseRate}%`, accent: "bg-denim" },
   ];
 
   return (
     <div className="space-y-8">
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight">
-            {first ? `Hi, ${first}` : "Welcome back"}
+          <h1 className="font-display text-3xl font-extrabold tracking-tight text-ink md:text-4xl">
+            {first ? (
+              <>
+                Hi, {first}. <span className="text-gradient">Let&apos;s get you hired.</span>
+              </>
+            ) : (
+              "Welcome back"
+            )}
           </h1>
           <p className="mt-1 text-sm text-muted-foreground">Here&apos;s where your job search stands.</p>
         </div>
         <Link
           href="/dashboard/applications?new=1"
-          className="rounded-lg bg-board px-4 py-2 text-sm font-semibold text-white transition hover:bg-[#0b3a28]"
+          className="inline-flex min-h-[44px] items-center rounded-xl bg-board px-5 text-sm font-semibold text-white shadow-[0_10px_30px_-10px_rgba(65,105,241,0.7)] transition hover:brightness-110"
         >
           + Add application
         </Link>
       </div>
 
+      {hasOverdue && (
+        <Link
+          href="/dashboard/follow-ups"
+          className="flex items-center justify-between gap-3 rounded-xl border border-amber-400/40 bg-amber-500/10 px-4 py-3 text-sm text-amber-100 transition hover:bg-amber-500/15"
+        >
+          <span>
+            <strong className="font-semibold">A follow-up is overdue.</strong> A quick nudge can restart a stalled application.
+          </span>
+          <span aria-hidden="true">→</span>
+        </Link>
+      )}
+
       <section aria-label="Summary" className="grid grid-cols-2 gap-4 md:grid-cols-4">
         {cards.map((c) => (
-          <div key={c.label} className="rounded-2xl border bg-white p-5">
-            <div className="text-3xl font-bold tracking-tight">{c.value}</div>
+          <div key={c.label} className={`${panel} relative overflow-hidden`}>
+            <span aria-hidden="true" className={`absolute inset-x-0 top-0 h-1 ${c.accent}`} />
+            <div className="text-3xl font-extrabold tracking-tight text-ink md:text-4xl">{c.value}</div>
             <div className="mt-1 text-xs text-muted-foreground">{c.label}</div>
           </div>
         ))}
@@ -103,29 +125,29 @@ export default async function DashboardPage() {
       )}
 
       <div className="grid gap-6 md:grid-cols-5">
-        <section className="rounded-2xl border bg-white p-5 md:col-span-3">
+        <section className={`${panel} md:col-span-3`}>
           <div className="mb-3 flex items-center justify-between">
-            <h2 className="font-semibold">Recent applications</h2>
+            <h2 className="font-semibold text-ink">Recent applications</h2>
             {apps.length > 0 && (
-              <Link href="/dashboard/applications" className="text-sm text-board hover:underline">
+              <Link href="/dashboard/applications" className="text-sm text-denim hover:underline">
                 View all
               </Link>
             )}
           </div>
           {recent.length === 0 ? (
             <p className="py-6 text-sm text-muted-foreground">
-              No applications yet.{" "}
-              <Link href="/dashboard/applications?new=1" className="font-medium text-board underline">
+              No applications yet. Every offer starts with a first &ldquo;Applied&rdquo;.{" "}
+              <Link href="/dashboard/applications?new=1" className="font-medium text-denim underline">
                 Add your first one
               </Link>
               .
             </p>
           ) : (
-            <ul className="divide-y">
+            <ul className="divide-y divide-white/10">
               {recent.map((a) => (
                 <li key={a.id} className="flex items-center justify-between gap-3 py-3">
                   <div className="min-w-0">
-                    <div className="truncate text-sm font-medium">{a.job_title}</div>
+                    <div className="truncate text-sm font-medium text-ink">{a.job_title}</div>
                     <div className="truncate text-xs text-muted-foreground">
                       {a.company_name} · {formatDate(a.applied_at ?? a.updated_at)}
                     </div>
@@ -139,16 +161,16 @@ export default async function DashboardPage() {
           )}
         </section>
 
-        <section className="rounded-2xl border bg-white p-5 md:col-span-2">
-          <h2 className="mb-3 font-semibold">Status breakdown</h2>
+        <section className={`${panel} md:col-span-2`}>
+          <h2 className="mb-3 font-semibold text-ink">Status breakdown</h2>
           {m.total === 0 ? (
-            <p className="py-6 text-sm text-muted-foreground">Nothing to show yet.</p>
+            <p className="py-6 text-sm text-muted-foreground">Nothing to show yet. Your pipeline will paint itself here.</p>
           ) : (
             <ul className="space-y-3">
               {STATUSES.map((s) => (
                 <li key={s}>
                   <div className="mb-1 flex justify-between text-xs">
-                    <span>{STATUS_LABEL[s]}</span>
+                    <span className="text-ink">{STATUS_LABEL[s]}</span>
                     <span className="text-muted-foreground">{m.byStatus[s]}</span>
                   </div>
                   <div className="h-2 rounded-full bg-muted">
@@ -164,28 +186,28 @@ export default async function DashboardPage() {
         </section>
       </div>
 
-      <section className="rounded-2xl border bg-white p-5">
-        <h2 className="mb-3 font-semibold">Upcoming tasks</h2>
+      <section className={panel}>
+        <h2 className="mb-3 font-semibold text-ink">Up next</h2>
         {upcomingInterviews.length === 0 && pendingFollowUps.length === 0 ? (
           <p className="text-sm text-muted-foreground">
-            No upcoming tasks. Interviews and follow-ups you schedule will show up here.
+            Clear skies. Schedule an interview or a follow-up and it will land here.
           </p>
         ) : (
           <div className="grid gap-6 md:grid-cols-2">
             <div>
               <div className="mb-2 flex items-center justify-between text-sm">
-                <span className="font-medium">Interviews</span>
-                <Link href="/dashboard/interviews" className="text-board hover:underline">View all</Link>
+                <span className="font-medium text-ink">Interviews</span>
+                <Link href="/dashboard/interviews" className="text-denim hover:underline">View all</Link>
               </div>
               {upcomingInterviews.length === 0 ? (
                 <p className="text-sm text-muted-foreground">None scheduled.</p>
               ) : (
-                <ul className="space-y-2 text-sm">
+                <ul className="space-y-3 text-sm">
                   {upcomingInterviews.map((i) => {
                     const app = one(i.applications);
                     return (
                       <li key={i.id}>
-                        <div className="font-medium">{app ? `${app.job_title} — ${app.company_name}` : "Interview"}</div>
+                        <div className="font-medium text-ink">{app ? `${app.job_title} — ${app.company_name}` : "Interview"}</div>
                         <div className="text-muted-foreground">
                           {formatInZone(i.scheduled_at, i.timezone)}{i.round ? ` · ${i.round}` : ""}
                         </div>
@@ -197,20 +219,20 @@ export default async function DashboardPage() {
             </div>
             <div>
               <div className="mb-2 flex items-center justify-between text-sm">
-                <span className="font-medium">Follow-ups</span>
-                <Link href="/dashboard/follow-ups" className="text-board hover:underline">View all</Link>
+                <span className="font-medium text-ink">Follow-ups</span>
+                <Link href="/dashboard/follow-ups" className="text-denim hover:underline">View all</Link>
               </div>
               {pendingFollowUps.length === 0 ? (
                 <p className="text-sm text-muted-foreground">Nothing pending.</p>
               ) : (
-                <ul className="space-y-2 text-sm">
+                <ul className="space-y-3 text-sm">
                   {pendingFollowUps.map((f) => {
                     const app = one(f.applications);
                     const late = isOverdue(f, today);
                     return (
                       <li key={f.id}>
-                        <div className="font-medium">{f.title}</div>
-                        <div className={late ? "text-red-700" : "text-muted-foreground"}>
+                        <div className="font-medium text-ink">{f.title}</div>
+                        <div className={late ? "text-red-300" : "text-muted-foreground"}>
                           {late ? "Overdue — " : "Due "}{formatDate(f.due_date)}{app ? ` · ${app.company_name}` : ""}
                         </div>
                       </li>
