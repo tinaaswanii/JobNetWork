@@ -3,11 +3,14 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { supabaseAdmin } from "@/lib/supabase";
 import { getArthaJobBySlug } from "@/lib/job-cache";
+import { isArthaUrlExpired } from "@/lib/artha-url";
 import { htmlToText, sanitizeJobHtml } from "@/lib/html";
 import type { PublicJob } from "@/lib/types";
 import JobActions from "@/components/jobs/JobActions";
 
-export const revalidate = 3600;
+// Short window so a refreshed (non-expired) Apply link replaces a "refreshing" notice quickly.
+// Raise it only if Artha's signed links are known to outlive it.
+export const revalidate = 600;
 
 const SITE_URL = "https://job-net-work.vercel.app";
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -61,11 +64,7 @@ async function getJob(slug: string): Promise<PublicJob | null> {
   return getArthaJobBySlug(slug);
 }
 
-export async function generateMetadata({
-  params,
-}: {
-  params: { slug: string };
-}): Promise<Metadata> {
+export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
   const job = await getJob(params.slug);
   if (!job) return { title: "Job not found" };
 
@@ -85,11 +84,7 @@ export async function generateMetadata({
       description: plainDescription,
       images: job.logo ? [{ url: job.logo }] : [{ url: `${SITE_URL}/Logo.png` }],
     },
-    twitter: {
-      card: "summary",
-      title,
-      description: plainDescription,
-    },
+    twitter: { card: "summary", title, description: plainDescription },
   };
 }
 
@@ -99,25 +94,21 @@ function formatSalary(job: PublicJob) {
   const isInr = curr === "INR";
   const prefix = isInr ? "₹" : curr ? `${curr} ` : "";
   const fmt = (n: number) =>
-    new Intl.NumberFormat(isInr ? "en-IN" : "en-US", {
-      maximumFractionDigits: 0,
-    }).format(n);
+    new Intl.NumberFormat(isInr ? "en-IN" : "en-US", { maximumFractionDigits: 0 }).format(n);
   if (job.salary_min && job.salary_max) {
     return `${prefix}${fmt(job.salary_min)} – ${prefix}${fmt(job.salary_max)}`;
   }
   return `${prefix}${fmt(job.salary_min ?? job.salary_max!)}+`;
 }
 
-export default async function JobDetailPage({
-  params,
-}: {
-  params: { slug: string };
-}) {
+export default async function JobDetailPage({ params }: { params: { slug: string } }) {
   const job = await getJob(params.slug);
   if (!job) notFound();
 
   const salary = formatSalary(job);
   const sanitizedDescription = sanitizeJobHtml(job.description);
+  // True only when a live refresh also failed: never render a dead Apply link.
+  const applyExpired = isArthaUrlExpired(job.url);
 
   const matchHref = `/match?job=${encodeURIComponent(
     JSON.stringify({
@@ -129,20 +120,13 @@ export default async function JobDetailPage({
     })
   )}`;
 
-  // https://schema.org/JobPosting — powers Google for Jobs rich results,
-  // which is the single highest-leverage SEO lever available to a job
-  // board: individual postings can surface directly in Google's dedicated
-  // jobs search UI, not just the ordinary web results list.
+  // https://schema.org/JobPosting — powers Google for Jobs rich results.
   const jsonLd: Record<string, unknown> = {
     "@context": "https://schema.org",
     "@type": "JobPosting",
     title: job.title,
     description: job.description,
-    identifier: {
-      "@type": "PropertyValue",
-      name: job.company,
-      value: job.slug,
-    },
+    identifier: { "@type": "PropertyValue", name: job.company, value: job.slug },
     datePosted: job.posted_date,
     hiringOrganization: {
       "@type": "Organization",
@@ -167,12 +151,8 @@ export default async function JobDetailPage({
       },
     };
   } else {
-    // No location at all typically means remote on Artha's feed.
     jsonLd.jobLocationType = "TELECOMMUTE";
-    jsonLd.applicantLocationRequirements = {
-      "@type": "Country",
-      name: job.country ?? "IN",
-    };
+    jsonLd.applicantLocationRequirements = { "@type": "Country", name: job.country ?? "IN" };
   }
 
   if (job.salary_min || job.salary_max) {
@@ -191,10 +171,7 @@ export default async function JobDetailPage({
   return (
     <main className="min-h-screen bg-paper">
       {/* eslint-disable-next-line react/no-danger */}
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
-      />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
 
       <div className="max-w-3xl mx-auto px-6 md:px-12 py-10">
         <Link href="/jobs" className="text-sm text-denim hover:underline">
@@ -205,11 +182,7 @@ export default async function JobDetailPage({
           <div className="flex items-start gap-4">
             {job.logo ? (
               // eslint-disable-next-line @next/next/no-img-element
-              <img
-                src={job.logo}
-                alt=""
-                className="h-12 w-12 shrink-0 rounded-lg border bg-white object-contain p-1"
-              />
+              <img src={job.logo} alt="" className="h-12 w-12 shrink-0 rounded-lg border bg-white object-contain p-1" />
             ) : (
               <div className="h-12 w-12 shrink-0 rounded-lg bg-board text-white flex items-center justify-center text-lg font-semibold">
                 {job.company.charAt(0)}
@@ -217,30 +190,19 @@ export default async function JobDetailPage({
             )}
 
             <div className="min-w-0 flex-1">
-              <h1 className="text-2xl leading-snug text-ink">
-                {job.title}
-              </h1>
+              <h1 className="text-2xl leading-snug text-ink">{job.title}</h1>
               <p className="text-muted-foreground">{job.company}</p>
 
               <div className="mt-2 flex flex-wrap gap-x-3 gap-y-1 text-sm text-muted-foreground">
                 {job.location && <span>{job.location}</span>}
-                {job.job_type && (
-                  <span className="capitalize">
-                    {job.job_type.replace("-", " ")}
-                  </span>
-                )}
-                {salary && (
-                  <span className="text-denim font-medium">{salary}</span>
-                )}
+                {job.job_type && <span className="capitalize">{job.job_type.replace("-", " ")}</span>}
+                {salary && <span className="text-denim font-medium">{salary}</span>}
               </div>
 
               {job.skills.length > 0 && (
                 <div className="mt-3 flex flex-wrap gap-1.5">
                   {job.skills.map((skill) => (
-                    <span
-                      key={skill}
-                      className="rounded-md bg-muted px-2.5 py-1 text-xs text-ink/80"
-                    >
+                    <span key={skill} className="rounded-md bg-muted px-2.5 py-1 text-xs text-ink/80">
                       {skill}
                     </span>
                   ))}
@@ -249,29 +211,37 @@ export default async function JobDetailPage({
             </div>
           </div>
 
-          <div className="mt-5 flex flex-wrap gap-2">
-            <a
-              href={job.url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-block rounded-lg bg-board px-4 py-2 text-sm font-medium text-white transition hover:bg-[#0b3a28]"
-            >
-              Apply →
-            </a>
+          <div className="mt-5 flex flex-wrap items-center gap-2">
+            {applyExpired ? (
+              <p role="status" className="rounded-lg border border-amber-500/40 bg-amber-500/10 px-4 py-2 text-sm text-ink">
+                The apply link for this job is being refreshed. Please check back in a few minutes.
+              </p>
+            ) : (
+              <a
+                href={job.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-block rounded-lg bg-board px-4 py-2 text-sm font-medium text-white transition hover:bg-[#0b3a28]"
+              >
+                Apply →
+              </a>
+            )}
             <Link
               href={matchHref}
               className="inline-block rounded-lg border px-4 py-2 text-sm font-medium text-ink transition hover:bg-muted"
             >
               Match my resume
             </Link>
-            <JobActions job={{
-            job_id: job.slug,
-            title: job.title,
-            company: job.company,
-            location: job.location,
-            url: job.url,
-            job_type: job.job_type,
-          }} />
+            <JobActions
+              job={{
+                job_id: job.slug,
+                title: job.title,
+                company: job.company,
+                location: job.location,
+                url: job.url,
+                job_type: job.job_type,
+              }}
+            />
           </div>
 
           <div
