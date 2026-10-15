@@ -1,273 +1,194 @@
-"use client";
+import { fetchJobs, ArthaApiError, type PublicJob, type JobsQuery, type JobsResponse } from "@/lib/artha";
+import { supabaseAdmin } from "@/lib/supabase";
+import { cacheArthaJobsInBackground, fetchCachedJobs } from "@/lib/job-cache";
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { useRouter, useSearchParams, usePathname } from "next/navigation";
-import type { PublicJob } from "@/lib/types";
-import JobCard from "@/components/JobCard";
-import FilterBar, { emptyFilters, type Filters } from "@/components/FilterBar";
-import Pagination from "@/components/Pagination";
-import EmailSignup from "@/components/EmailSignup";
+export type JobsPageResult = JobsResponse & {
+  sources: { artha: "live" | "cached" | "unavailable" };
+};
 
-// Exported so app/page.tsx's server-rendered first page fetches exactly
-// this many jobs too — mismatched limits made the homepage render a huge
-// wall of cards (50) before the client ever re-fetches down to this size.
-export const LIMIT = 12;
+// Normalize a manually posted row into the same shape as an Artha listing.
+function normalizeOwnJob(row: any): PublicJob {
+  return {
+    id: `own_${row.id}`,
+    slug: row.id,
+    title: row.title,
+    company: row.company,
+    logo: row.logo ?? null,
+    description: row.description ?? "",
+    location: row.location ?? null,
+    city: row.city ?? null,
+    state: row.state ?? null,
+    country: row.country ?? null,
+    job_type: row.job_type ?? null,
+    salary_min: row.salary_min ?? null,
+    salary_max: row.salary_max ?? null,
+    salary_curr: row.salary_curr ?? null,
+    exp_min: null,
+    exp_max: null,
+    exp_unit: null,
+    skills: row.skills ?? [],
+    posted_date: row.posted_date ?? new Date(0).toISOString(),
+    url: row.apply_url,
+  };
+}
 
-const FILTER_KEYS = [
-  "q",
-  "job_type",
-  "work_mode",
-  "exp_level",
-  "sort_by",
-  "location",
-] as const;
-
-function filtersFromSearchParams(sp: URLSearchParams): Filters {
-  const out = { ...emptyFilters };
-  for (const key of FILTER_KEYS) {
-    const v = sp.get(key);
-    if (v) out[key] = v;
+function applyOwnJobFilters(q: any, query: JobsQuery) {
+  let scoped = q;
+  if (query.q?.trim()) {
+    const search = query.q.trim();
+    scoped = scoped.or(
+      `title.ilike.%${search}%,company.ilike.%${search}%,description.ilike.%${search}%,location.ilike.%${search}%,city.ilike.%${search}%,state.ilike.%${search}%,country.ilike.%${search}%`
+    );
   }
-  return out;
+  if (query.location) scoped = scoped.eq("country", query.location);
+  if (query.job_type) scoped = scoped.eq("job_type", query.job_type);
+  if (query.work_mode) scoped = scoped.eq("work_mode", query.work_mode);
+  if (query.company) scoped = scoped.ilike("company", `%${query.company}%`);
+  return scoped;
 }
 
-export default function JobsBoard({
-  initialJobs,
-}: {
-  initialJobs: PublicJob[];
-}) {
-  const router = useRouter();
-  const pathname = usePathname();
-  const searchParams = useSearchParams();
+async function fetchOwnJobs(query: JobsQuery, limit: number, offset: number): Promise<PublicJob[]> {
+  if (limit <= 0 || !process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY) {
+    return [];
+  }
 
-  const urlOffset = useMemo(() => {
-    const o = parseInt(searchParams.get("offset") ?? "0", 10);
-    return Number.isFinite(o) && o >= 0 ? o : 0;
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  try {
+    const db = supabaseAdmin();
+    const q = applyOwnJobFilters(
+      db.from("own_jobs").select("*").eq("is_active", true),
+      query
+    );
+    const { data, error } = await q
+      .order("posted_date", { ascending: false })
+      .range(offset, offset + limit - 1);
 
-  const urlHasFilters = useMemo(
-    () => FILTER_KEYS.some((k) => searchParams.get(k)),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    []
-  );
-
-  const [filters, setFiltersState] = useState<Filters>(() =>
-    urlHasFilters ? filtersFromSearchParams(searchParams) : emptyFilters
-  );
-  const [offset, setOffsetState] = useState(urlOffset);
-  const [jobs, setJobs] = useState<PublicJob[]>(initialJobs);
-  const [total, setTotal] = useState(initialJobs.length);
-  const [fetchState, setFetchState] = useState<
-    "loading" | "ready" | "error" | "rate_limited"
-  >(initialJobs.length > 0 ? "ready" : "loading");
-  const [errorMessage, setErrorMessage] = useState("");
-
-  const skipNextFetch = useRef(
-    initialJobs.length > 0 && !urlHasFilters && urlOffset === 0
-  );
-
-  const syncUrl = useCallback(
-    (nextFilters: Filters, nextOffset: number) => {
-      const params = new URLSearchParams();
-      for (const key of FILTER_KEYS) {
-        const v = nextFilters[key];
-        if (v && v !== emptyFilters[key]) params.set(key, v);
-      }
-      if (nextOffset > 0) params.set("offset", String(nextOffset));
-      const qs = params.toString();
-      router.replace(qs ? `${pathname}?${qs}` : pathname, { scroll: false });
-    },
-    [router, pathname]
-  );
-
-  const setFilters = useCallback(
-    (f: Filters) => {
-      setFiltersState(f);
-      setOffsetState(0);
-      syncUrl(f, 0);
-    },
-    [syncUrl]
-  );
-
-  const setOffset = useCallback(
-    (o: number) => {
-      setOffsetState(o);
-      syncUrl(filters, o);
-    },
-    [filters, syncUrl]
-  );
-
-  useEffect(() => {
-    if (skipNextFetch.current) {
-      skipNextFetch.current = false;
-      return;
+    if (error) {
+      console.error("[lib/jobs] own_jobs query failed:", error.message);
+      return [];
     }
+    return (data ?? []).map(normalizeOwnJob);
+  } catch (err) {
+    console.error("[lib/jobs] own_jobs query failed:", err);
+    return [];
+  }
+}
 
-    let cancelled = false;
+async function fetchOwnJobsCount(query: JobsQuery): Promise<number> {
+  if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY) {
+    return 0;
+  }
 
-    async function load() {
-      setFetchState("loading");
-
-      const params = new URLSearchParams({
-        limit: String(LIMIT),
-        offset: String(offset),
-      });
-
-      Object.entries(filters).forEach(([key, value]) => {
-        if (value) params.set(key, value);
-      });
-
-      try {
-        const res = await fetch(`/api/jobs?${params.toString()}`);
-        const body = await res.json();
-
-        if (cancelled) return;
-
-        if (res.status === 429) {
-          setFetchState("rate_limited");
-          setErrorMessage("Job listings are refreshing — try again in a moment.");
-          return;
-        }
-
-        if (!body.success) {
-          setFetchState("error");
-          setErrorMessage(body.error?.message ?? "Couldn't load jobs.");
-          return;
-        }
-
-        setJobs(body.data.items);
-        setTotal(body.data.total);
-        setFetchState("ready");
-      } catch {
-        if (!cancelled) {
-          setFetchState("error");
-          setErrorMessage("Couldn't reach the server — check your connection.");
-        }
-      }
+  try {
+    const db = supabaseAdmin();
+    const q = applyOwnJobFilters(
+      db.from("own_jobs").select("*", { count: "exact", head: true }).eq("is_active", true),
+      query
+    );
+    const { count, error } = await q;
+    if (error) {
+      console.error("[lib/jobs] own_jobs count failed:", error.message);
+      return 0;
     }
+    return count ?? 0;
+  } catch (err) {
+    console.error("[lib/jobs] own_jobs count failed:", err);
+    return 0;
+  }
+}
 
-    load();
+async function fetchExternalJobs(query: JobsQuery): Promise<{
+  result: JobsResponse;
+  source: "live" | "cached" | "unavailable";
+}> {
+  try {
+    const result = await fetchJobs(query);
+    cacheArthaJobsInBackground(result.items);
+    return { result, source: "live" };
+  } catch (err) {
+    const detail =
+      err instanceof ArthaApiError
+        ? `${err.code} (HTTP ${err.status})`
+        : err instanceof Error
+          ? err.message
+          : "unknown upstream error";
+    console.warn("[lib/jobs] Artha feed unavailable; trying cached listings:", detail);
 
-    return () => {
-      cancelled = true;
+    const result = await fetchCachedJobs(query);
+    return {
+      result,
+      source: result.total > 0 ? "cached" : "unavailable",
     };
-  }, [
-    filters.q,
-    filters.job_type,
-    filters.work_mode,
-    filters.exp_level,
-    filters.sort_by,
-    filters.location,
-    offset,
-  ]);
-
-  const isEmpty = fetchState === "ready" && jobs.length === 0;
-
-  return (
-    <>
-      <div className="max-w-5xl mx-auto px-6 md:px-12 -mt-6">
-        <FilterBar value={filters} onChange={setFilters} />
-      </div>
-
-      <section className="max-w-5xl mx-auto px-6 md:px-12 py-10">
-        {fetchState === "loading" && (
-          <div className="space-y-4" aria-live="polite">
-            {Array.from({ length: 4 }).map((_, i) => (
-              <div key={i} className="pinned-card p-5 pl-6 h-24 animate-pulse bg-ink/5" />
-            ))}
-          </div>
-        )}
-
-        {fetchState === "error" && (
-          <div className="pinned-card p-6 pl-7">
-            <p className="font-display text-lg">Job listings temporarily unavailable</p>
-            <p className="text-sm text-ink/60 mt-1">
-              {errorMessage || "We are currently refreshing our job feeds. Please check back in a few minutes."}
-            </p>
-            <div className="mt-4 flex flex-wrap gap-3">
-              <button
-                type="button"
-                onClick={() => window.location.reload()}
-                className="rounded-lg border px-3 py-1.5 text-xs font-semibold text-ink transition hover:bg-ink/5"
-              >
-                Retry
-              </button>
-              <a
-                href="/match"
-                className="rounded-lg border px-3 py-1.5 text-xs font-semibold text-ink transition hover:bg-ink/5"
-              >
-                Match resume
-              </a>
-              <a
-                href="/prep-trek"
-                className="rounded-lg border px-3 py-1.5 text-xs font-semibold text-ink transition hover:bg-ink/5"
-              >
-                Explore Prep Trek
-              </a>
-            </div>
-          </div>
-        )}
-
-        {fetchState === "rate_limited" && (
-          <div className="pinned-card p-6 pl-7">
-            <p className="font-display text-lg">One moment</p>
-            <p className="text-sm text-ink/60 mt-1">{errorMessage}</p>
-          </div>
-        )}
-
-        {isEmpty && (
-          <div className="pinned-card p-6 pl-7">
-            <p className="font-display text-lg">No matches yet</p>
-            <p className="text-sm text-ink/60 mt-1">
-              Try widening a filter, or clear your search to see everything.
-            </p>
-          </div>
-        )}
-
-        {fetchState === "ready" && !isEmpty && (
-          <>
-            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-              {jobs.map((job) => (
-                <JobCard key={job.id} job={job} />
-              ))}
-            </div>
-
-            <Pagination offset={offset} limit={LIMIT} total={total} onChange={setOffset} />
-          </>
-        )}
-
-        <div className="mt-10 pt-6 border-t border-ink/10">
-          <p className="font-display text-lg mb-2">Get new matches by email</p>
-          <EmailSignup filters={filters} />
-        </div>
-        <div className="mt-12 border-t border-ink/10 pt-8">
-          <h2 className="font-display text-2xl">About JobNetWork</h2>
-
-          <p className="mt-3 max-w-3xl leading-7 text-ink/70">
-            JobNetWork brings jobs, internships and career opportunities
-            together in one place for students, freshers, working
-            professionals and recent graduates — across tech, sales,
-            marketing, finance, healthcare, operations, design, customer
-            support and more.
-          </p>
-
-          <p className="mt-3 max-w-3xl leading-7 text-ink/70">
-            We regularly add remote, hybrid and on-site opportunities from
-            different companies and sources, updated in real time, making it
-            easier to search, filter and find roles that match your
-            interests, skills and experience level — from entry-level and
-            internships to senior positions.
-          </p>
-
-          <a
-            href="/about"
-            className="mt-5 inline-block rounded-lg border border-ink/20 bg-paper px-4 py-2 text-sm font-medium text-ink transition hover:bg-ink/5"
-          >
-            Learn more about JobNetWork
-          </a>
-        </div>
-      </section>
-    </>
-  );
+  }
 }
+
+/**
+ * Returns one stable page from the combined feed.
+ *
+ * Own postings and external postings are paginated as one dataset: the own
+ * postings occupy their counted positions in the combined list, and the
+ * external offset advances only by the number of positions before the page
+ * that belong to the external feed. This prevents duplicate/skipped Artha
+ * listings when a page also contains manually posted jobs.
+ */
+export async function getJobsPage(query: JobsQuery = {}): Promise<JobsPageResult> {
+  const limit = Math.min(100, Math.max(1, Math.floor(query.limit ?? 12)));
+  const offset = Math.max(0, Math.floor(query.offset ?? 0));
+  const normalized: JobsQuery = { ...query, limit, offset };
+  const ownTotal = await fetchOwnJobsCount(normalized);
+  const ownPageCount = offset < ownTotal ? Math.min(limit, ownTotal - offset) : 0;
+  const ownRows = await fetchOwnJobs(normalized, ownPageCount, offset);
+  const isSearching = Boolean(normalized.q?.trim());
+
+  // Search results need a larger Artha pool so we can discard loose matches
+  // whose search words appear only deep in a description. The result count is
+  // the actual strict-match pool returned here, not Artha's broader fuzzy total.
+  if (isSearching) {
+    const external = await fetchExternalJobs({ ...normalized, limit: 100, offset: 0 });
+    const terms = normalized.q!.trim().toLowerCase().split(/\s+/).filter(Boolean);
+    const strictMatches = external.result.items.filter((job) => {
+      const haystack = `${job.title} ${job.company}`.toLowerCase();
+      return terms.every((term) => haystack.includes(term));
+    });
+
+    const externalStart = Math.max(0, offset - ownTotal);
+    const externalSlots = Math.max(0, limit - ownRows.length);
+    const externalItems = strictMatches.slice(externalStart, externalStart + externalSlots);
+    const items = [...ownRows, ...externalItems];
+    const total = ownTotal + strictMatches.length;
+
+    return {
+      items,
+      total,
+      limit,
+      offset,
+      has_more: offset + limit < total,
+      sources: { artha: external.source },
+    };
+  }
+
+  const externalOffset = Math.max(0, offset - ownTotal);
+  const externalSlots = Math.max(0, limit - ownRows.length);
+  // Even when a page is completely filled by own postings, request one
+  // external row to obtain Artha's authoritative total for stable pagination.
+  const external = await fetchExternalJobs({
+    ...normalized,
+    limit: Math.max(1, externalSlots),
+    offset: externalOffset,
+  });
+  const externalItems = externalSlots > 0
+    ? external.result.items.slice(0, externalSlots)
+    : [];
+  const items = [...ownRows, ...externalItems];
+  const total = ownTotal + external.result.total;
+
+  return {
+    items,
+    total,
+    limit,
+    offset,
+    has_more: offset + limit < total,
+    sources: { artha: external.source },
+  };
+}
+
+export { ArthaApiError };
