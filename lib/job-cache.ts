@@ -16,7 +16,7 @@ export function cacheArthaJobsInBackground(jobs: PublicJob[]) {
     return;
   }
 
-  let db;
+  let db: ReturnType<typeof supabaseAdmin>;
   try {
     db = supabaseAdmin();
   } catch (err) {
