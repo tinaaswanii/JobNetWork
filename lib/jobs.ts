@@ -86,6 +86,71 @@ async function fetchExternalJobs(query: JobsQuery): Promise<{
   }
 }
 
+type PagePlan = { externalOffset: number; externalCount: number; ownOffset: number; ownCount: number };
+
+// Create one deterministic combined sequence: up to eight Artha jobs, then
+// one manually posted job. If either source runs out, the other continues.
+// Counting positions from the beginning means page 2 never repeats page-1 jobs.
+function planPage(offset: number, limit: number, externalTotal: number, ownTotal: number): PagePlan {
+  const interval = ownTotal > 0 ? Math.max(1, Math.min(8, Math.floor(externalTotal / ownTotal))) : Number.POSITIVE_INFINITY;
+  const cycles = ownTotal > 0 && externalTotal > 0
+    ? Math.min(ownTotal, Math.ceil(externalTotal / interval))
+    : 0;
+  const interleaveLength = externalTotal + cycles;
+
+  const ownBefore = (position: number) => {
+    if (ownTotal === 0) return 0;
+    if (position <= interleaveLength) {
+      return Math.min(cycles, Math.floor(position / (interval + 1)));
+    }
+    return Math.min(ownTotal, cycles + position - interleaveLength);
+  };
+  const externalBefore = (position: number) => Math.min(externalTotal, Math.max(0, position - ownBefore(position)));
+  const end = Math.min(offset + limit, externalTotal + ownTotal);
+  const ownOffset = ownBefore(offset);
+  const externalOffset = externalBefore(offset);
+  const ownCount = Math.max(0, ownBefore(end) - ownOffset);
+  const externalCount = Math.max(0, externalBefore(end) - externalOffset);
+  return { externalOffset, externalCount, ownOffset, ownCount };
+}
+
+function mergePage(
+  offset: number,
+  limit: number,
+  externalTotal: number,
+  ownTotal: number,
+  externalItems: PublicJob[],
+  ownItems: PublicJob[]
+): PublicJob[] {
+  const plan = planPage(offset, limit, externalTotal, ownTotal);
+  const interval = ownTotal > 0 ? Math.max(1, Math.min(8, Math.floor(externalTotal / ownTotal))) : Number.POSITIVE_INFINITY;
+  const cycles = ownTotal > 0 && externalTotal > 0
+    ? Math.min(ownTotal, Math.ceil(externalTotal / interval))
+    : 0;
+  const interleaveLength = externalTotal + cycles;
+  const ownBefore = (position: number) => {
+    if (ownTotal === 0) return 0;
+    if (position <= interleaveLength) return Math.min(cycles, Math.floor(position / (interval + 1)));
+    return Math.min(ownTotal, cycles + position - interleaveLength);
+  };
+
+  const items: PublicJob[] = [];
+  let externalIndex = 0;
+  let ownIndex = 0;
+  const end = Math.min(offset + limit, externalTotal + ownTotal);
+  for (let position = offset; position < end; position++) {
+    if (ownBefore(position + 1) > ownBefore(position)) {
+      if (ownIndex < ownItems.length) items.push(ownItems[ownIndex++]);
+    } else if (externalIndex < externalItems.length) {
+      items.push(externalItems[externalIndex++]);
+    }
+  }
+  // Keep the helper's planned counts visible to TypeScript and make missing
+  // upstream rows fail soft instead of inserting duplicates from another page.
+  void plan;
+  return items;
+}
+
 export async function getJobsPage(query: JobsQuery = {}): Promise<JobsPageResult> {
   const limit = Math.min(100, Math.max(1, Math.floor(query.limit ?? 12)));
   const offset = Math.max(0, Math.floor(query.offset ?? 0));
@@ -93,45 +158,42 @@ export async function getJobsPage(query: JobsQuery = {}): Promise<JobsPageResult
   const isSearching = Boolean(normalized.q?.trim());
   const ownTotal = await fetchOwnJobsCount(normalized);
 
-  // Keep the external feed at the start of the combined list so users see
-  // Artha listings immediately. Manual postings follow it; this makes the
-  // offset mapping deterministic and prevents repeated own jobs on each page.
-  const external = await fetchExternalJobs({
-    ...normalized,
-    limit: isSearching ? 100 : limit,
-    offset: isSearching ? 0 : offset,
-  });
-
   if (isSearching) {
+    // Artha search is fuzzy, so use a larger candidate set and keep only
+    // exact title/company matches. The returned total reflects the strict set.
+    const external = await fetchExternalJobs({ ...normalized, limit: 100, offset: 0 });
     const terms = normalized.q!.trim().toLowerCase().split(/\s+/).filter(Boolean);
     const strictMatches = external.result.items.filter((job) => {
       const haystack = `${job.title} ${job.company}`.toLowerCase();
       return terms.every((term) => haystack.includes(term));
     });
+    const plan = planPage(offset, limit, strictMatches.length, ownTotal);
+    const externalItems = strictMatches.slice(plan.externalOffset, plan.externalOffset + plan.externalCount);
+    const ownItems = await fetchOwnJobs(normalized, plan.ownCount, plan.ownOffset);
+    const items = mergePage(offset, limit, strictMatches.length, ownTotal, externalItems, ownItems);
     const total = strictMatches.length + ownTotal;
-    const ownStart = Math.max(0, offset - strictMatches.length);
-    const externalItems = strictMatches.slice(offset, offset + limit);
-    const ownSlots = Math.max(0, limit - externalItems.length);
-    const ownItems = await fetchOwnJobs(normalized, ownSlots, ownStart);
-    const items = [...externalItems, ...ownItems];
-    return {
-      items, total, limit, offset, has_more: offset + limit < total,
-      sources: { artha: external.source },
-    };
+    return { items, total, limit, offset, has_more: offset + limit < total, sources: { artha: external.source } };
   }
 
-  const externalTotal = external.result.total;
-  const externalItems = external.result.items.slice(0, limit);
-  const ownStart = Math.max(0, offset - externalTotal);
-  const ownSlots = Math.max(0, limit - externalItems.length);
-  const ownItems = await fetchOwnJobs(normalized, ownSlots, ownStart);
-  const items = [...externalItems, ...ownItems];
+  // Request enough external rows for this page. When local jobs occupy every
+  // slot, still request one row so the external source's exact total is known.
+  const first = await fetchExternalJobs({ ...normalized, limit, offset });
+  const externalTotal = first.result.total;
+  const plan = planPage(offset, limit, externalTotal, ownTotal);
+  let external = first;
+  if (plan.externalOffset !== offset || plan.externalCount !== limit) {
+    external = await fetchExternalJobs({
+      ...normalized,
+      limit: Math.max(1, plan.externalCount),
+      offset: plan.externalOffset,
+    });
+  }
+  const externalItems = external.result.items.slice(0, plan.externalCount);
+  const ownItems = await fetchOwnJobs(normalized, plan.ownCount, plan.ownOffset);
+  const items = mergePage(offset, limit, externalTotal, ownTotal, externalItems, ownItems);
   const total = externalTotal + ownTotal;
 
-  return {
-    items, total, limit, offset, has_more: offset + limit < total,
-    sources: { artha: external.source },
-  };
+  return { items, total, limit, offset, has_more: offset + limit < total, sources: { artha: external.source } };
 }
 
 export { ArthaApiError };
