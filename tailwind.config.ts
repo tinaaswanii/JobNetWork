@@ -20,7 +20,8 @@ const config: Config = {
         DEFAULT: "#263653",
       },
       fontFamily: {
-        display: ["Inter", "system-ui", "sans-serif"],
+        // Bricolage Grotesque is loaded by the @import in globals.css; Inter is the fallback.
+        display: ["Bricolage Grotesque", "Inter", "system-ui", "sans-serif"],
         body: ["Inter", "system-ui", "sans-serif"],
       },
     },
