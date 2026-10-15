@@ -181,7 +181,7 @@ export async function getJobsPage(query: JobsQuery = {}): Promise<JobsPageResult
   const externalTotal = first.result.total;
   const plan = planPage(offset, limit, externalTotal, ownTotal);
   let external = first;
-  if (plan.externalOffset !== offset || plan.externalCount !== limit) {
+  if (plan.externalOffset !== offset || first.result.items.length < plan.externalCount) {
     external = await fetchExternalJobs({
       ...normalized,
       limit: Math.max(1, plan.externalCount),
