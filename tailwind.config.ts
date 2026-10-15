@@ -1,27 +1,23 @@
 import type { Config } from "tailwindcss";
 
-// Design plan (clean & professional, 60-30-10):
-// 60% neutral  — paper #F7F8F6 page, white cards
-// 30% brand    — deep green: board #0E4A33 (buttons, accents), boardDark #072A1D (hero/CTA bands)
-// 10% accent   — amber #F2B33D (single highlight: badges, key CTA)
-// Type — Inter throughout, weight and size carry the hierarchy.
+// Midnight-blue theme: deep navy surfaces, electric-blue actions, cyan accents.
 
 const config: Config = {
   content: ["./app/**/*.{ts,tsx}", "./components/**/*.{ts,tsx}"],
   theme: {
     extend: {
       colors: {
-        ink: "#0E1B14",
-        board: "#0E4A33",
-        boardDark: "#072A1D",
-        paper: "#F7F8F6",
-        mustard: "#F2B33D",
-        denim: "#0A6B45",
-        muted: "#EEF1EE",
-        "muted-foreground": "#5C6B62",
+        ink: "#EAF0FF",
+        board: "#4169F1",
+        boardDark: "#071126",
+        paper: "#09152B",
+        mustard: "#72E5FF",
+        denim: "#72A7FF",
+        muted: "#182742",
+        "muted-foreground": "#A9B8D2",
       },
       borderColor: {
-        DEFAULT: "#E2E7E3",
+        DEFAULT: "#263653",
       },
       fontFamily: {
         display: ["Inter", "system-ui", "sans-serif"],
