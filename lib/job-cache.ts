@@ -1,16 +1,15 @@
 import { supabaseAdmin } from "@/lib/supabase";
 import { fetchJobs, type JobsQuery, type JobsResponse } from "@/lib/artha";
+import { isArthaUrlExpired } from "@/lib/artha-url";
 import type { PublicJob } from "@/lib/types";
 
-// Opportunistically upserts every Artha-sourced job (never own_jobs — those
-// already live in their own table and are addressed by their own id) into
+// Opportunistically upserts every Artha-sourced job (never own_jobs) into
 // cached_jobs, keyed by slug. Fire-and-forget: never let a caching failure
-// break the actual page/API response that's showing these jobs to a user.
+// break the response. Every live sighting also REFRESHES apply_url, which is
+// what keeps signed Artha links from going stale.
 export function cacheArthaJobsInBackground(jobs: PublicJob[]) {
   const arthaJobs = jobs.filter((j) => !j.id.startsWith("own_"));
   if (arthaJobs.length === 0) return;
-  // Caching is optional: a missing Supabase admin configuration must never
-  // turn a successful live Artha response into a failed listings request.
   if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY) {
     console.warn("[job-cache] skipping background cache: Supabase admin env is not configured");
     return;
@@ -100,26 +99,28 @@ function rowToPublicJob(row: CachedJobRow): PublicJob {
   };
 }
 
-// Looks up a single Artha-sourced job by slug for the /jobs/[slug] detail
-// page. Checks our own cache first (the common case — virtually every job
-// gets cached the moment it appears in any listing). On a cache miss (e.g.
-// someone hits a very fresh job's URL — from a just-generated sitemap entry
-// or a freshly shared link — before any listing request has cached it yet),
-// falls back to one live Artha search by slug text and caches the result if
-// found, rather than giving up immediately.
+/**
+ * Detail-page lookup by slug.
+ *  1. Cached row with a still-valid apply link  -> return it.
+ *  2. Cache miss OR expired link                -> one live Artha lookup, which returns a
+ *                                                  fresh signed link and re-caches it.
+ *  3. Live lookup fails / job gone              -> return the stale cached row (or null).
+ *     Callers MUST check isArthaUrlExpired(job.url) before rendering an Apply link.
+ */
 export async function getArthaJobBySlug(slug: string): Promise<PublicJob | null> {
-  const db = supabaseAdmin();
-  const { data, error } = await db
-    .from("cached_jobs")
-    .select("*")
-    .eq("slug", slug)
-    .maybeSingle();
+  let cached: PublicJob | null = null;
+  try {
+    const db = supabaseAdmin();
+    const { data, error } = await db.from("cached_jobs").select("*").eq("slug", slug).maybeSingle();
+    if (error) console.error("[job-cache] lookup failed", error.code ?? "");
+    if (data) cached = rowToPublicJob(data as CachedJobRow);
+  } catch (err) {
+    console.error("[job-cache] lookup threw", err instanceof Error ? err.message : "unknown");
+  }
 
-  if (error) console.error("[job-cache] lookup failed", error);
-  if (data) return rowToPublicJob(data as CachedJobRow);
+  if (cached && !isArthaUrlExpired(cached.url)) return cached;
 
-  // Cache miss fallback: Artha's slugs are built from the job title, so the
-  // words in the slug make a reasonable search query to try to relocate it.
+  // Artha slugs are built from the title, so the slug words make a usable search query.
   const guessedQuery = slug.replace(/-[a-f0-9]{6,}$/i, "").replace(/-/g, " ");
   try {
     const result = await fetchJobs({ q: guessedQuery, limit: 25 });
@@ -129,68 +130,61 @@ export async function getArthaJobBySlug(slug: string): Promise<PublicJob | null>
       return match;
     }
   } catch (err) {
-    console.error("[job-cache] fallback fetch failed", err);
+    console.error("[job-cache] live refresh failed", err instanceof Error ? err.message : "unknown");
   }
 
-  return null;
+  return cached;
 }
 
 /**
- * Fallback query to cached_jobs in Supabase when the upstream Artha API
- * is unreachable, rate-limited, or has an expired API key.
- * Preserves the exact JobsResponse contract, filtering, sorting, and pagination.
+ * Fallback listing from cached_jobs when Artha is unreachable / rate-limited / key invalid.
+ * Rows may carry expired signed links; the UI hides Apply for those (see JobCard).
  */
 export async function fetchCachedJobs(query: JobsQuery = {}): Promise<JobsResponse> {
   const limit = Math.max(1, query.limit ?? 10);
   const offset = Math.max(0, query.offset ?? 0);
+  const empty = { items: [], total: 0, limit, offset, has_more: false };
 
   try {
-    if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY) {
-      return { items: [], total: 0, limit, offset, has_more: false };
-    }
+    if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY) return empty;
 
     const db = supabaseAdmin();
     let q = db.from("cached_jobs").select("*", { count: "exact" });
 
-    if (query.q && query.q.trim()) {
-      const search = query.q.trim();
+    const strip = (s: string) => s.replace(/[,()%*\\"]/g, " ").replace(/\s+/g, " ").trim();
+    const search = query.q ? strip(query.q) : "";
+    if (search) {
       q = q.or(
-        `title.ilike.%${search}%,company.ilike.%${search}%,description.ilike.%${search}%,location.ilike.%${search}%,city.ilike.%${search}%,state.ilike.%${search}%,country.ilike.%${search}%`
+        ["title", "company", "description", "location", "city", "state", "country"]
+          .map((c) => `${c}.ilike.%${search}%`)
+          .join(",")
       );
     }
-    if (query.location) {
-      q = q.or(`country.ilike.%${query.location}%,location.ilike.%${query.location}%`);
-    }
-    if (query.job_type) {
-      q = q.eq("job_type", query.job_type);
-    }
-    if (query.company) {
-      q = q.ilike("company", `%${query.company}%`);
-    }
+    const loc = query.location ? strip(query.location) : "";
+    if (loc) q = q.or(`country.ilike.%${loc}%,location.ilike.%${loc}%`);
+    if (query.job_type) q = q.eq("job_type", query.job_type);
+    if (query.company) q = q.ilike("company", `%${strip(query.company)}%`);
 
     if (query.sort_by === "newest") {
       q = q.order("posted_date", { ascending: false, nullsFirst: false });
     } else {
       q = q.order("last_seen_at", { ascending: false, nullsFirst: false });
     }
+    q = q.order("slug", { ascending: true }); // deterministic tie-breaker for stable pages
 
     q = q.range(offset, offset + limit - 1);
-
     const { data, count, error } = await q;
 
     if (error) {
-      console.warn("[job-cache] fetchCachedJobs Supabase query warning:", error.message);
-      return { items: [], total: 0, limit, offset, has_more: false };
+      console.warn("[job-cache] fetchCachedJobs query warning:", error.code ?? "");
+      return empty;
     }
 
-    const rows = (data ?? []) as CachedJobRow[];
-    const items = rows.map(rowToPublicJob);
+    const items = ((data ?? []) as CachedJobRow[]).map(rowToPublicJob);
     const total = typeof count === "number" ? count : items.length;
-    const has_more = offset + limit < total;
-
-    return { items, total, limit, offset, has_more };
+    return { items, total, limit, offset, has_more: offset + limit < total };
   } catch (err) {
-    console.warn("[job-cache] fetchCachedJobs unexpected error:", err);
-    return { items: [], total: 0, limit, offset, has_more: false };
+    console.warn("[job-cache] fetchCachedJobs unexpected error:", err instanceof Error ? err.message : "unknown");
+    return empty;
   }
 }
