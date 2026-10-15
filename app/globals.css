@@ -1,3 +1,5 @@
+@import url("https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@600;800&display=swap");
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -79,6 +81,35 @@ a.pinned-card:hover,
   border-color: #527cff;
   box-shadow: 0 10px 30px rgba(36, 82, 210, 0.18);
   transform: translateY(-2px);
+}
+
+/* ---- Hero effects ---- */
+.hero-aurora {
+  background:
+    radial-gradient(40% 40% at 25% 30%, rgba(65, 105, 241, 0.55), transparent 70%),
+    radial-gradient(35% 35% at 75% 20%, rgba(114, 229, 255, 0.25), transparent 70%),
+    radial-gradient(45% 45% at 60% 80%, rgba(124, 58, 237, 0.28), transparent 70%);
+  filter: blur(30px);
+  animation: aurora-drift 16s ease-in-out infinite alternate;
+}
+@keyframes aurora-drift {
+  to {
+    transform: translate3d(4%, 6%, 0) scale(1.08);
+  }
+}
+.text-gradient {
+  background: linear-gradient(90deg, #8fb0ff, #72e5ff);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+.dot-ping {
+  animation: dot-ping 2s infinite;
+}
+@keyframes dot-ping {
+  0% { box-shadow: 0 0 0 0 rgba(114, 229, 255, 0.6); }
+  70% { box-shadow: 0 0 0 9px rgba(114, 229, 255, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(114, 229, 255, 0); }
 }
 
 :focus-visible {
