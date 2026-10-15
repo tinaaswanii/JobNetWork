@@ -1,5 +1,6 @@
 import Link from "next/link";
 import type { PublicJob } from "@/lib/types";
+import RotatingWord from "@/components/RotatingWord";
 
 const WHATSAPP_URL = "https://chat.whatsapp.com/L9DG89VrT4V2UFjFkpv0Ok";
 
@@ -15,6 +16,8 @@ const popular: [string, string][] = [
   ["Support", "support"],
   ["Design", "designer"],
 ];
+
+const rotating = ["first jobs", "next moves", "big leaps", "remote roles", "fresh starts"];
 
 const quickLinks = [
   {
@@ -40,81 +43,57 @@ const quickLinks = [
 
 function Icon({ d }: { d: string }) {
   return (
-    <svg
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="1.7"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      className="h-5 w-5"
-      aria-hidden="true"
-    >
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5" aria-hidden="true">
       <path d={d} />
     </svg>
   );
 }
 
-export default function HomeHero({
-  total,
-  jobs,
-}: {
-  total: number;
-  jobs: PublicJob[];
-}) {
+const panel =
+  "flex items-center gap-3 rounded-xl border border-white/10 bg-white p-3 text-ink transition hover:border-denim/60 hover:bg-muted";
+
+export default function HomeHero({ total, jobs }: { total: number; jobs: PublicJob[] }) {
   return (
-    <section className="relative overflow-hidden bg-boardDark px-6 pb-16 pt-14 text-white md:px-12 md:pb-20 md:pt-20">
-      {/* faint grid texture */}
+    <section className="relative isolate overflow-hidden bg-boardDark px-6 pb-16 pt-14 text-white md:px-12 md:pb-24 md:pt-20">
+      <div aria-hidden="true" className="hero-aurora pointer-events-none absolute inset-x-[-10%] top-[-20%] -z-10 h-[120%]" />
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute inset-0 opacity-[0.07]"
+        className="pointer-events-none absolute inset-0 -z-10 opacity-[0.07]"
         style={{
-          backgroundImage:
-            "linear-gradient(#fff 1px, transparent 1px), linear-gradient(90deg, #fff 1px, transparent 1px)",
-          backgroundSize: "48px 48px",
+          backgroundImage: "radial-gradient(#fff 1px, transparent 1px)",
+          backgroundSize: "28px 28px",
+          maskImage: "radial-gradient(ellipse at 50% 30%, #000 20%, transparent 70%)",
+          WebkitMaskImage: "radial-gradient(ellipse at 50% 30%, #000 20%, transparent 70%)",
         }}
       />
 
       <div className="relative mx-auto grid max-w-5xl grid-cols-1 gap-12 md:grid-cols-[1.3fr_1fr] md:items-center">
         <div className="min-w-0">
-          <span className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/5 px-3 py-1 text-xs font-medium text-white/85">
-            <span className="h-1.5 w-1.5 rounded-full bg-mustard" />
-            {total > 0
-              ? `${total.toLocaleString("en-IN")} openings listed`
-              : "New openings added regularly"}
+          <span className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/5 px-3 py-1 text-xs font-medium text-white/90">
+            <span className="dot-ping h-2 w-2 rounded-full bg-mustard" aria-hidden="true" />
+            {total > 0 ? `${total.toLocaleString("en-IN")} openings listed` : "New openings added regularly"}
           </span>
 
-          <h1 className="mt-5 text-4xl leading-[1.1] md:text-[3.25rem]">
-            Find your next job.
-            <span className="block text-white/60">
-              Get ready for the interview.
-            </span>
+          <h1 className="mt-5 font-display text-4xl font-extrabold leading-[1.04] tracking-tight md:text-6xl">
+            Cast your net.
+            <span className="text-gradient block">Land the work.</span>
           </h1>
 
-          <p className="mt-5 max-w-xl leading-7 text-white/75">
-            Jobs and internships at every level, across tech, sales,
-            marketing, finance, healthcare and more, plus free interview
-            prep.
+          <p className="mt-5 max-w-xl text-lg leading-8 text-white/85">
+            Search once, find <RotatingWord words={rotating} /> that fit you, at every level, across tech, sales,
+            marketing, finance, healthcare and more. Interview prep is on the house.
           </p>
 
           <form
             action="/#jobs"
             method="get"
             role="search"
-            className="mt-8 flex max-w-xl items-center gap-2 rounded-xl bg-white p-1.5 shadow-lg shadow-black/20"
+            className="mt-8 flex max-w-xl items-center gap-2 rounded-2xl border border-white/15 bg-white p-1.5 shadow-[0_20px_60px_-20px_rgba(65,105,241,0.65)] focus-within:border-mustard"
           >
             <label htmlFor="hero-search" className="sr-only">
               Search jobs and internships
             </label>
-            <svg
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="#5C6B62"
-              strokeWidth="2"
-              strokeLinecap="round"
-              className="ml-3 h-5 w-5 shrink-0"
-              aria-hidden="true"
-            >
+            <svg viewBox="0 0 24 24" fill="none" stroke="#8295B7" strokeWidth="2" strokeLinecap="round" className="ml-3 h-5 w-5 shrink-0" aria-hidden="true">
               <circle cx="11" cy="11" r="7" />
               <path d="m20 20-3.5-3.5" />
             </svg>
@@ -123,23 +102,23 @@ export default function HomeHero({
               name="q"
               type="search"
               placeholder="Job title, skill or company"
-              className="min-w-0 flex-1 border-0 bg-transparent px-1 py-2.5 text-ink placeholder:text-[#5C6B62] focus:outline-none"
+              className="min-w-0 flex-1 border-0 bg-transparent px-1 py-3 text-ink placeholder:text-[#8295B7] focus:outline-none"
             />
             <button
               type="submit"
-              className="rounded-lg bg-board px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-[#0b3a28]"
+              className="min-h-[44px] rounded-xl bg-board px-5 text-sm font-semibold text-white transition hover:brightness-110"
             >
-              Search
+              Find my next role
             </button>
           </form>
 
           <div className="mt-5 flex flex-wrap items-center gap-2">
-            <span className="text-sm text-white/60">Popular:</span>
+            <span className="text-sm text-white/70">Popular:</span>
             {popular.map(([label, q]) => (
               <a
                 key={q}
                 href={`/?q=${encodeURIComponent(q)}#jobs`}
-                className="rounded-full border border-white/20 px-3 py-1 text-sm text-white/85 transition hover:bg-white/10"
+                className="rounded-full border border-white/25 px-3 py-1.5 text-sm text-white/90 transition hover:border-denim hover:bg-white/10"
               >
                 {label}
               </a>
@@ -148,25 +127,20 @@ export default function HomeHero({
         </div>
 
         <aside className="min-w-0 rounded-2xl border border-white/10 bg-white/[0.06] p-3 backdrop-blur">
-          <p className="px-3 pb-2 pt-2 text-xs font-medium uppercase tracking-wider text-white/60">
-            {jobs.length > 0 ? "Latest openings" : "Get started"}
+          <p className="px-3 pb-2 pt-2 text-xs font-medium uppercase tracking-wider text-white/70">
+            {jobs.length > 0 ? "Fresh off the press" : "Get started"}
           </p>
 
           {jobs.length > 0 ? (
             <ul className="space-y-2">
               {jobs.map((j) => (
                 <li key={j.slug}>
-                  <Link
-                    href={`/jobs/${j.slug}`}
-                    className="flex items-center gap-3 rounded-xl bg-white p-3 text-ink transition hover:bg-paper"
-                  >
+                  <Link href={`/jobs/${j.slug}`} className={panel}>
                     <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-board text-sm font-semibold text-white">
                       {j.company.charAt(0)}
                     </span>
                     <span className="min-w-0">
-                      <span className="block truncate text-sm font-semibold">
-                        {j.title}
-                      </span>
+                      <span className="block truncate text-sm font-semibold">{j.title}</span>
                       <span className="block truncate text-xs text-muted-foreground">
                         {j.company}
                         {j.location ? ` · ${j.location}` : ""}
@@ -181,34 +155,23 @@ export default function HomeHero({
               {quickLinks.map((q) => {
                 const inner = (
                   <>
-                    <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-muted text-board">
+                    <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-muted text-denim">
                       <Icon d={q.icon} />
                     </span>
                     <span className="min-w-0">
-                      <span className="block text-sm font-semibold">
-                        {q.title}
-                      </span>
-                      <span className="block text-xs text-muted-foreground">
-                        {q.text}
-                      </span>
+                      <span className="block text-sm font-semibold">{q.title}</span>
+                      <span className="block text-xs text-muted-foreground">{q.text}</span>
                     </span>
                   </>
                 );
-                const cls =
-                  "flex items-center gap-3 rounded-xl bg-white p-3 text-ink transition hover:bg-paper";
                 return (
                   <li key={q.href}>
                     {q.external ? (
-                      <a
-                        href={q.href}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className={cls}
-                      >
+                      <a href={q.href} target="_blank" rel="noopener noreferrer" className={panel}>
                         {inner}
                       </a>
                     ) : (
-                      <Link href={q.href} className={cls}>
+                      <Link href={q.href} className={panel}>
                         {inner}
                       </Link>
                     )}
