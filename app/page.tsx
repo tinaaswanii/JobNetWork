@@ -3,6 +3,7 @@ import Link from "next/link";
 import { getJobsPage } from "@/lib/jobs";
 import JobCard from "@/components/JobCard";
 import LevelTag from "@/components/LevelTag";
+import Price from "@/components/Price";
 import { prepTracks } from "@/lib/prep-trek-content";
 import { guides } from "@/lib/guides";
 import HomeHero from "@/components/HomeHero";
@@ -182,13 +183,8 @@ export default async function HomePage() {
                   <p className="mt-2 flex-1 text-sm leading-6 text-muted-foreground">
                     {g.blurb}
                   </p>
-                  <p className="mt-4 text-sm font-semibold">
-                    {g.price}
-                    {"originalPrice" in g && g.originalPrice ? (
-                      <span className="ml-2 font-normal text-muted-foreground line-through">
-                        {g.originalPrice}
-                      </span>
-                    ) : null}
+                  <p className="mt-4 text-sm">
+                    <Price price={g.price} originalPrice={g.originalPrice} />
                   </p>
                 </Link>
               ))}

@@ -8,6 +8,11 @@ export const TOPMATE_PROFILE =
 export const TOPMATE_OFFERS =
   "https://topmate.io/getyourjob/page/WRpfovg9ud#offers";
 
+// TODO(owner): three products below still link to the generic Topmate offers page
+// (TOPMATE_OFFERS) instead of their own product page: "Java Programming Notes",
+// "15-Minute Career Call" and "30-Minute Career Guidance Call". Paste each
+// product's own Topmate URL into its `url`. URLs are deliberately not guessed.
+
 export type Guide = {
   title: string;
   emoji: string;
@@ -15,6 +20,8 @@ export type Guide = {
   originalPrice?: string;
   blurb: string;
   includes: string[];
+  /** One line on how this differs from a similar product. */
+  differentiator?: string;
   url?: string; // omit => "Coming soon"
   group: "available" | "next" | "career";
 };
@@ -43,7 +50,7 @@ export const guides: Guide[] = [
     originalPrice: "₹149",
     blurb: "Java from fundamentals through advanced topics.",
     includes: ["Fundamentals to advanced", "Interview-focused revision"],
-    url: TOPMATE_OFFERS, // TODO: replace with this product's own Topmate link
+    url: TOPMATE_OFFERS, // TODO(owner): replace with this product's own Topmate link (currently the generic offers page)
     group: "available",
   },
   {
@@ -53,7 +60,7 @@ export const guides: Guide[] = [
     originalPrice: "₹199",
     blurb: "A quick consultation on jobs and your resume.",
     includes: ["Resume feedback", "Job search questions"],
-    url: TOPMATE_OFFERS, // TODO: replace with this product's own Topmate link
+    url: TOPMATE_OFFERS, // TODO(owner): replace with this product's own Topmate link (currently the generic offers page)
     group: "available",
   },
   {
@@ -63,7 +70,9 @@ export const guides: Guide[] = [
     originalPrice: "₹199",
     blurb: "An in-depth discussion of your job search strategy.",
     includes: ["Job search strategy", "Resume and interview plan"],
-    url: TOPMATE_OFFERS, // TODO: replace with this product's own Topmate link
+    differentiator:
+      "Pick this for a full job search strategy plus a resume and interview plan; the 15-minute call is for quick resume feedback and job search questions.",
+    url: TOPMATE_OFFERS, // TODO(owner): replace with this product's own Topmate link (currently the generic offers page)
     group: "available",
   },
 
