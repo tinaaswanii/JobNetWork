@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { guides, TOPMATE_PROFILE, type Guide } from "@/lib/guides";
+import LevelTag from "@/components/LevelTag";
 
 const SITE_URL = "https://job-net-work.vercel.app";
 
@@ -16,12 +17,13 @@ function GuideCard({ g }: { g: Guide }) {
 
   return (
     <div className="pinned-card flex flex-col p-6">
-      <div className="flex items-start justify-between gap-2">
+      <div className="flex flex-wrap items-center gap-2">
         {!live && (
           <span className="rounded-full bg-mustard px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wide text-ink">
             Coming soon
           </span>
         )}
+        <LevelTag level="students" />
       </div>
 
       <h3 className="mt-3 font-display text-xl">{g.title}</h3>
@@ -89,13 +91,19 @@ export default function GuidesPage() {
     <main className="min-h-screen bg-paper pb-16">
       <header className="bg-board px-6 py-12 text-paper md:px-12">
         <div className="mx-auto max-w-5xl">
-          <Link href="/" className="text-sm text-paper/70 hover:text-paper">
+          <Link href="/jobs" className="text-sm text-paper/70 hover:text-paper">
             ← Back to jobs
           </Link>
           <h1 className="mt-4 font-display text-4xl md:text-5xl">
             Guides & Notes
           </h1>
           <p className="mt-4 max-w-2xl text-paper/80">
+            Interview prep guides, subject notes and 1:1 career calls for
+            students and freshers. Experienced? The jobs board, resume match
+            and free Prep Trek tools are built for you too, and
+            experienced-level guides are coming soon.
+          </p>
+          <p className="mt-3 max-w-2xl text-sm text-paper/70">
             Practical preparation material based on my own placement season.
             No fluff. These help you prepare in a structured way, but they are
             not a guarantee of getting a job.
@@ -113,7 +121,7 @@ export default function GuidesPage() {
 
       <section className="mx-auto max-w-5xl px-6 pt-10 md:px-12">
         <Link
-          href="/prep-trek/common-questions.html"
+          href="/prep-trek/common-questions"
           className="block rounded-xl border-2 border-board p-6 transition hover:-translate-y-0.5"
         >
           <span className="inline-block rounded-full bg-board px-3 py-1 text-xs font-semibold uppercase tracking-wide text-paper">

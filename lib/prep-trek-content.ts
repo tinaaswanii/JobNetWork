@@ -55,9 +55,20 @@ export type FreeDownload = {
   note: string;
 };
 
+// Who a track or guide is written for. Always shown as text (see LevelTag).
+export type PrepLevel = "freshers" | "all" | "students" | "experienced";
+
+export const levelLabel: Record<PrepLevel, string> = {
+  freshers: "Freshers & early career",
+  all: "All levels",
+  students: "Students & freshers",
+  experienced: "Experienced",
+};
+
 export type PrepTrack = {
   slug: string;
   name: string;
+  level: PrepLevel;
   tagline: string;
   emoji: string;
   overview: string;
@@ -69,7 +80,7 @@ export type PrepTrack = {
   coldMailTips: string[];
   freeDownload?: FreeDownload;
   // An optional on-page interactive version of a track's free content —
-  // tap-to-flip flashcards, same style as /prep-trek/common-questions.html —
+  // tap-to-flip flashcards, same style as /prep-trek/common-questions —
   // for people who'd rather study on-screen than download a PDF.
   interactiveUrl?: string;
   premium?: PremiumTeaser;
@@ -90,6 +101,7 @@ export const prepTracks: PrepTrack[] = [
   {
     slug: "software-engineering",
     name: "Software Engineering",
+    level: "all",
     tagline: "For SDE, full-stack and backend/frontend roles",
     emoji: "💻",
     overview:
@@ -207,6 +219,7 @@ export const prepTracks: PrepTrack[] = [
   {
     slug: "java",
     name: "Java Development",
+    level: "freshers",
     tagline: "Core Java interview prep — JDK to JVM internals",
     emoji: "☕",
     overview:
@@ -394,6 +407,7 @@ export const prepTracks: PrepTrack[] = [
   {
     slug: "hr-behavioral",
     name: "HR & Behavioral Interview Prep",
+    level: "all",
     tagline: "Works across every field — the round every interview has in common",
     emoji: "🎯",
     overview:
@@ -534,6 +548,7 @@ export const prepTracks: PrepTrack[] = [
   {
     slug: "interviewer-tricks-and-tactics",
     name: "Common Interview Tricks & Tactics",
+    level: "all",
     tagline: "The curveballs interviewers throw on purpose — and how to handle them",
     emoji: "🧠",
     overview:
@@ -635,6 +650,7 @@ export const prepTracks: PrepTrack[] = [
   {
     slug: "data-analytics",
     name: "Data & Analytics",
+    level: "freshers",
     tagline: "For data analyst, BI and junior data science roles",
     emoji: "📊",
     overview:
@@ -742,6 +758,7 @@ export const prepTracks: PrepTrack[] = [
   {
     slug: "sales-business-development",
     name: "Sales & Business Development",
+    level: "freshers",
     tagline: "For SDR, BDR and junior sales roles",
     emoji: "🤝",
     overview:
@@ -848,6 +865,7 @@ export const prepTracks: PrepTrack[] = [
   {
     slug: "marketing-content",
     name: "Marketing & Content",
+    level: "freshers",
     tagline: "For marketing, content and social media roles",
     emoji: "📣",
     overview:
@@ -949,6 +967,7 @@ export const prepTracks: PrepTrack[] = [
   {
     slug: "customer-support-operations",
     name: "Customer Support & Operations",
+    level: "freshers",
     tagline: "For support, ops and coordinator roles",
     emoji: "🧑‍💼",
     overview:
@@ -1044,6 +1063,7 @@ export const prepTracks: PrepTrack[] = [
   {
     slug: "design",
     name: "Design (UI/UX & Graphic)",
+    level: "freshers",
     tagline: "For UI/UX, product design and graphic design roles",
     emoji: "🎨",
     overview:
@@ -1146,3 +1166,17 @@ export const prepTracks: PrepTrack[] = [
 export function getPrepTrack(slug: string): PrepTrack | undefined {
   return prepTracks.find((t) => t.slug === slug);
 }
+
+// Announced but not built yet. Shown as non-clickable "Coming soon" cards.
+export const comingSoonTracks: { name: string; description: string; level: PrepLevel }[] = [
+  {
+    name: "Experienced & Senior Interviews",
+    description: "Interview prep for experienced and senior candidates.",
+    level: "experienced",
+  },
+  {
+    name: "Switching Careers & Salary Negotiation",
+    description: "For people changing fields, and for salary conversations.",
+    level: "experienced",
+  },
+];

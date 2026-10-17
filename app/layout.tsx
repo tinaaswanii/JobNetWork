@@ -4,16 +4,14 @@ import Footer from "@/components/Footer";
 import { Analytics } from "@vercel/analytics/next";
 import SiteHeader from "@/components/SiteHeader";
 
-const SITE_URL = "https://job-net-work.vercel.app";
-
 export const metadata: Metadata = {
-  metadataBase: new URL(SITE_URL),
+  metadataBase: new URL("https://job-net-work.vercel.app"),
   title: {
-    default: "JobNetWork — Jobs & Internships in India",
+    default: "JobNetWork — Jobs & Internships in India, All Levels",
     template: "%s | JobNetWork",
   },
   description:
-    "Real internships, part-time and entry-level roles, and placement opportunities across every field — updated in real time.",
+    "Find jobs and internships in India across tech, sales, marketing, finance, healthcare and design, from first jobs to senior roles. Free resume match and interview prep.",
   robots: {
     index: true,
     follow: true,

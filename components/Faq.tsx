@@ -1,11 +1,11 @@
 const faqs = [
   {
     q: "Is JobNetWork free?",
-    a: "Yes. Browsing jobs, the resume match and the free Prep Trek cards cost nothing. The paid guides on Topmate are optional.",
+    a: "Yes. Browsing jobs, the resume match and the free Prep Trek cards cost nothing. Some Prep Trek tracks and the guides and calls on Topmate are optional paid extras.",
   },
   {
     q: "Who is it for?",
-    a: "Anyone looking for work. Listings run from internships and entry-level roles to experienced and senior positions, so use the experience filter to narrow them down. The paid 1:1 calls and guides on Topmate are aimed at students and freshers.",
+    a: "Anyone looking for work. Listings run from internships and first jobs to experienced and senior roles, so use the experience filter to narrow them down. The free tools work at every level. Our paid guides and 1:1 calls are written for students and freshers.",
   },
   {
     q: "Where do the jobs come from?",

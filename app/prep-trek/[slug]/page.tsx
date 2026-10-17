@@ -330,7 +330,7 @@ export default function PrepTrackPage({
         <div className="border-t border-ink/10 pt-8 text-center">
           <p className="font-display text-xl">Ready to put this to use?</p>
           <Link
-            href="/"
+            href="/jobs"
             className="mt-4 inline-flex items-center rounded-lg bg-board px-5 py-3 text-sm font-semibold text-paper transition hover:bg-boardDark"
           >
             Browse open roles →

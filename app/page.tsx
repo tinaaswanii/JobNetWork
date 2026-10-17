@@ -1,64 +1,53 @@
 import type { Metadata } from "next";
-import { Suspense } from "react";
 import Link from "next/link";
 import { getJobsPage } from "@/lib/jobs";
-import JobsBoard, { LIMIT } from "@/components/JobsBoard";
+import JobCard from "@/components/JobCard";
+import LevelTag from "@/components/LevelTag";
 import { prepTracks } from "@/lib/prep-trek-content";
 import { guides } from "@/lib/guides";
 import HomeHero from "@/components/HomeHero";
 import HowItWorks from "@/components/HowItWorks";
 import Faq from "@/components/Faq";
+import AccessBadge from "@/components/AccessBadge";
 
 export const revalidate = 300;
 
 const SITE_URL = "https://job-net-work.vercel.app";
 const WHATSAPP_URL = "https://chat.whatsapp.com/L9DG89VrT4V2UFjFkpv0Ok";
 
+// Jobs shown in the home-page entry point. The full, filterable list is /jobs.
+const HOME_JOBS = 6;
+
 export const metadata: Metadata = {
-  title:
-    "JobNetWork — Jobs & Internships in India, From Entry-Level to Experienced",
+  // `absolute` so the root title template does not append "| JobNetWork" again.
+  title: { absolute: "JobNetWork — Jobs & Internships in India, All Levels" },
   description:
-    "Find jobs and internships across tech, sales, marketing, finance, healthcare, design and more, from entry-level to experienced roles, updated in real time. Free interview prep and resume match included.",
-  keywords: [
-    "internships India",
-    "jobs for freshers",
-    "experienced jobs India",
-    "entry level jobs India",
-    "campus placements",
-    "remote internships",
-    "part time jobs",
-    "job board India",
-    "remote jobs India",
-    "internship finder",
-    "placement resources",
-  ],
-  alternates: { canonical: SITE_URL },
+    "Find jobs and internships in India across tech, sales, marketing, finance, healthcare and design, from first jobs to senior roles. Free resume match and interview prep.",
+  alternates: { canonical: "/" },
   openGraph: {
     type: "website",
-    url: SITE_URL,
+    url: "/",
     siteName: "JobNetWork",
-    title: "JobNetWork — Jobs & Internships in India, Entry-Level to Experienced",
+    title: "JobNetWork — Jobs & Internships in India, All Levels",
     description:
-      "Real jobs and internships across every field and level, updated in real time.",
-    images: [{ url: `${SITE_URL}/Logo.png`, width: 512, height: 512 }],
+      "Find jobs and internships in India across tech, sales, marketing, finance, healthcare and design, from first jobs to senior roles. Free resume match and interview prep.",
+    images: [{ url: "/Logo.png", width: 512, height: 512 }],
   },
   twitter: {
     card: "summary",
-    title: "JobNetWork — Jobs & Internships in India, Entry-Level to Experienced",
+    title: "JobNetWork — Jobs & Internships in India, All Levels",
     description:
-      "Real jobs and internships across every field and level, updated in real time.",
-    images: [`${SITE_URL}/Logo.png`],
+      "Find jobs and internships in India across tech, sales, marketing, finance, healthcare and design, from first jobs to senior roles. Free resume match and interview prep.",
+    images: ["/Logo.png"],
   },
 };
 
 export default async function HomePage() {
-  // Match the client's own page size (JobsBoard's LIMIT) — fetching more
-  // than that here just means a huge wall of cards on first paint that the
-  // client immediately throws away on its first real fetch.
-  const initial = await getJobsPage({ limit: LIMIT, offset: 0, sort_by: "newest" }).catch(() => ({
+  // The home page only previews a few jobs; the full list lives at /jobs.
+  const initial = await getJobsPage({ limit: HOME_JOBS, offset: 0, sort_by: "newest" }).catch(() => ({
     items: [],
     total: 0,
-    limit: LIMIT,
+    limit: HOME_JOBS,
     offset: 0,
     has_more: false,
     sources: { artha: "unavailable" as const },
@@ -73,7 +62,7 @@ export default async function HomePage() {
       "Jobs, internships and placement resources across every field and experience level, updated in real time.",
     potentialAction: {
       "@type": "SearchAction",
-      target: `${SITE_URL}/?q={search_term_string}`,
+      target: `${SITE_URL}/jobs?q={search_term_string}`,
       "query-input": "required name=search_term_string",
     },
   };
@@ -89,12 +78,33 @@ export default async function HomePage() {
 
       <HomeHero total={initial.total} jobs={initial.items.slice(0, 3)} />
 
-      {/* Jobs */}
-      <div id="jobs" className="scroll-mt-16">
-        <Suspense fallback={null}>
-          <JobsBoard initialJobs={initial.items} initialTotal={initial.total} initialSources={initial.sources} />
-        </Suspense>
-      </div>
+      {/* Jobs entry point: a preview, with /jobs as the one canonical listing */}
+      <section id="jobs" className="scroll-mt-16 border-t px-6 py-14 md:px-12 md:py-16">
+        <div className="mx-auto max-w-5xl">
+          <h2 className="text-3xl md:text-4xl">Latest jobs &amp; internships</h2>
+          <p className="mt-3 max-w-2xl text-muted-foreground">
+            {initial.total > 0
+              ? `${initial.total.toLocaleString("en-IN")} openings listed. `
+              : ""}
+            From internships and first jobs to experienced and senior roles.
+          </p>
+
+          {initial.items.length > 0 && (
+            <div className="mt-8 grid grid-cols-1 gap-4 md:grid-cols-2">
+              {initial.items.slice(0, HOME_JOBS).map((job) => (
+                <JobCard key={job.id} job={job} />
+              ))}
+            </div>
+          )}
+
+          <Link
+            href="/jobs"
+            className="mt-8 inline-flex items-center justify-center rounded-lg bg-board px-6 py-3 text-sm font-semibold text-white transition hover:brightness-110"
+          >
+            Browse all jobs <span aria-hidden="true">&nbsp;→</span>
+          </Link>
+        </div>
+      </section>
 
       <HowItWorks />
 
@@ -104,6 +114,9 @@ export default async function HomePage() {
           <div className="flex flex-wrap items-end justify-between gap-4">
             <div className="max-w-2xl">
               <h2 className="text-3xl md:text-4xl">Prep Trek: get interview-ready</h2>
+              <p className="mt-3 text-sm font-medium text-ink">
+                Core cards are free. Some tracks have a premium extension.
+              </p>
               <p className="mt-3 text-muted-foreground">
                 Common interview questions with real answers, a short
                 learning path, and cold-mail tips, by field.
@@ -121,7 +134,13 @@ export default async function HomePage() {
                 href={`/prep-trek/${track.slug}`}
                 className="pinned-card block py-6"
               >
-                <h3 className="text-lg">{track.name}</h3>
+                <div className="flex flex-wrap items-center gap-x-2 gap-y-1.5">
+                  <h3 className="text-lg">{track.name}</h3>{" "}
+                  <AccessBadge access={track.premium ? "premium" : "free"} />
+                </div>
+                <p className="mt-2">
+                  <LevelTag level={track.level} />
+                </p>
                 <p className="mt-2 text-sm leading-6 text-muted-foreground">
                   {track.tagline}
                 </p>
@@ -157,6 +176,9 @@ export default async function HomePage() {
               .map((g) => (
                 <Link key={g.title} href="/guides" className="pinned-card flex flex-col py-6">
                   <h3 className="text-lg">{g.title}</h3>
+                  <p className="mt-2">
+                    <LevelTag level="students" />
+                  </p>
                   <p className="mt-2 flex-1 text-sm leading-6 text-muted-foreground">
                     {g.blurb}
                   </p>
