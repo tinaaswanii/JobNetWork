@@ -12,6 +12,7 @@ const links = [
   { name: "Match resume", href: "/match" },
   { name: "Prep Trek", href: "/prep-trek" },
   { name: "Guides", href: "/guides" },
+  { name: "Testimonials", href: "/testimonials" },
   { name: "About", href: "/about" },
 ];
 

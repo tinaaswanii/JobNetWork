@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { prepTracks } from "@/lib/prep-trek-content";
+import { prepTracks, comingSoonTracks } from "@/lib/prep-trek-content";
+import LevelTag from "@/components/LevelTag";
 import AccessBadge from "@/components/AccessBadge";
 
 const SITE_URL = "https://job-net-work.vercel.app";
@@ -66,22 +67,35 @@ export default function PrepTrekIndexPage() {
               <span className="font-semibold text-ink">
                 Built by someone who's actually been through it.
               </span>{" "}
-              I'm Tina — a BCA graduate who went into placement season with
-              the same last-minute panic Prep Trek exists to fix. I ended up
-              with 4 offers (Accenture, Deloitte, Innove8, and Cognizant) and
-              got my resume shortlisted at Google and Amazon. These are the
-              same notes and drills I actually used to prepare — I'm a job
-              seeker too, not a career coach writing from the outside.
+              I'm Tina, a BCA graduate who went through placement season and
+              ended up with 4 offers (Accenture, Deloitte, Innove8, and
+              Cognizant). I built Prep Trek from the same notes and drills I
+              used to prepare.{" "}
+              <Link
+                href="/about"
+                className="font-semibold text-denim hover:underline"
+              >
+                Learn more →
+              </Link>
             </p>
           </div>
         </div>
       </section>
 
+      {/* Quick cards: tap-and-try flashcards, not tracks */}
+      <section className="mx-auto max-w-5xl px-6 pt-12 md:px-12">
+        <h2 className="font-display text-2xl md:text-3xl">Quick cards</h2>
+        <p className="mt-2 max-w-2xl text-sm leading-6 text-ink/60">
+          Short tap-and-try cards you can work through in one sitting. Free, no
+          sign-up.
+        </p>
+      </section>
+
       {/* Featured: interactive flashcard page, not a track, so it's called
           out on its own rather than squeezed into the track grid below */}
-      <section className="mx-auto max-w-5xl px-6 pt-12 md:px-12">
+      <section className="mx-auto max-w-5xl px-6 pt-6 md:px-12">
         <a
-          href="/prep-trek/common-questions.html"
+          href="/prep-trek/common-questions"
           className="flex flex-col gap-4 rounded-xl border-2 border-board bg-paper p-6 pl-8 transition hover:-translate-y-0.5 md:flex-row md:items-center md:justify-between md:p-8 md:pl-10"
         >
           <div>
@@ -109,9 +123,9 @@ export default function PrepTrekIndexPage() {
       {/* Featured: CS fundamentals as tappable cards, not tracks — same
           interactive format as the flashcards above, one page per subject */}
       <section className="mx-auto max-w-5xl px-6 pt-12 md:px-12">
-        <h2 className="font-display text-xl md:text-2xl">
+        <h3 className="font-display text-xl md:text-2xl">
           CS fundamentals, card by card
-        </h2>
+        </h3>
         <p className="mt-2 max-w-xl text-sm leading-6 text-ink/60">
           A one-line answer, a picture, a quick try-it and the trap for each
           question. About 15 minutes per subject, free, no sign-up.
@@ -126,6 +140,9 @@ export default function PrepTrekIndexPage() {
               <h3 className="font-semibold">DBMS</h3>{" "}
               <AccessBadge access="free" />
             </div>
+            <p className="mt-2">
+              <LevelTag level="freshers" />
+            </p>
             <p className="mt-2 text-sm leading-6 text-ink/70">
               10 cards — keys, normalization, ACID, joins, indexing
             </p>
@@ -139,6 +156,9 @@ export default function PrepTrekIndexPage() {
               <h3 className="font-semibold">SQL</h3>{" "}
               <AccessBadge access="free" />
             </div>
+            <p className="mt-2">
+              <LevelTag level="freshers" />
+            </p>
             <p className="mt-2 text-sm leading-6 text-ink/70">
               10 cards — query order, joins, window functions
             </p>
@@ -152,6 +172,9 @@ export default function PrepTrekIndexPage() {
               <h3 className="font-semibold">Computer Networks</h3>{" "}
               <AccessBadge access="free" />
             </div>
+            <p className="mt-2">
+              <LevelTag level="freshers" />
+            </p>
             <p className="mt-2 text-sm leading-6 text-ink/70">
               10 cards — OSI/TCP-IP, DNS, HTTPS, subnetting, ports
             </p>
@@ -160,7 +183,15 @@ export default function PrepTrekIndexPage() {
       </section>
 
       <section className="mx-auto max-w-5xl px-6 py-12 md:px-12">
-        <div className="grid gap-5 md:grid-cols-2">
+        <h2 className="font-display text-2xl md:text-3xl">
+          Tracks with roadmaps
+        </h2>
+        <p className="mt-2 max-w-2xl text-sm leading-6 text-ink/60">
+          Common interview questions with real answers, a short learning path
+          with a week-by-week roadmap, and cold-mail tips, by field. Some
+          tracks have a premium extension.
+        </p>
+        <div className="mt-6 grid gap-5 md:grid-cols-2">
           {prepTracks.map((track) => (
             <Link
               key={track.slug}
@@ -169,9 +200,12 @@ export default function PrepTrekIndexPage() {
             >
               <div className="text-3xl">{track.emoji}</div>
               <div className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-2">
-                <h2 className="font-display text-xl">{track.name}</h2>{" "}
+                <h3 className="font-display text-xl">{track.name}</h3>{" "}
                 <AccessBadge access={track.premium ? "premium" : "free"} />
               </div>
+              <p className="mt-2">
+                <LevelTag level={track.level} />
+              </p>
               <p className="mt-2 text-sm leading-6 text-ink/70">
                 {track.tagline}
               </p>
@@ -179,6 +213,27 @@ export default function PrepTrekIndexPage() {
                 {track.commonQuestions.length} questions · {track.roadmap.length}-week roadmap →
               </p>
             </Link>
+          ))}
+
+          {/* Not built yet: deliberately not links */}
+          {comingSoonTracks.map((t) => (
+            <div
+              key={t.name}
+              className="pinned-card block border-dashed p-6 pl-8"
+            >
+              <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
+                <h3 className="font-display text-xl">{t.name}</h3>{" "}
+                <span className="inline-block shrink-0 whitespace-nowrap rounded-full bg-mustard px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wide text-ink">
+                  Coming soon
+                </span>
+              </div>
+              <p className="mt-2">
+                <LevelTag level={t.level} />
+              </p>
+              <p className="mt-2 text-sm leading-6 text-ink/70">
+                {t.description}
+              </p>
+            </div>
           ))}
         </div>
       </section>

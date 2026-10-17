@@ -16,7 +16,7 @@ export default function TestimonialsPage() {
     <main className="min-h-screen bg-paper">
       <header className="bg-board px-6 py-12 text-paper md:px-12">
         <div className="mx-auto max-w-5xl">
-          <Link href="/" className="text-sm text-paper/70 hover:text-paper">
+          <Link href="/jobs" className="text-sm text-paper/70 hover:text-paper">
             ← Back to jobs
           </Link>
           <h1 className="mt-4 font-display text-4xl md:text-5xl">
