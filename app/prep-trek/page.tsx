@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { prepTracks } from "@/lib/prep-trek-content";
-import Testimonials from "@/components/Testimonials";
+import AccessBadge from "@/components/AccessBadge";
 
 const SITE_URL = "https://job-net-work.vercel.app";
 
@@ -88,9 +88,12 @@ export default function PrepTrekIndexPage() {
             <span className="inline-block rounded-full bg-board px-3 py-1 text-xs font-semibold uppercase tracking-wide text-paper">
               Interactive
             </span>
-            <h2 className="mt-3 font-display text-xl md:text-2xl">
-              🎤 Interview Questions, Answered Like a Pro
-            </h2>
+            <div className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-2">
+              <h2 className="font-display text-xl md:text-2xl">
+                🎤 Interview Questions, Answered Like a Pro
+              </h2>{" "}
+              <AccessBadge access="free" />
+            </div>
             <p className="mt-2 max-w-xl text-sm leading-6 text-ink/70">
               7 tappable flashcards with the exact structure to answer the
               questions every interviewer asks — tell me about yourself,
@@ -119,7 +122,10 @@ export default function PrepTrekIndexPage() {
             className="pinned-card block p-5 pl-7 transition hover:-translate-y-0.5"
           >
             <div className="text-2xl">🗄️</div>
-            <h3 className="mt-3 font-semibold">DBMS</h3>
+            <div className="mt-3 flex flex-wrap items-center gap-x-2 gap-y-1.5">
+              <h3 className="font-semibold">DBMS</h3>{" "}
+              <AccessBadge access="free" />
+            </div>
             <p className="mt-2 text-sm leading-6 text-ink/70">
               10 cards — keys, normalization, ACID, joins, indexing
             </p>
@@ -129,7 +135,10 @@ export default function PrepTrekIndexPage() {
             className="pinned-card block p-5 pl-7 transition hover:-translate-y-0.5"
           >
             <div className="text-2xl">🧮</div>
-            <h3 className="mt-3 font-semibold">SQL</h3>
+            <div className="mt-3 flex flex-wrap items-center gap-x-2 gap-y-1.5">
+              <h3 className="font-semibold">SQL</h3>{" "}
+              <AccessBadge access="free" />
+            </div>
             <p className="mt-2 text-sm leading-6 text-ink/70">
               10 cards — query order, joins, window functions
             </p>
@@ -139,7 +148,10 @@ export default function PrepTrekIndexPage() {
             className="pinned-card block p-5 pl-7 transition hover:-translate-y-0.5"
           >
             <div className="text-2xl">🌐</div>
-            <h3 className="mt-3 font-semibold">Computer Networks</h3>
+            <div className="mt-3 flex flex-wrap items-center gap-x-2 gap-y-1.5">
+              <h3 className="font-semibold">Computer Networks</h3>{" "}
+              <AccessBadge access="free" />
+            </div>
             <p className="mt-2 text-sm leading-6 text-ink/70">
               10 cards — OSI/TCP-IP, DNS, HTTPS, subnetting, ports
             </p>
@@ -155,15 +167,11 @@ export default function PrepTrekIndexPage() {
               href={`/prep-trek/${track.slug}`}
               className="pinned-card block p-6 pl-8 transition hover:-translate-y-0.5"
             >
-              <div className="flex items-start justify-between gap-2">
-                <div className="text-3xl">{track.emoji}</div>
-                {track.premium && (
-                  <span className="rounded-full bg-mustard px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wide text-ink">
-                    Premium available
-                  </span>
-                )}
+              <div className="text-3xl">{track.emoji}</div>
+              <div className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-2">
+                <h2 className="font-display text-xl">{track.name}</h2>{" "}
+                <AccessBadge access={track.premium ? "premium" : "free"} />
               </div>
-              <h2 className="mt-3 font-display text-xl">{track.name}</h2>
               <p className="mt-2 text-sm leading-6 text-ink/70">
                 {track.tagline}
               </p>

@@ -80,14 +80,22 @@ export default function HomeHero({ total, jobs }: { total: number; jobs: PublicJ
           </h1>
 
           <p className="mt-5 max-w-xl text-lg leading-8 text-white/85">
-            Search once, find <RotatingWord words={rotating} /> that fit you, at every level, across tech, sales,
-            marketing, finance, healthcare and more. Interview prep is on the house.
+            <span className="sr-only">
+              Search once and find first jobs, next moves, big leaps, remote roles and fresh starts, at every level,
+              across tech, sales, marketing, finance, healthcare and more.
+            </span>
+            <span aria-hidden="true">
+              Search once and find <RotatingWord words={rotating} /> that fit you, at every level, across tech, sales,
+              marketing, finance, healthcare and more.
+            </span>{" "}
+            Free interview prep included.
           </p>
 
           <form
             action="/#jobs"
             method="get"
             role="search"
+            aria-label="Search jobs and internships"
             className="mt-8 flex max-w-xl items-center gap-2 rounded-2xl border border-white/15 bg-white p-1.5 shadow-[0_20px_60px_-20px_rgba(65,105,241,0.65)] focus-within:border-mustard"
           >
             <label htmlFor="hero-search" className="sr-only">
@@ -108,7 +116,7 @@ export default function HomeHero({ total, jobs }: { total: number; jobs: PublicJ
               type="submit"
               className="min-h-[44px] rounded-xl bg-board px-5 text-sm font-semibold text-white transition hover:brightness-110"
             >
-              Find my next role
+              Search jobs
             </button>
           </form>
 

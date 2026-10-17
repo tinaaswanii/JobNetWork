@@ -1,7 +1,7 @@
 const faqs = [
   {
     q: "Is JobNetWork free?",
-    a: "Yes. Browsing jobs, the resume match and the free Prep Trek cards cost nothing. The paid guides on Topmate are optional.",
+    a: "Yes. Browsing jobs, the resume match and the free Prep Trek cards cost nothing. Some Prep Trek tracks and the guides and calls on Topmate are optional paid extras.",
   },
   {
     q: "Who is it for?",

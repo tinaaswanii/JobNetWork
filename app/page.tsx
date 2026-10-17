@@ -8,6 +8,7 @@ import { guides } from "@/lib/guides";
 import HomeHero from "@/components/HomeHero";
 import HowItWorks from "@/components/HowItWorks";
 import Faq from "@/components/Faq";
+import AccessBadge from "@/components/AccessBadge";
 
 export const revalidate = 300;
 
@@ -91,6 +92,9 @@ export default async function HomePage() {
           <div className="flex flex-wrap items-end justify-between gap-4">
             <div className="max-w-2xl">
               <h2 className="text-3xl md:text-4xl">Prep Trek: get interview-ready</h2>
+              <p className="mt-3 text-sm font-medium text-ink">
+                Core cards are free. Some tracks have a premium extension.
+              </p>
               <p className="mt-3 text-muted-foreground">
                 Common interview questions with real answers, a short
                 learning path, and cold-mail tips, by field.
@@ -108,7 +112,10 @@ export default async function HomePage() {
                 href={`/prep-trek/${track.slug}`}
                 className="pinned-card block py-6"
               >
-                <h3 className="text-lg">{track.name}</h3>
+                <div className="flex flex-wrap items-center gap-x-2 gap-y-1.5">
+                  <h3 className="text-lg">{track.name}</h3>{" "}
+                  <AccessBadge access={track.premium ? "premium" : "free"} />
+                </div>
                 <p className="mt-2 text-sm leading-6 text-muted-foreground">
                   {track.tagline}
                 </p>

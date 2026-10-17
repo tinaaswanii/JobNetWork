@@ -3,7 +3,8 @@
 import { useEffect, useState } from "react";
 
 // Cycles a short list of words. Static (first word) for reduced-motion users.
-// Screen readers get the full list once, not a flickering word.
+// This is purely visual and always aria-hidden: the caller provides the full
+// screen-reader sentence, so the words are never concatenated into it.
 export default function RotatingWord({ words }: { words: string[] }) {
   const [i, setI] = useState(0);
   const [show, setShow] = useState(true);
@@ -25,14 +26,11 @@ export default function RotatingWord({ words }: { words: string[] }) {
   }, [words]);
 
   return (
-    <>
-      <span className="sr-only">{words.join(", ")}</span>
-      <span
-        aria-hidden="true"
-        className={`inline-block font-semibold text-mustard transition-opacity duration-300 ${show ? "opacity-100" : "opacity-0"}`}
-      >
-        {words[i]}
-      </span>
-    </>
+    <span
+      aria-hidden="true"
+      className={`inline-block font-semibold text-mustard transition-opacity duration-300 ${show ? "opacity-100" : "opacity-0"}`}
+    >
+      {words[i]}
+    </span>
   );
 }
