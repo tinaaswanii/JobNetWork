@@ -1,6 +1,7 @@
 import { fetchJobs, ArthaApiError, type PublicJob, type JobsQuery, type JobsResponse } from "@/lib/artha";
 import { supabaseAdmin } from "@/lib/supabase";
 import { cacheArthaJobsInBackground, fetchCachedJobs } from "@/lib/job-cache";
+import { titleKeywordFilter } from "@/lib/jobs-query";
 
 export type JobsPageResult = JobsResponse & {
   sources: { artha: "live" | "cached" | "unavailable" };
@@ -31,6 +32,9 @@ function applyOwnJobFilters(q: any, query: JobsQuery) {
   if (query.job_type) scoped = scoped.eq("job_type", query.job_type);
   if (query.work_mode) scoped = scoped.eq("work_mode", query.work_mode);
   if (query.company) scoped = scoped.ilike("company", `%${query.company}%`);
+  if (query.posted_after) scoped = scoped.gte("posted_date", query.posted_after);
+  const keywordFilter = titleKeywordFilter(query.niche_keywords);
+  if (keywordFilter) scoped = scoped.or(keywordFilter);
   return scoped;
 }
 

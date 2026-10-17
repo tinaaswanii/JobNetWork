@@ -2,6 +2,7 @@ import { supabaseAdmin } from "@/lib/supabase";
 import { fetchJobs, type JobsQuery, type JobsResponse } from "@/lib/artha";
 import { isArthaUrlExpired } from "@/lib/artha-url";
 import type { PublicJob } from "@/lib/types";
+import { titleKeywordFilter } from "@/lib/jobs-query";
 
 // Opportunistically upserts every Artha-sourced job (never own_jobs) into
 // cached_jobs, keyed by slug. Fire-and-forget: never let a caching failure
@@ -164,6 +165,9 @@ export async function fetchCachedJobs(query: JobsQuery = {}): Promise<JobsRespon
     if (loc) q = q.or(`country.ilike.%${loc}%,location.ilike.%${loc}%`);
     if (query.job_type) q = q.eq("job_type", query.job_type);
     if (query.company) q = q.ilike("company", `%${strip(query.company)}%`);
+    if (query.posted_after) q = q.gte("posted_date", query.posted_after);
+    const keywordFilter = titleKeywordFilter(query.niche_keywords);
+    if (keywordFilter) q = q.or(keywordFilter);
 
     if (query.sort_by === "newest") {
       q = q.order("posted_date", { ascending: false, nullsFirst: false });
