@@ -1,9 +1,7 @@
 import type { Metadata } from "next";
-import { Suspense } from "react";
 import { getJobsPage } from "@/lib/jobs";
-import JobsBoard, { LIMIT } from "@/components/JobsBoard";
-
-export const revalidate = 300;
+import { buildJobsQuery, filtersFromParams, JOBS_PAGE_SIZE as LIMIT, offsetFromParams } from "@/lib/jobs-query";
+import JobsBoard from "@/components/JobsBoard";
 
 export const metadata: Metadata = {
   // `absolute` so the root title template does not append the brand twice.
@@ -21,16 +19,27 @@ export const metadata: Metadata = {
   },
 };
 
-export default async function JobsPage() {
-  const initial = await getJobsPage({
-    limit: LIMIT,
-    offset: 0,
-    sort_by: "newest",
-  }).catch(() => ({
+// Rendered on the server for the URL's own filters and page, so crawlers and
+// slow devices get real job cards in the HTML. (Reading searchParams makes this
+// route dynamic; the Artha fetch itself is still cached for 60s in lib/artha.)
+export default async function JobsPage({
+  searchParams,
+}: {
+  searchParams: Record<string, string | string[] | undefined>;
+}) {
+  const flat = new URLSearchParams();
+  for (const [k, v] of Object.entries(searchParams)) {
+    const first = Array.isArray(v) ? v[0] : v;
+    if (first) flat.set(k, first);
+  }
+  const initialFilters = filtersFromParams(flat);
+  const initialOffset = offsetFromParams(flat);
+
+  const initial = await getJobsPage(buildJobsQuery(initialFilters, initialOffset, LIMIT)).catch(() => ({
     items: [],
     total: 0,
     limit: LIMIT,
-    offset: 0,
+    offset: initialOffset,
     has_more: false,
     sources: { artha: "unavailable" as const },
   }));
@@ -47,9 +56,13 @@ export default async function JobsPage() {
         </div>
       </header>
 
-      <Suspense fallback={null}>
-        <JobsBoard initialJobs={initial.items} initialTotal={initial.total} initialSources={initial.sources} />
-      </Suspense>
+      <JobsBoard
+        initialJobs={initial.items}
+        initialTotal={initial.total}
+        initialSources={initial.sources}
+        initialFilters={initialFilters}
+        initialOffset={initialOffset}
+      />
     </main>
   );
 }

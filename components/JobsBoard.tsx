@@ -1,59 +1,39 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { useRouter, useSearchParams, usePathname } from "next/navigation";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { usePathname } from "next/navigation";
 import type { PublicJob } from "@/lib/types";
 import JobCard from "@/components/JobCard";
-import FilterBar, { emptyFilters, type Filters } from "@/components/FilterBar";
+import FilterBar from "@/components/FilterBar";
+import { emptyFilters, FILTER_KEYS, JOBS_PAGE_SIZE, type Filters } from "@/lib/jobs-query";
 import Pagination from "@/components/Pagination";
 import EmailSignup from "@/components/EmailSignup";
 
-export const LIMIT = 12;
-
-const FILTER_KEYS = ["q", "job_type", "work_mode", "exp_level", "sort_by", "location"] as const;
+const LIMIT = JOBS_PAGE_SIZE;
 
 type Sources = { artha: "live" | "cached" | "unavailable" };
 
 const keyOf = (f: Filters, o: number) => JSON.stringify([FILTER_KEYS.map((k) => f[k] || ""), o]);
 
-function filtersFromSearchParams(sp: URLSearchParams): Filters {
-  const out = { ...emptyFilters };
-  for (const key of FILTER_KEYS) {
-    const v = sp.get(key);
-    if (v) out[key] = v;
-  }
-  return out;
-}
-
 export default function JobsBoard({
   initialJobs,
   initialTotal,
   initialSources,
+  initialFilters,
+  initialOffset,
 }: {
   initialJobs: PublicJob[];
   /** The server's real filtered total (NOT initialJobs.length). */
   initialTotal: number;
   initialSources?: Sources;
+  /** The filters and page the server already rendered `initialJobs` for. */
+  initialFilters: Filters;
+  initialOffset: number;
 }) {
-  const router = useRouter();
   const pathname = usePathname();
-  const searchParams = useSearchParams();
 
-  const urlOffset = useMemo(() => {
-    const o = parseInt(searchParams.get("offset") ?? "0", 10);
-    return Number.isFinite(o) && o >= 0 ? o : 0;
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-  const urlHasFilters = useMemo(
-    () => FILTER_KEYS.some((k) => searchParams.get(k)),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    []
-  );
-
-  const [filters, setFiltersState] = useState<Filters>(() =>
-    urlHasFilters ? filtersFromSearchParams(searchParams) : emptyFilters
-  );
-  const [offset, setOffsetState] = useState(urlOffset);
+  const [filters, setFiltersState] = useState<Filters>(initialFilters);
+  const [offset, setOffsetState] = useState(initialOffset);
   const [jobs, setJobs] = useState<PublicJob[]>(initialJobs);
   const [total, setTotal] = useState(initialTotal);
   const [sources, setSources] = useState<Sources | undefined>(initialSources);
@@ -63,10 +43,10 @@ export default function JobsBoard({
   const [errorMessage, setErrorMessage] = useState("");
   const [reloadToken, setReloadToken] = useState(0);
 
-  // Key of the dataset currently on screen. The server-rendered page is the
-  // unfiltered, offset-0 dataset. Comparing keys avoids duplicate requests
+  // Key of the dataset currently on screen. The server renders the first page
+  // for the URL's own filters and offset. Comparing keys avoids duplicate requests
   // (including React strict-mode double effects) without a one-shot flag.
-  const loadedKey = useRef<string | null>(initialJobs.length > 0 ? keyOf(emptyFilters, 0) : null);
+  const loadedKey = useRef<string | null>(initialJobs.length > 0 ? keyOf(initialFilters, initialOffset) : null);
   const latestRequest = useRef(0);
 
   const syncUrl = useCallback(
@@ -78,9 +58,11 @@ export default function JobsBoard({
       }
       if (nextOffset > 0) params.set("offset", String(nextOffset));
       const qs = params.toString();
-      router.replace(qs ? `${pathname}?${qs}` : pathname, { scroll: false });
+      // history.replaceState (not router.replace) so the URL stays shareable
+      // without asking the server to re-render the page on every filter change.
+      window.history.replaceState(null, "", qs ? `${pathname}?${qs}` : pathname);
     },
-    [router, pathname]
+    [pathname]
   );
 
   // Any filter change resets to page 1.

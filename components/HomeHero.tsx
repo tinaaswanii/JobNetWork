@@ -5,14 +5,18 @@ import RotatingWord from "@/components/RotatingWord";
 // Plain <a> links on purpose: /jobs reads its filters from the URL on page
 // load, so these need a real navigation to apply.
 const popular: [string, string][] = [
-  ["Internships", "intern"],
-  ["Developer", "developer"],
-  ["Data & analytics", "analyst"],
-  ["Marketing", "marketing"],
-  ["Sales", "sales"],
-  ["Manager", "manager"],
-  ["Support", "support"],
-  ["Design", "designer"],
+  ["Internships", "/jobs?q=intern"],
+  ["Developer", "/jobs?role=developer"],
+  ["Data & analytics", "/jobs?role=data"],
+  ["Marketing", "/jobs?q=marketing"],
+  ["Sales", "/jobs?q=sales"],
+  ["Manager", "/jobs?q=manager"],
+  ["Support", "/jobs?q=support"],
+  ["Design", "/jobs?role=design"],
+  // TODO(owner): confirm Artha's work_mode value for remote (matched
+  // case-insensitively in the filter bar once its options load).
+  ["Remote", "/jobs?work_mode=Remote"],
+  ["Senior roles", "/jobs?role=senior"],
 ];
 
 const rotating = ["first jobs", "next moves", "big leaps", "remote roles", "fresh starts"];
@@ -92,10 +96,10 @@ export default function HomeHero({ total, jobs }: { total: number; jobs: PublicJ
 
           <div className="mt-5 flex flex-wrap items-center gap-2">
             <span className="text-sm text-white/70">Popular:</span>
-            {popular.map(([label, q]) => (
+            {popular.map(([label, href]) => (
               <a
-                key={q}
-                href={`/jobs?q=${encodeURIComponent(q)}`}
+                key={label}
+                href={href}
                 className="rounded-full border border-white/25 px-3 py-1.5 text-sm text-white/90 transition hover:border-denim hover:bg-white/10"
               >
                 {label}

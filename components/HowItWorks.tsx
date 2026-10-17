@@ -16,7 +16,7 @@ const steps = [
   {
     n: "02",
     title: "Match your resume",
-    text: "Upload a PDF resume from any job card to see how your skills line up with that role.",
+    text: "Upload a PDF resume on the match page or from any job card to see how your skills line up with a role.",
     href: "/match",
     cta: "Try the match",
   },

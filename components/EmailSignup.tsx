@@ -54,10 +54,11 @@ export default function EmailSignup({ filters }: { filters: Filters }) {
   return (
     <form onSubmit={submit} className="flex flex-col gap-3 max-w-md">
       <div className="flex flex-col gap-1">
-        <label className="text-xs font-medium text-ink/60">
+        <label htmlFor="alert-skills" className="text-xs font-medium text-ink/60">
           Skills or keywords (optional)
         </label>
         <input
+          id="alert-skills"
           type="text"
           placeholder="e.g. React, SQL, content writing"
           value={skills}
@@ -69,22 +70,35 @@ export default function EmailSignup({ filters }: { filters: Filters }) {
         </p>
       </div>
 
-      <div className="flex flex-wrap items-center gap-3">
+      <div className="flex flex-col gap-1">
+        <label htmlFor="alert-email" className="text-xs font-medium text-ink/60">
+          Email address
+        </label>
         <input
+          id="alert-email"
           type="email"
           required
-          placeholder="you@university.edu"
+          autoComplete="email"
+          placeholder="you@example.com"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           className="bg-transparent border-b border-ink/20 px-1 py-1 text-sm focus:border-mustard outline-none"
         />
+      </div>
+
+      <div className="flex flex-col gap-2">
         <button
           type="submit"
           disabled={status === "saving"}
-          className="bg-board text-paper text-sm px-4 py-1.5 hover:bg-boardDark disabled:opacity-50"
+          className="self-start bg-board text-paper text-sm px-4 py-1.5 hover:bg-boardDark disabled:opacity-50"
         >
           {status === "saving" ? "Saving..." : "Email me new matches"}
         </button>
+        {/* TODO(owner): say how often alerts are sent once that is decided. Not stated here on purpose. */}
+        <p className="text-xs text-ink/60">
+          By subscribing, you agree to receive job alert emails from JobNetWork.
+          Unsubscribe anytime.
+        </p>
       </div>
 
       {status === "error" && (

@@ -13,7 +13,7 @@ const faqs = [
   },
   {
     q: "How does the resume match work?",
-    a: "Upload a PDF resume (under 5 MB) from any job card and see how its skills line up with that job. Treat it as a guide, not a verdict.",
+    a: "Upload a PDF resume (under 5 MB) on the match page or from any job card and see how its skills line up with a job. Treat it as a guide, not a verdict.",
   },
   {
     q: "How do I get new jobs without checking the site?",
