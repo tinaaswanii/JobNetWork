@@ -15,39 +15,26 @@ const SITE_URL = "https://job-net-work.vercel.app";
 const WHATSAPP_URL = "https://chat.whatsapp.com/L9DG89VrT4V2UFjFkpv0Ok";
 
 export const metadata: Metadata = {
-  title:
-    "JobNetWork — Jobs & Internships in India, From Entry-Level to Experienced",
+  // `absolute` so the root title template does not append "| JobNetWork" again.
+  title: { absolute: "JobNetWork — Jobs & Internships in India, All Levels" },
   description:
-    "Find jobs and internships across tech, sales, marketing, finance, healthcare, design and more, from entry-level to experienced roles, updated in real time. Free interview prep and resume match included.",
-  keywords: [
-    "internships India",
-    "jobs for freshers",
-    "experienced jobs India",
-    "entry level jobs India",
-    "campus placements",
-    "remote internships",
-    "part time jobs",
-    "job board India",
-    "remote jobs India",
-    "internship finder",
-    "placement resources",
-  ],
-  alternates: { canonical: SITE_URL },
+    "Find jobs and internships in India across tech, sales, marketing, finance, healthcare and design, from first jobs to senior roles. Free resume match and interview prep.",
+  alternates: { canonical: "/" },
   openGraph: {
     type: "website",
-    url: SITE_URL,
+    url: "/",
     siteName: "JobNetWork",
-    title: "JobNetWork — Jobs & Internships in India, Entry-Level to Experienced",
+    title: "JobNetWork — Jobs & Internships in India, All Levels",
     description:
-      "Real jobs and internships across every field and level, updated in real time.",
-    images: [{ url: `${SITE_URL}/Logo.png`, width: 512, height: 512 }],
+      "Find jobs and internships in India across tech, sales, marketing, finance, healthcare and design, from first jobs to senior roles. Free resume match and interview prep.",
+    images: [{ url: "/Logo.png", width: 512, height: 512 }],
   },
   twitter: {
     card: "summary",
-    title: "JobNetWork — Jobs & Internships in India, Entry-Level to Experienced",
+    title: "JobNetWork — Jobs & Internships in India, All Levels",
     description:
-      "Real jobs and internships across every field and level, updated in real time.",
-    images: [`${SITE_URL}/Logo.png`],
+      "Find jobs and internships in India across tech, sales, marketing, finance, healthcare and design, from first jobs to senior roles. Free resume match and interview prep.",
+    images: ["/Logo.png"],
   },
 };
 

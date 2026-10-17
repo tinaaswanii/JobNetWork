@@ -7,7 +7,7 @@ const SITE_URL = "https://job-net-work.vercel.app";
 export const metadata: Metadata = {
   title: "Testimonials — What the JobNetWork Community Says",
   description:
-    "Feedback from students and freshers who use the JobNetWork community and Prep Trek.",
+    "Feedback from people who use the JobNetWork community and Prep Trek.",
   alternates: { canonical: `${SITE_URL}/testimonials` },
 };
 

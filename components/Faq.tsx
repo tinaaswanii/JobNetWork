@@ -5,7 +5,7 @@ const faqs = [
   },
   {
     q: "Who is it for?",
-    a: "Anyone looking for work. Listings run from internships and entry-level roles to experienced and senior positions, so use the experience filter to narrow them down. The paid 1:1 calls and guides on Topmate are aimed at students and freshers.",
+    a: "Anyone looking for work. Listings run from internships and first jobs to experienced and senior roles, so use the experience filter to narrow them down. The free tools work at every level. Our paid guides and 1:1 calls are written for students and freshers.",
   },
   {
     q: "Where do the jobs come from?",

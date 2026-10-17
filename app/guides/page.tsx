@@ -96,6 +96,12 @@ export default function GuidesPage() {
             Guides & Notes
           </h1>
           <p className="mt-4 max-w-2xl text-paper/80">
+            Interview prep guides, subject notes and 1:1 career calls for
+            students and freshers. Experienced? The jobs board, resume match
+            and free Prep Trek tools are built for you too, and
+            experienced-level guides are coming soon.
+          </p>
+          <p className="mt-3 max-w-2xl text-sm text-paper/70">
             Practical preparation material based on my own placement season.
             No fluff. These help you prepare in a structured way, but they are
             not a guarantee of getting a job.
