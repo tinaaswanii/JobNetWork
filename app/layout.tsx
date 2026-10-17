@@ -3,6 +3,7 @@ import "./globals.css";
 import Footer from "@/components/Footer";
 import { Analytics } from "@vercel/analytics/next";
 import SiteHeader from "@/components/SiteHeader";
+import AdSenseScript from "@/components/AdSenseScript";
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://job-net-work.vercel.app"),
@@ -46,16 +47,13 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     content="ca-pub-1266008745090944"
   />
 
-  <script
-    async
-    src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1266008745090944"
-    crossOrigin="anonymous"
-  />      </head>
+      </head>
 
       <body className="font-body antialiased bg-paper text-ink">
         <SiteHeader />
         {children}
         <Footer />
+        <AdSenseScript />
         <Analytics />
       </body>
     </html>
