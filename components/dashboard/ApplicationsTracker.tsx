@@ -240,7 +240,7 @@ function RowActions({ a, setModal }: { a: Application; setModal: (m: Modal) => v
     <span className="inline-flex gap-1">
       <button
         onClick={() => setModal({ kind: "form", editing: a })}
-        className="rounded-lg px-2.5 py-1 text-xs font-medium text-board hover:bg-muted"
+        className="rounded-lg px-2.5 py-1 text-xs font-medium text-denim hover:bg-muted"
       >
         Edit
       </button>
@@ -265,7 +265,7 @@ function ApplicationDetails({ a, onEdit, onDelete }: { a: Application; onEdit: (
     [
       "Job link",
       a.job_url ? (
-        <a key="u" href={a.job_url} target="_blank" rel="noopener noreferrer" className="break-all text-board underline">
+        <a key="u" href={a.job_url} target="_blank" rel="noopener noreferrer" className="break-all text-denim underline">
           {a.job_url}
         </a>
       ) : (

@@ -81,7 +81,7 @@ const supportLinks: FooterLink[] = [
 ];
 
 const linkCls =
-  "inline-flex min-h-[44px] items-center gap-2 rounded text-sm text-muted-foreground transition hover:text-ink";
+  "inline-flex min-h-[44px] min-w-[44px] items-center gap-2 rounded text-sm text-muted-foreground transition hover:text-ink";
 
 function LinkGroup({ title, links }: { title: string; links: FooterLink[] }) {
   return (

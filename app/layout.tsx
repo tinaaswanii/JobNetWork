@@ -50,6 +50,12 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       </head>
 
       <body className="font-body antialiased bg-paper text-ink">
+        <a
+          href="#main-content"
+          className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[60] focus:rounded-lg focus:bg-board focus:px-4 focus:py-3 focus:text-sm focus:font-semibold focus:text-white"
+        >
+          Skip to content
+        </a>
         <SiteHeader />
         {children}
         <Footer />

@@ -36,7 +36,7 @@ export default function DbmsPage() {
   };
 
   return (
-    <main className="min-h-screen bg-paper">
+    <main id="main-content" tabIndex={-1} className="min-h-screen bg-paper">
       {/* eslint-disable-next-line react/no-danger */}
       <script
         type="application/ld+json"
@@ -47,12 +47,12 @@ export default function DbmsPage() {
         <div className="mx-auto max-w-3xl">
           <Link
             href="/prep-trek"
-            className="text-sm text-paper/70 hover:text-paper"
+            className="inline-flex min-h-[44px] items-center text-sm text-paper/70 hover:text-paper"
           >
             ← All Prep Trek tracks
           </Link>
           <h1 className="mt-4 font-display text-4xl md:text-5xl">
-            🗄️ DBMS, in 10 cards
+            <span aria-hidden="true">🗄️</span> DBMS, in 10 cards
           </h1>
           <p className="mt-4 max-w-xl text-paper/80">
             No chapters to read. Each card gives you the one-line answer, a
@@ -66,10 +66,10 @@ export default function DbmsPage() {
 
       <section className="mx-auto max-w-3xl px-6 pb-16 md:px-0">
         <div className="pinned-card p-6 pl-8 md:p-8 md:pl-10">
-          <span className="inline-block rounded-full bg-mustard px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wide text-ink">
+          <h2 className="font-display text-2xl">Want the rest?</h2>
+          <span className="mt-3 inline-block rounded-full bg-mustard px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wide text-paper">
             Full DBMS Notes
           </span>
-          <h2 className="mt-3 font-display text-2xl">Want the rest?</h2>
           <p className="mt-2 text-sm leading-6 text-ink/70">
             The free cards cover the basics. The full notes add 21 more cards
             in the same style, plus SQL practice and rapid-fire answers:

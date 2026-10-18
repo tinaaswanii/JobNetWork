@@ -149,7 +149,7 @@ function Btn({ children, onClick, danger }: { children: React.ReactNode; onClick
   return (
     <button
       onClick={onClick}
-      className={`rounded-lg px-2.5 py-1 text-xs font-medium ${danger ? "text-red-700 hover:bg-red-50" : "text-board hover:bg-muted"}`}
+      className={`rounded-lg px-2.5 py-1 text-xs font-medium ${danger ? "text-red-700 hover:bg-red-50" : "text-denim hover:bg-muted"}`}
     >
       {children}
     </button>

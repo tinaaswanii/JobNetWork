@@ -78,7 +78,7 @@ export default function PrepChecklist({
               />
               <span
                 className={`text-sm leading-6 ${
-                  checked[i] ? "text-ink/40 line-through" : "text-ink/80"
+                  checked[i] ? "text-ink/60 line-through" : "text-ink/80"
                 }`}
               >
                 {item}

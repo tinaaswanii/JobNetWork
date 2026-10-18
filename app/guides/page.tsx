@@ -20,16 +20,15 @@ function GuideCard({ g }: { g: Guide }) {
 
   return (
     <div className="pinned-card flex flex-col p-6">
-      <div className="flex flex-wrap items-center gap-2">
+      <h3 className="font-display text-xl">{g.title}</h3>
+      <div className="mt-2 flex flex-wrap items-center gap-2">
+        <LevelTag level="students" />
         {!live && (
-          <span className="rounded-full bg-mustard px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wide text-ink">
+          <span className="rounded-full bg-mustard px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wide text-paper">
             Coming soon
           </span>
         )}
-        <LevelTag level="students" />
       </div>
-
-      <h3 className="mt-3 font-display text-xl">{g.title}</h3>
       <p className="mt-2 text-sm leading-6 text-ink/70">{g.blurb}</p>
       {g.differentiator && (
         <p className="mt-2 text-sm font-medium leading-6 text-ink">{g.differentiator}</p>
@@ -123,10 +122,10 @@ function ComingSoon({ items }: { items: Guide[] }) {
 
 export default function GuidesPage() {
   return (
-    <main className="min-h-screen bg-paper pb-16">
+    <main id="main-content" tabIndex={-1} className="min-h-screen bg-paper pb-16">
       <header className="bg-board px-6 py-12 text-paper md:px-12">
         <div className="mx-auto max-w-5xl">
-          <Link href="/jobs" className="text-sm text-paper/70 hover:text-paper">
+          <Link href="/jobs" className="inline-flex min-h-[44px] items-center text-sm text-paper/70 hover:text-paper">
             ← Back to jobs
           </Link>
           <h1 className="mt-4 font-display text-4xl md:text-5xl">
@@ -159,12 +158,12 @@ export default function GuidesPage() {
           href="/prep-trek/common-questions"
           className="block rounded-xl border-2 border-board p-6 transition hover:-translate-y-0.5"
         >
-          <span className="inline-block rounded-full bg-board px-3 py-1 text-xs font-semibold uppercase tracking-wide text-paper">
-            Free
-          </span>
-          <h2 className="mt-3 font-display text-xl md:text-2xl">
+          <h2 className="font-display text-xl md:text-2xl">
             Start with the free interview questions
           </h2>
+          <span className="mt-3 inline-block rounded-full bg-board px-3 py-1 text-xs font-semibold uppercase tracking-wide text-paper">
+            Free
+          </span>
           <p className="mt-2 text-sm text-ink/70">
             7 free flashcards with sample answers. Like them? The full guide is
             below.
@@ -181,7 +180,7 @@ export default function GuidesPage() {
       <section className="mx-auto max-w-5xl px-6 pt-12 md:px-12">
         <Link
           href="/testimonials"
-          className="text-sm font-semibold text-ink hover:text-ink/70"
+          className="inline-flex min-h-[44px] items-center text-sm font-semibold text-ink hover:text-ink/70"
         >
           See what the community says →
         </Link>

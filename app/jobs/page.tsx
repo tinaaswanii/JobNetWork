@@ -45,7 +45,7 @@ export default async function JobsPage({
   }));
 
   return (
-    <main className="min-h-screen bg-paper">
+    <main id="main-content" tabIndex={-1} className="min-h-screen bg-paper">
       <header className="border-b bg-white px-6 py-10 md:px-12">
         <div className="mx-auto max-w-5xl">
           <h1 className="text-3xl md:text-4xl">Jobs & internships in India</h1>
@@ -62,6 +62,7 @@ export default async function JobsPage({
         initialSources={initial.sources}
         initialFilters={initialFilters}
         initialOffset={initialOffset}
+        jobHeadingLevel={2}
       />
     </main>
   );

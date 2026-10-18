@@ -21,6 +21,7 @@ export default function JobsBoard({
   initialSources,
   initialFilters,
   initialOffset,
+  jobHeadingLevel = 3,
 }: {
   initialJobs: PublicJob[];
   /** The server's real filtered total (NOT initialJobs.length). */
@@ -29,6 +30,8 @@ export default function JobsBoard({
   /** The filters and page the server already rendered `initialJobs` for. */
   initialFilters: Filters;
   initialOffset: number;
+  /** 2 when the page has no other heading between the h1 and the cards. */
+  jobHeadingLevel?: 2 | 3;
 }) {
   const pathname = usePathname();
 
@@ -207,7 +210,7 @@ export default function JobsBoard({
             </p>
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
               {jobs.map((job) => (
-                <JobCard key={job.id} job={job} />
+                <JobCard key={job.id} job={job} headingLevel={jobHeadingLevel} />
               ))}
             </div>
             <Pagination offset={offset} limit={LIMIT} total={total} onChange={setOffset} />
@@ -215,7 +218,7 @@ export default function JobsBoard({
         )}
 
         <div className="mt-10 pt-6 border-t border-ink/10">
-          <p className="font-display text-lg mb-2">Get new matches by email</p>
+          <h2 className="font-display text-lg mb-2">Get new matches by email</h2>
           <EmailSignup filters={filters} />
         </div>
         <div className="mt-12 border-t border-ink/10 pt-8">

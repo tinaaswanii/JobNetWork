@@ -32,7 +32,7 @@ export default function LoginPage({
   const next = safeNext(searchParams.next);
 
   return (
-    <main className="relative isolate overflow-hidden px-6 py-14 md:py-20">
+    <main id="main-content" tabIndex={-1} className="relative isolate overflow-hidden px-6 py-14 md:py-20">
       <div aria-hidden="true" className="hero-aurora pointer-events-none absolute inset-x-[-10%] top-[-30%] -z-10 h-[130%] opacity-70" />
 
       <div className="mx-auto grid max-w-5xl items-center gap-12 md:grid-cols-[1.1fr_1fr]">

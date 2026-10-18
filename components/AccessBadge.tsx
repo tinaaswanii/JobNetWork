@@ -8,8 +8,8 @@ const LABEL: Record<Access, string> = {
 };
 
 const STYLE: Record<Access, string> = {
-  free: "border border-board/40 bg-white text-board",
-  premium: "bg-mustard text-ink",
+  free: "border border-board/40 bg-white text-denim",
+  premium: "bg-mustard text-paper",
 };
 
 export default function AccessBadge({

@@ -69,7 +69,7 @@ export default async function HomePage() {
   };
 
   return (
-    <main className="min-h-screen bg-paper">
+    <main id="main-content" tabIndex={-1} className="min-h-screen bg-paper">
       {/* Structured data */}
       {/* eslint-disable-next-line react/no-danger */}
       <script
@@ -123,7 +123,7 @@ export default async function HomePage() {
                 learning path, and cold-mail tips, by field.
               </p>
             </div>
-            <Link href="/prep-trek" className="text-sm font-semibold text-denim hover:underline">
+            <Link href="/prep-trek" className="inline-flex min-h-[44px] items-center text-sm font-semibold text-denim hover:underline">
               See all tracks →
             </Link>
           </div>
@@ -145,7 +145,7 @@ export default async function HomePage() {
                 <p className="mt-2 text-sm leading-6 text-muted-foreground">
                   {track.tagline}
                 </p>
-                <p className="mt-4 text-xs font-medium text-board">
+                <p className="mt-4 text-xs font-medium text-denim">
                   {track.commonQuestions.length} questions · {track.roadmap.length}-week roadmap
                 </p>
               </Link>
@@ -165,7 +165,7 @@ export default async function HomePage() {
                 freshers, built from a real placement season.
               </p>
             </div>
-            <Link href="/guides" className="text-sm font-semibold text-denim hover:underline">
+            <Link href="/guides" className="inline-flex min-h-[44px] items-center text-sm font-semibold text-denim hover:underline">
               See all guides →
             </Link>
           </div>
@@ -190,7 +190,7 @@ export default async function HomePage() {
               ))}
           </div>
 
-          <Link href="/testimonials" className="mt-6 inline-block text-sm font-semibold text-denim hover:underline">
+          <Link href="/testimonials" className="mt-4 inline-flex min-h-[44px] items-center text-sm font-semibold text-denim hover:underline">
             What people are saying →
           </Link>
         </div>
@@ -213,7 +213,7 @@ export default async function HomePage() {
               href={WHATSAPP_URL}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center justify-center rounded-lg bg-mustard px-6 py-3 text-sm font-semibold text-ink transition hover:brightness-95"
+              className="inline-flex items-center justify-center rounded-lg bg-mustard px-6 py-3 text-sm font-semibold text-paper transition hover:brightness-95"
             >
               Join on WhatsApp →
             </a>

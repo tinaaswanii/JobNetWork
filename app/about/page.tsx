@@ -9,7 +9,7 @@ export const metadata: Metadata = {
 
 export default function AboutPage() {
   return (
-    <main className="min-h-screen bg-paper">
+    <main id="main-content" tabIndex={-1} className="min-h-screen bg-paper">
       {/* Hero */}
       <header className="bg-board text-paper px-6 py-12 md:px-12">
         <div className="mx-auto max-w-5xl">
@@ -87,7 +87,7 @@ export default function AboutPage() {
 
           <div className="mt-6 grid gap-6 md:grid-cols-3">
             <div className="rounded-xl border p-6">
-              <div className="text-sm font-semibold tracking-wider text-board">01</div>
+              <div className="text-sm font-semibold tracking-wider text-denim">01</div>
 
               <h3 className="mt-4 font-semibold">Browse</h3>
 
@@ -98,7 +98,7 @@ export default function AboutPage() {
             </div>
 
             <div className="rounded-xl border p-6">
-              <div className="text-sm font-semibold tracking-wider text-board">02</div>
+              <div className="text-sm font-semibold tracking-wider text-denim">02</div>
 
               <h3 className="mt-4 font-semibold">Stay updated</h3>
 
@@ -109,7 +109,7 @@ export default function AboutPage() {
             </div>
 
             <div className="rounded-xl border p-6">
-              <div className="text-sm font-semibold tracking-wider text-board">03</div>
+              <div className="text-sm font-semibold tracking-wider text-denim">03</div>
 
               <h3 className="mt-4 font-semibold">Follow our updates</h3>
 
@@ -177,7 +177,7 @@ export default function AboutPage() {
           <ul className="mt-3 space-y-1 leading-7 text-muted-foreground">
             <li>
               Email:{" "}
-              <a href={`mailto:${CONTACT_EMAIL}`} className="font-medium text-denim hover:underline">
+              <a href={`mailto:${CONTACT_EMAIL}`} className="inline-flex min-h-[44px] items-center font-medium text-denim hover:underline">
                 {CONTACT_EMAIL}
               </a>
             </li>
@@ -187,7 +187,7 @@ export default function AboutPage() {
                 href={FEEDBACK_WHATSAPP_URL}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="font-medium text-denim hover:underline"
+                className="inline-flex min-h-[44px] items-center font-medium text-denim hover:underline"
               >
                 message us on WhatsApp
                 <span className="sr-only"> (opens in a new tab)</span>

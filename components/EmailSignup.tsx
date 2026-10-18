@@ -43,7 +43,7 @@ export default function EmailSignup({ filters }: { filters: Filters }) {
 
   if (status === "done") {
     return (
-      <p className="text-sm text-board">
+      <p className="text-sm text-denim">
         {emailSent
           ? "You're subscribed. Check your inbox — and your spam or promotions folder — for a welcome email. If it's in spam, mark it Not spam so future job alerts reach you."
           : "You're subscribed — new matching jobs will arrive by email. (Our welcome email is delayed; we'll retry shortly.)"}
@@ -65,7 +65,7 @@ export default function EmailSignup({ filters }: { filters: Filters }) {
           onChange={(e) => setSkills(e.target.value)}
           className="bg-transparent border-b border-ink/20 px-1 py-1 text-sm focus:border-mustard outline-none"
         />
-        <p className="text-xs text-ink/40">
+        <p className="text-xs text-ink/60">
           Leave blank to get everything matching your current filters instead.
         </p>
       </div>

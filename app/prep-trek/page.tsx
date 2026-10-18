@@ -37,7 +37,7 @@ export default function PrepTrekIndexPage() {
   };
 
   return (
-    <main className="min-h-screen bg-paper">
+    <main id="main-content" tabIndex={-1} className="min-h-screen bg-paper">
       {/* eslint-disable-next-line react/no-danger */}
       <script
         type="application/ld+json"
@@ -47,7 +47,9 @@ export default function PrepTrekIndexPage() {
       {/* Hero */}
       <header className="bg-board text-paper px-6 py-12 md:px-12">
         <div className="mx-auto max-w-5xl">
-          <h1 className="font-display text-4xl md:text-5xl">🧭 Prep Trek</h1>
+          <h1 className="font-display text-4xl md:text-5xl">
+            <span aria-hidden="true">🧭</span> Prep Trek
+          </h1>
 
           <p className="mt-4 max-w-2xl text-paper/80">
             Interviews aren't just about knowing your field — they're about
@@ -62,7 +64,7 @@ export default function PrepTrekIndexPage() {
       <section className="border-b px-6 py-10 md:px-12">
         <div className="mx-auto max-w-5xl">
           <div className="pinned-card flex flex-col gap-4 p-6 pl-8 md:flex-row md:items-center md:gap-8 md:p-8 md:pl-10">
-            <div className="text-4xl">👋</div>
+            <div className="text-4xl" aria-hidden="true">👋</div>
             <p className="text-sm leading-7 text-ink/75 md:text-base">
               <span className="font-semibold text-ink">
                 Built by someone who's actually been through it.
@@ -99,14 +101,14 @@ export default function PrepTrekIndexPage() {
           className="flex flex-col gap-4 rounded-xl border-2 border-board bg-paper p-6 pl-8 transition hover:-translate-y-0.5 md:flex-row md:items-center md:justify-between md:p-8 md:pl-10"
         >
           <div>
-            <span className="inline-block rounded-full bg-board px-3 py-1 text-xs font-semibold uppercase tracking-wide text-paper">
-              Interactive
-            </span>
-            <div className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-2">
+            <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
               <h2 className="font-display text-xl md:text-2xl">
-                🎤 Interview Questions, Answered Like a Pro
+                <span aria-hidden="true">🎤</span> Interview Questions, Answered Like a Pro
               </h2>{" "}
               <AccessBadge access="free" />
+              <span className="inline-block rounded-full bg-board px-3 py-1 text-xs font-semibold uppercase tracking-wide text-paper">
+                Interactive
+              </span>
             </div>
             <p className="mt-2 max-w-xl text-sm leading-6 text-ink/70">
               7 tappable flashcards with the exact structure to answer the
@@ -135,7 +137,7 @@ export default function PrepTrekIndexPage() {
             href="/prep-trek/dbms"
             className="pinned-card block p-5 pl-7 transition hover:-translate-y-0.5"
           >
-            <div className="text-2xl">🗄️</div>
+            <div className="text-2xl" aria-hidden="true">🗄️</div>
             <div className="mt-3 flex flex-wrap items-center gap-x-2 gap-y-1.5">
               <h3 className="font-semibold">DBMS</h3>{" "}
               <AccessBadge access="free" />
@@ -151,7 +153,7 @@ export default function PrepTrekIndexPage() {
             href="/prep-trek/sql"
             className="pinned-card block p-5 pl-7 transition hover:-translate-y-0.5"
           >
-            <div className="text-2xl">🧮</div>
+            <div className="text-2xl" aria-hidden="true">🧮</div>
             <div className="mt-3 flex flex-wrap items-center gap-x-2 gap-y-1.5">
               <h3 className="font-semibold">SQL</h3>{" "}
               <AccessBadge access="free" />
@@ -167,7 +169,7 @@ export default function PrepTrekIndexPage() {
             href="/prep-trek/computer-networks"
             className="pinned-card block p-5 pl-7 transition hover:-translate-y-0.5"
           >
-            <div className="text-2xl">🌐</div>
+            <div className="text-2xl" aria-hidden="true">🌐</div>
             <div className="mt-3 flex flex-wrap items-center gap-x-2 gap-y-1.5">
               <h3 className="font-semibold">Computer Networks</h3>{" "}
               <AccessBadge access="free" />
@@ -198,7 +200,7 @@ export default function PrepTrekIndexPage() {
               href={`/prep-trek/${track.slug}`}
               className="pinned-card block p-6 pl-8 transition hover:-translate-y-0.5"
             >
-              <div className="text-3xl">{track.emoji}</div>
+              <div className="text-3xl" aria-hidden="true">{track.emoji}</div>
               <div className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-2">
                 <h3 className="font-display text-xl">{track.name}</h3>{" "}
                 <AccessBadge access={track.premium ? "premium" : "free"} />
@@ -209,7 +211,7 @@ export default function PrepTrekIndexPage() {
               <p className="mt-2 text-sm leading-6 text-ink/70">
                 {track.tagline}
               </p>
-              <p className="mt-3 text-xs font-medium uppercase tracking-wide text-ink/40">
+              <p className="mt-3 text-xs font-medium uppercase tracking-wide text-ink/60">
                 {track.commonQuestions.length} questions · {track.roadmap.length}-week roadmap →
               </p>
             </Link>
@@ -223,7 +225,7 @@ export default function PrepTrekIndexPage() {
             >
               <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
                 <h3 className="font-display text-xl">{t.name}</h3>{" "}
-                <span className="inline-block shrink-0 whitespace-nowrap rounded-full bg-mustard px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wide text-ink">
+                <span className="inline-block shrink-0 whitespace-nowrap rounded-full bg-mustard px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wide text-paper">
                   Coming soon
                 </span>
               </div>

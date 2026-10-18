@@ -138,7 +138,7 @@ function DataTable({ head, rows }: { head: string[]; rows: string[][] }) {
         <thead className="bg-board text-paper">
           <tr>
             {head.map((h, i) => (
-              <th key={i} className="px-3 py-2 font-semibold">
+              <th key={i} scope="col" className="px-3 py-2 font-semibold">
                 {h}
               </th>
             ))}
@@ -147,14 +147,17 @@ function DataTable({ head, rows }: { head: string[]; rows: string[][] }) {
         <tbody>
           {rows.map((r, i) => (
             <tr key={i} className="border-t border-ink/10">
-              {r.map((cell, j) => (
-                <td
-                  key={j}
-                  className={`px-3 py-2 leading-6 ${j === 0 ? "font-semibold" : "text-ink/80"}`}
-                >
-                  {cell}
-                </td>
-              ))}
+              {r.map((cell, j) =>
+                j === 0 ? (
+                  <th key={j} scope="row" className="px-3 py-2 text-left font-semibold leading-6">
+                    {cell}
+                  </th>
+                ) : (
+                  <td key={j} className="px-3 py-2 leading-6 text-ink/80">
+                    {cell}
+                  </td>
+                )
+              )}
             </tr>
           ))}
         </tbody>
@@ -258,7 +261,7 @@ function CardView({
       id={card.id}
       className={`pinned-card p-5 pl-8 md:p-7 md:pl-10 ${done ? "border-green-600/60" : ""}`}
     >
-      <p className="text-xs font-medium uppercase tracking-wide text-ink/45">
+      <p className="text-xs font-medium uppercase tracking-wide text-ink/60">
         {index + 1} of {total} · {card.group}
       </p>
       <h2 className="mt-1 font-display text-xl md:text-2xl">{card.q}</h2>
@@ -309,7 +312,7 @@ function CardView({
             : "border-ink/25 bg-white hover:border-board"
         }`}
       >
-        {done ? "Got it ✓" : "Mark as got it"}
+        {done ? <>Got it <span aria-hidden="true">✓</span></> : "Mark as got it"}
       </button>
     </article>
   );
@@ -364,6 +367,7 @@ export default function PrepCards({
           <div
             className="h-2.5 flex-1 overflow-hidden rounded-full bg-ink/10"
             role="progressbar"
+            aria-label="Cards marked as got it"
             aria-valuemin={0}
             aria-valuemax={100}
             aria-valuenow={pct}

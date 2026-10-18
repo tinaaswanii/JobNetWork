@@ -141,7 +141,7 @@ export function InterviewItem({ i, setModal }: { i: InterviewRow; setModal: (m: 
           </span>
         </div>
         {i.meeting_url && (
-          <a href={i.meeting_url} target="_blank" rel="noopener noreferrer" className="text-sm text-board underline">
+          <a href={i.meeting_url} target="_blank" rel="noopener noreferrer" className="text-sm text-denim underline">
             Join link
           </a>
         )}
@@ -173,7 +173,7 @@ function ActionBtn({ children, onClick, danger }: { children: React.ReactNode; o
   return (
     <button
       onClick={onClick}
-      className={`rounded-lg px-2.5 py-1 text-xs font-medium ${danger ? "text-red-700 hover:bg-red-50" : "text-board hover:bg-muted"}`}
+      className={`rounded-lg px-2.5 py-1 text-xs font-medium ${danger ? "text-red-700 hover:bg-red-50" : "text-denim hover:bg-muted"}`}
     >
       {children}
     </button>

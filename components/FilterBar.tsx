@@ -18,7 +18,7 @@ const SORT_LABELS: Record<string, string> = {
 const FEATURED_TIP = "Featured: listings from our job partners are shown first.";
 
 const selectCls =
-  "min-h-[36px] rounded-lg border border-ink/15 bg-white px-2.5 py-1 text-sm text-ink/90 transition hover:border-ink/30";
+  "min-h-[44px] md:min-h-[36px] rounded-lg border border-ink/15 bg-white px-2.5 py-1 text-sm text-ink/90 transition hover:border-ink/30";
 
 export default function FilterBar({
   value,
@@ -97,7 +97,7 @@ export default function FilterBar({
   return (
     <div className="flex flex-col gap-3">
       <div role="search" className="pinned-card flex items-center gap-3 px-5 py-4 md:px-6 md:py-5 focus-within:border-board">
-        <svg className="h-6 w-6 shrink-0 text-ink/40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+        <svg className="h-6 w-6 shrink-0 text-ink/60" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
           <circle cx="11" cy="11" r="7" />
           <path d="m20 20-3.5-3.5" strokeLinecap="round" />
         </svg>
@@ -110,7 +110,7 @@ export default function FilterBar({
           onKeyDown={(e) => {
             if (e.key === "Enter") commit({ q: qDraft.trim() });
           }}
-          className="w-full bg-transparent font-display text-lg text-ink outline-none placeholder:text-ink/40 md:text-2xl [&::-webkit-search-cancel-button]:hidden"
+          className="w-full bg-transparent font-display text-lg text-ink outline-none placeholder:text-ink/60 md:text-2xl [&::-webkit-search-cancel-button]:hidden"
         />
         {qDraft && (
           <button
@@ -139,7 +139,7 @@ export default function FilterBar({
           onKeyDown={(e) => {
             if (e.key === "Enter") commit({ location: locDraft.trim() });
           }}
-          className={`${selectCls} w-40 placeholder:text-ink/40`}
+          className={`${selectCls} w-40 placeholder:text-ink/60`}
         />
         <datalist id="city-suggestions">
           {cities.map((c) => (
