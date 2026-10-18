@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { CONTACT_EMAIL, FEEDBACK_WHATSAPP_URL } from "@/lib/config";
 
 export const metadata: Metadata = {
   title: "About JobNetWork",
@@ -163,6 +164,36 @@ export default function AboutPage() {
             career resources. Our interview guides and 1:1 calls are aimed at
             students and freshers.
           </p>
+        </div>
+
+        {/* Contact */}
+        <div>
+          <h2 className="font-display text-2xl">Contact</h2>
+
+          <p className="mt-3 leading-7 text-muted-foreground">
+            Questions, feedback or a listing we should look at? We would like to hear from you.
+          </p>
+
+          <ul className="mt-3 space-y-1 leading-7 text-muted-foreground">
+            <li>
+              Email:{" "}
+              <a href={`mailto:${CONTACT_EMAIL}`} className="font-medium text-denim hover:underline">
+                {CONTACT_EMAIL}
+              </a>
+            </li>
+            <li>
+              Feedback:{" "}
+              <a
+                href={FEEDBACK_WHATSAPP_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="font-medium text-denim hover:underline"
+              >
+                message us on WhatsApp
+                <span className="sr-only"> (opens in a new tab)</span>
+              </a>
+            </li>
+          </ul>
         </div>
 
         {/* Closing */}
