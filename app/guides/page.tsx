@@ -2,6 +2,9 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { guides, TOPMATE_PROFILE, type Guide } from "@/lib/guides";
 import LevelTag from "@/components/LevelTag";
+import Price from "@/components/Price";
+
+const WHATSAPP_URL = "https://chat.whatsapp.com/L9DG89VrT4V2UFjFkpv0Ok";
 
 const SITE_URL = "https://job-net-work.vercel.app";
 
@@ -28,6 +31,9 @@ function GuideCard({ g }: { g: Guide }) {
 
       <h3 className="mt-3 font-display text-xl">{g.title}</h3>
       <p className="mt-2 text-sm leading-6 text-ink/70">{g.blurb}</p>
+      {g.differentiator && (
+        <p className="mt-2 text-sm font-medium leading-6 text-ink">{g.differentiator}</p>
+      )}
 
       {g.includes.length > 0 && (
         <ul className="mt-3 space-y-1 text-sm text-ink/70">
@@ -38,14 +44,11 @@ function GuideCard({ g }: { g: Guide }) {
       )}
 
       <div className="mt-auto flex items-center justify-between gap-3 pt-5">
-        <div className="text-sm">
-          <span className="text-lg font-semibold text-ink">{g.price}</span>
-          {g.originalPrice && (
-            <span className="ml-2 text-ink/40 line-through">
-              {g.originalPrice}
-            </span>
-          )}
-        </div>
+        <Price
+          price={g.price}
+          originalPrice={g.originalPrice}
+          className="text-sm [&>span:nth-of-type(2)]:text-lg"
+        />
 
         {live && (
           <a
@@ -82,6 +85,38 @@ function Section({
           <GuideCard key={g.title} g={g} />
         ))}
       </div>
+    </section>
+  );
+}
+
+// One compact list: titles only, no prices (those can change before launch).
+function ComingSoon({ items }: { items: Guide[] }) {
+  if (items.length === 0) return null;
+
+  return (
+    <section className="mx-auto max-w-5xl px-6 pt-12 md:px-12">
+      <h2 className="font-display text-2xl md:text-3xl">Coming soon</h2>
+      <p className="mt-2 max-w-2xl text-sm text-ink/70">
+        On the way, in no fixed order.{" "}
+        <a
+          href={WHATSAPP_URL}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="font-semibold text-denim hover:underline"
+        >
+          Get notified in our WhatsApp community →
+        </a>
+      </p>
+      <ul className="mt-4 grid gap-2 sm:grid-cols-2">
+        {items.map((g) => (
+          <li
+            key={g.title}
+            className="rounded-lg border border-dashed border-ink/25 px-4 py-2.5 text-sm text-ink"
+          >
+            {g.title}
+          </li>
+        ))}
+      </ul>
     </section>
   );
 }
@@ -141,15 +176,7 @@ export default function GuidesPage() {
         title="Available now"
         items={guides.filter((g) => g.group === "available")}
       />
-      <Section
-        title="Coming next: subject notes"
-        intro="Core CS notes for technical rounds, launching in this order."
-        items={guides.filter((g) => g.group === "next")}
-      />
-      <Section
-        title="Then: career guides"
-        items={guides.filter((g) => g.group === "career")}
-      />
+      <ComingSoon items={guides.filter((g) => g.group !== "available")} />
 
       <section className="mx-auto max-w-5xl px-6 pt-12 md:px-12">
         <Link

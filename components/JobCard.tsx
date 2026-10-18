@@ -2,6 +2,7 @@ import Link from "next/link";
 import type { PublicJob } from "@/lib/types";
 import JobActions from "@/components/jobs/JobActions";
 import { isArthaUrlExpired } from "@/lib/artha-url";
+import { reportJobHref } from "@/lib/config";
 
 function formatSalary(job: PublicJob) {
   if (!job.salary_min && !job.salary_max) return null;
@@ -23,6 +24,14 @@ function formatExperience(job: PublicJob) {
   return `${min ?? max}${min != null && max == null ? "+" : ""} ${unit}`;
 }
 
+// Some manually added jobs have no posted date and fall back to 1970; treat
+// that as "unknown" instead of printing "Posted 20,000 days ago".
+function hasPostedDate(dateStr: string | null | undefined) {
+  if (!dateStr) return false;
+  const t = new Date(dateStr).getTime();
+  return !Number.isNaN(t) && t > Date.UTC(2000, 0, 1);
+}
+
 function ageInDays(dateStr: string) {
   return Math.floor((Date.now() - new Date(dateStr).getTime()) / 86400000);
 }
@@ -40,7 +49,8 @@ export default function JobCard({ job }: { job: PublicJob }) {
   const experience = formatExperience(job);
   const isOwn = job.id.startsWith("own_");
   const applyExpired = isArthaUrlExpired(job.url);
-  const isNew = ageInDays(job.posted_date) <= 2;
+  const posted = hasPostedDate(job.posted_date);
+  const isNew = posted && ageInDays(job.posted_date) <= 2;
   const visibleSkills = (job.skills ?? []).slice(0, 4);
   const extraSkillCount = (job.skills ?? []).length - visibleSkills.length;
 
@@ -112,9 +122,11 @@ export default function JobCard({ job }: { job: PublicJob }) {
             </ul>
           )}
 
-          <p className="mt-3 text-xs text-muted-foreground">
-            <time dateTime={job.posted_date}>{timeAgo(job.posted_date)}</time>
-          </p>
+          {posted && (
+            <p className="mt-3 text-xs text-muted-foreground">
+              <time dateTime={job.posted_date}>{timeAgo(job.posted_date)}</time>
+            </p>
+          )}
         </div>
       </Link>
 
@@ -143,6 +155,13 @@ export default function JobCard({ job }: { job: PublicJob }) {
         >
           Match my resume
         </Link>
+        <a
+          href={reportJobHref(job)}
+          aria-label={`Report this job: ${job.title} at ${job.company}`}
+          className="inline-flex min-h-[40px] items-center px-2 text-xs font-medium text-ink/60 underline-offset-2 transition hover:text-ink hover:underline"
+        >
+          Report this job
+        </a>
         <JobActions
           job={{
             job_id: job.slug,

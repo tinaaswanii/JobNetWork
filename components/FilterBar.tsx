@@ -3,29 +3,19 @@
 import { useEffect, useRef, useState } from "react";
 import type { ArthaFilters } from "@/lib/types";
 
-export interface Filters {
-  q: string;
-  location: string;
-  job_type: string;
-  work_mode: string;
-  exp_level: string;
-  sort_by: string;
-}
+import { emptyFilters, POSTED_OPTIONS, type Filters } from "@/lib/jobs-query";
+import { ROLE_PRESETS, isRoleKey } from "@/lib/role-presets";
 
-export const emptyFilters: Filters = {
-  q: "",
-  location: "",
-  job_type: "",
-  work_mode: "",
-  exp_level: "",
-  sort_by: "newest",
-};
+export { emptyFilters };
+export type { Filters };
 
 const SORT_LABELS: Record<string, string> = {
   newest: "Newest first",
   most_relevant: "Most relevant",
-  high_cpa: "High priority",
+  high_cpa: "Featured",
 };
+
+const FEATURED_TIP = "Featured: listings from our job partners are shown first.";
 
 const selectCls =
   "min-h-[36px] rounded-lg border border-ink/15 bg-white px-2.5 py-1 text-sm text-ink/90 transition hover:border-ink/30";
@@ -67,6 +57,12 @@ export default function FilterBar({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [locDraft]);
 
+  // "Most relevant" needs search text; fall back to newest if it disappears.
+  useEffect(() => {
+    if (value.sort_by === "most_relevant" && !value.q.trim()) commit({ sort_by: "newest" });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [value.q, value.sort_by]);
+
   useEffect(() => {
     fetch("/api/jobs/filters")
       .then((r) => r.json())
@@ -78,12 +74,23 @@ export default function FilterBar({
       });
   }, []);
 
+  // The API's own work-mode wording if we have it; "Remote" until options load.
+  const remoteValue = options?.work_modes.find((o) => /remote/i.test(o.value))?.value ?? "Remote";
+  const remoteOn = /remote/i.test(value.work_mode);
+  const cities = (options?.cities ?? []).slice(0, 200);
+  const hasSearch = qDraft.trim() !== "" || value.q.trim() !== "";
+
   const chips: { key: keyof Filters; label: string }[] = [];
   if (value.q) chips.push({ key: "q", label: `“${value.q}”` });
   if (value.location) chips.push({ key: "location", label: `Location: ${value.location}` });
   if (value.job_type) chips.push({ key: "job_type", label: `Type: ${value.job_type}` });
   if (value.work_mode) chips.push({ key: "work_mode", label: `Mode: ${value.work_mode}` });
   if (value.exp_level) chips.push({ key: "exp_level", label: `Experience: ${value.exp_level}` });
+  if (value.posted) {
+    const p = POSTED_OPTIONS.find((o) => o.value === value.posted);
+    if (p) chips.push({ key: "posted", label: `Posted: ${p.label}` });
+  }
+  if (isRoleKey(value.role)) chips.push({ key: "role", label: `Role: ${ROLE_PRESETS[value.role].label}` });
   if (value.sort_by !== emptyFilters.sort_by)
     chips.push({ key: "sort_by", label: `Sort: ${SORT_LABELS[value.sort_by] ?? value.sort_by}` });
 
@@ -124,29 +131,68 @@ export default function FilterBar({
         <input
           type="text"
           aria-label="Filter by location"
-          placeholder="Location"
+          placeholder="City or location"
+          list="city-suggestions"
+          autoComplete="off"
           value={locDraft}
           onChange={(e) => setLocDraft(e.target.value)}
           onKeyDown={(e) => {
             if (e.key === "Enter") commit({ location: locDraft.trim() });
           }}
-          className={`${selectCls} w-36 placeholder:text-ink/40`}
+          className={`${selectCls} w-40 placeholder:text-ink/40`}
         />
+        <datalist id="city-suggestions">
+          {cities.map((c) => (
+            <option key={c.value} value={c.value} />
+          ))}
+        </datalist>
+        <button
+          type="button"
+          aria-pressed={remoteOn}
+          onClick={() => commit({ work_mode: remoteOn ? "" : remoteValue })}
+          className={`${selectCls} font-medium ${remoteOn ? "border-board bg-board text-white hover:border-board" : ""}`}
+        >
+          Remote
+        </button>
         <Select label="Type" value={value.job_type} onChange={(v) => commit({ job_type: v })} options={options?.job_types} />
         <Select label="Work mode" value={value.work_mode} onChange={(v) => commit({ work_mode: v })} options={options?.work_modes} />
         <Select label="Experience" value={value.exp_level} onChange={(v) => commit({ exp_level: v })} options={options?.experience_levels} />
         <select
+          aria-label="Posted"
+          value={value.posted}
+          onChange={(e) => commit({ posted: e.target.value })}
+          className={selectCls}
+        >
+          <option value="">Posted: any time</option>
+          {POSTED_OPTIONS.map((o) => (
+            <option key={o.value} value={o.value}>
+              {o.label}
+            </option>
+          ))}
+        </select>
+        <select
           aria-label="Sort jobs"
+          aria-describedby="sort-hint"
+          title={value.sort_by === "high_cpa" ? FEATURED_TIP : undefined}
           value={value.sort_by}
           onChange={(e) => commit({ sort_by: e.target.value })}
           className={selectCls}
         >
           {Object.entries(SORT_LABELS).map(([v, l]) => (
-            <option key={v} value={v}>
+            <option
+              key={v}
+              value={v}
+              disabled={v === "most_relevant" && !hasSearch}
+              title={v === "high_cpa" ? FEATURED_TIP : v === "most_relevant" && !hasSearch ? "Type a search first" : undefined}
+            >
               {l}
+              {v === "most_relevant" && !hasSearch ? " (search first)" : ""}
             </option>
           ))}
         </select>
+        <span id="sort-hint" className="sr-only">
+          {FEATURED_TIP} Most relevant is available once you type a search.
+        </span>
       </div>
 
       {chips.length > 0 && (
