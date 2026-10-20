@@ -117,6 +117,37 @@ a.pinned-card:hover,
   outline-offset: 2px;
 }
 
+/* ---- Accessibility (WCAG AA) ---- */
+
+/* `paper` is now the dark page colour, so "text-paper" on a brand-blue
+   surface was ~3:1. White on #4169F1 is 4.65:1; alpha variants are not allowed
+   there because they drop below 4.5:1. */
+.bg-board.text-paper,
+.bg-board :is(.text-paper, [class*="text-paper/"]):not([class*=" bg-"]):not([class^="bg-"]) {
+  color: #fff;
+}
+
+/* The skip link target is focused programmatically; no ring around the page. */
+main:focus {
+  outline: none;
+}
+
+/* 44x44px minimum touch targets on phones and touch screens. */
+@media (max-width: 767px), (pointer: coarse) {
+  button,
+  select,
+  summary,
+  a.rounded-full,
+  a.rounded-lg,
+  a.rounded-xl,
+  input:not([type="checkbox"]):not([type="radio"]):not([type="hidden"]) {
+    min-height: 44px;
+  }
+  button {
+    min-width: 44px;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   * {
     transition: none !important;

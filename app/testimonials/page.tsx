@@ -1,22 +1,21 @@
 import type { Metadata } from "next";
+import { pageMetadata } from "@/lib/seo";
 import Link from "next/link";
 import Testimonials from "@/components/Testimonials";
 
-const SITE_URL = "https://job-net-work.vercel.app";
-
-export const metadata: Metadata = {
-  title: "Testimonials — What the JobNetWork Community Says",
+export const metadata: Metadata = pageMetadata({
+  title: "Testimonials — Community Feedback",
   description:
     "Feedback from people who use the JobNetWork community and Prep Trek.",
-  alternates: { canonical: `${SITE_URL}/testimonials` },
-};
+  path: "/testimonials",
+});
 
 export default function TestimonialsPage() {
   return (
-    <main className="min-h-screen bg-paper">
+    <main id="main-content" tabIndex={-1} className="min-h-screen bg-paper">
       <header className="bg-board px-6 py-12 text-paper md:px-12">
         <div className="mx-auto max-w-5xl">
-          <Link href="/jobs" className="text-sm text-paper/70 hover:text-paper">
+          <Link href="/jobs" className="inline-flex min-h-[44px] items-center text-sm text-paper/70 hover:text-paper">
             ← Back to jobs
           </Link>
           <h1 className="mt-4 font-display text-4xl md:text-5xl">

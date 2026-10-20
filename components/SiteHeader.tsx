@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { supabaseBrowser } from "@/lib/auth/client";
@@ -23,12 +23,24 @@ function isActive(pathname: string, href: string) {
 export default function SiteHeader() {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
+  const menuButton = useRef<HTMLButtonElement>(null);
   const [signedIn, setSignedIn] = useState<boolean | null>(null);
 
   // Reflect auth state client-side so public pages stay statically cacheable.
   useEffect(() => {
-    const supabase = supabaseBrowser();
-    supabase.auth.getUser().then(({ data }) => setSignedIn(!!data.user));
+    // If the public Supabase env vars are missing (e.g. a preview deploy),
+    // treat the visitor as signed out instead of crashing every page.
+    let supabase: ReturnType<typeof supabaseBrowser>;
+    try {
+      supabase = supabaseBrowser();
+    } catch {
+      setSignedIn(false);
+      return;
+    }
+    supabase.auth
+      .getUser()
+      .then(({ data }) => setSignedIn(!!data.user))
+      .catch(() => setSignedIn(false));
     const { data: sub } = supabase.auth.onAuthStateChange((_e, session) =>
       setSignedIn(!!session?.user)
     );
@@ -38,10 +50,23 @@ export default function SiteHeader() {
   // Close the mobile menu after navigating.
   useEffect(() => setOpen(false), [pathname]);
 
+  // Escape closes the menu and returns focus to the button that opened it.
+  useEffect(() => {
+    if (!open) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        setOpen(false);
+        menuButton.current?.focus();
+      }
+    };
+    document.addEventListener("keydown", onKey);
+    return () => document.removeEventListener("keydown", onKey);
+  }, [open]);
+
   return (
     <header className="sticky top-0 z-30 border-b bg-white/90 backdrop-blur">
       <div className="mx-auto flex h-14 max-w-5xl items-center justify-between gap-4 px-6 md:px-12">
-        <Link href="/" className="flex items-center gap-2">
+        <Link href="/" className="flex min-h-[44px] items-center gap-2">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src="/Logo.png"
@@ -96,18 +121,23 @@ export default function SiteHeader() {
         </div>
 
         <button
+          ref={menuButton}
           type="button"
           aria-label={open ? "Close menu" : "Open menu"}
           aria-expanded={open}
+          aria-controls="mobile-menu"
           onClick={() => setOpen(!open)}
-          className="flex h-9 w-9 items-center justify-center rounded-lg border text-lg md:hidden"
+          className="flex h-11 w-11 items-center justify-center rounded-lg border focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-denim md:hidden"
         >
-          {open ? "✕" : "☰"}
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" className="h-5 w-5" aria-hidden="true" focusable="false">
+            {open ? <path d="M6 6l12 12M18 6 6 18" /> : <path d="M4 7h16M4 12h16M4 17h16" />}
+          </svg>
         </button>
       </div>
 
       {open && (
         <nav
+          id="mobile-menu"
           aria-label="Mobile"
           className="border-t bg-white px-6 py-3 md:hidden"
         >

@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="description" content="14 free interactive flashcards covering the most common Core Java interview questions — JDK/JRE/JVM, OOP, collections, exceptions, multithreading, streams and more — with sample answers, by Prep Trek.">
 <link rel="canonical" href="https://job-net-work.vercel.app/prep-trek/java-questions.html">
+<meta property="og:type" content="article"><meta property="og:site_name" content="JobNetWork"><meta property="og:title" content="Prep Trek: Core Java Interview Questions | JobNetWork"><meta property="og:description" content="14 free interactive flashcards covering the most common Core Java interview questions — JDK/JRE/JVM, OOP, collections, exceptions, multithreading, streams and more — with sample answers, by Prep Trek."><meta property="og:url" content="https://job-net-work.vercel.app/prep-trek/java-questions.html"><meta property="og:image" content="https://job-net-work.vercel.app/prep-trek/opengraph-image"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:title" content="Prep Trek: Core Java Interview Questions | JobNetWork"><meta name="twitter:description" content="14 free interactive flashcards covering the most common Core Java interview questions — JDK/JRE/JVM, OOP, collections, exceptions, multithreading, streams and more — with sample answers, by Prep Trek."><meta name="twitter:image" content="https://job-net-work.vercel.app/prep-trek/opengraph-image">
 <title>Prep Trek: Core Java Interview Questions</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@400;600;800&display=swap" rel="stylesheet">
@@ -37,7 +38,7 @@ pre code{background:none;padding:0;color:inherit}
 button.k{margin-top:12px;font:inherit;font-weight:600;border:2px solid var(--ink);background:var(--card);color:var(--ink);border-radius:999px;padding:6px 14px;cursor:pointer}
 button.k:focus-visible{outline:3px solid var(--c5);outline-offset:2px}
 .done button.k{background:var(--c2);color:#0b2a24}
-.cta{text-align:center;background:var(--c5);color:#fff;border:2px solid var(--ink);border-radius:18px;padding:22px;box-shadow:6px 6px 0 var(--c3)}
+.cta{text-align:center;background:#5b4de0;color:#fff;border:2px solid var(--ink);border-radius:18px;padding:22px;box-shadow:6px 6px 0 var(--c3)}
 .cta h2{color:#fff}
 .cta a{display:inline-block;margin-top:8px;background:var(--c3);color:#1b1b3a;font-weight:800;text-decoration:none;border:2px solid #1b1b3a;border-radius:999px;padding:10px 22px}
 .pdf{display:block;margin:0 0 22px;text-decoration:none;color:inherit;background:var(--card);border:2px solid var(--ink);border-radius:18px;padding:16px 18px;box-shadow:6px 6px 0 var(--c3)}
@@ -50,22 +51,22 @@ button.k:focus-visible{outline:3px solid var(--c5);outline-offset:2px}
 <main>
 <header>
 <p style="margin:0 0 10px"><a href="/prep-trek/java" style="color:inherit;opacity:.65;text-decoration:none;font-weight:600">&larr; Java track</a></p>
-<h1>Core Java, <span>answered like a pro</span> ☕</h1>
+<h1>Core Java, <span>answered like a pro</span> <span aria-hidden="true" style="background:none;padding:0;transform:none">☕</span></h1>
 <p class="sub">14 quick cards covering the Core Java questions that come up again and again. Read the card, say the answer out loud, tap <b>Got it</b>.</p>
 </header>
 <a class="pdf" href="/prep-trek/java-free-sample.pdf" download><b>📄 Prefer a PDF?</b><span>Same 14 questions, plus 2 DSA mock problems and the 60-minute mock structure — typeset to study from offline.</span></a>
 <div class="prog" role="status"><span id="pt">0 / 14</span><i><b id="pb"></b></i></div>
 
-<section class="c"><h2><em>☕</em>JDK vs JRE vs JVM?</h2>
+<section class="c"><h2><em aria-hidden="true">☕</em>JDK vs JRE vs JVM?</h2>
 <p class="an">The JVM runs bytecode and is platform-specific. The JRE is the JVM plus the core libraries needed to run programs. The JDK is the JRE plus development tools like the compiler (javac) and debugger. JDK contains JRE, which contains JVM.</p>
 <p class="tr">⚠️ "Write once, run anywhere" works because javac produces platform-independent bytecode — but each OS needs its own JVM to run it.</p>
-<button class="k">✅ Got it</button></section>
+<button class="k"><span aria-hidden="true">✅</span> Got it</button></section>
 
-<section class="c"><h2><em>🌍</em>Why is Java platform independent?</h2>
+<section class="c"><h2><em aria-hidden="true">🌍</em>Why is Java platform independent?</h2>
 <p class="an">Source code compiles to bytecode, not machine code, and any machine with a JVM can run that bytecode. It's the JVM that's platform-specific, not your compiled code.</p>
-<button class="k">✅ Got it</button></section>
+<button class="k"><span aria-hidden="true">✅</span> Got it</button></section>
 
-<section class="c"><h2><em>🏛️</em>The four pillars of OOP, with an example</h2>
+<section class="c"><h2><em aria-hidden="true">🏛️</em>The four pillars of OOP, with an example</h2>
 <p class="an">Encapsulation keeps a field private with validated getters/setters. Inheritance lets a subclass extend a shared base. Polymorphism means calling a method on a parent reference runs whichever subclass's version actually got created. Abstraction means an abstract class declares what must be done without exposing how.</p>
 <pre><code>abstract class Payment {
   abstract void process();
@@ -75,9 +76,9 @@ class UpiPayment extends Payment {
 }
 Payment p = new UpiPayment();
 p.process(); // resolved at runtime — polymorphism</code></pre>
-<button class="k">✅ Got it</button></section>
+<button class="k"><span aria-hidden="true">✅</span> Got it</button></section>
 
-<section class="c"><h2><em>🔁</em>Overloading vs overriding?</h2>
+<section class="c"><h2><em aria-hidden="true">🔁</em>Overloading vs overriding?</h2>
 <p class="an">Overloading: same class, same name, different parameters, resolved at compile time. Overriding: parent/child, same signature, resolved at runtime. You cannot override a static, final, or private method.</p>
 <pre><code>class Calc {
   int add(int a, int b) { return a + b; }
@@ -86,60 +87,60 @@ p.process(); // resolved at runtime — polymorphism</code></pre>
 class Dog extends Animal {
   void sound() { System.out.println("Woof"); } // override
 }</code></pre>
-<button class="k">✅ Got it</button></section>
+<button class="k"><span aria-hidden="true">✅</span> Got it</button></section>
 
-<section class="c"><h2><em>🧩</em>Abstract class vs interface?</h2>
+<section class="c"><h2><em aria-hidden="true">🧩</em>Abstract class vs interface?</h2>
 <p class="an">A class extends only one abstract class but implements many interfaces. Abstract classes hold fields and a mix of abstract/concrete methods and can have constructors; interfaces (Java 8+) can add default/static methods but no constructors.</p>
 <p class="tr">⚠️ Reach for an abstract class for shared base code ("is-a"), an interface for a capability contract ("can-do").</p>
-<button class="k">✅ Got it</button></section>
+<button class="k"><span aria-hidden="true">✅</span> Got it</button></section>
 
-<section class="c"><h2><em>🔒</em>Why is String immutable?</h2>
+<section class="c"><h2><em aria-hidden="true">🔒</em>Why is String immutable?</h2>
 <p class="an">Four reasons: security (strings hold things like paths/usernames), the string pool (can only share literals safely if nothing mutates), thread safety (immutable objects need no synchronization), and hash caching (hashCode() computed once and reused).</p>
-<button class="k">✅ Got it</button></section>
+<button class="k"><span aria-hidden="true">✅</span> Got it</button></section>
 
-<section class="c"><h2><em>✍️</em>String vs StringBuilder vs StringBuffer?</h2>
+<section class="c"><h2><em aria-hidden="true">✍️</em>String vs StringBuilder vs StringBuffer?</h2>
 <p class="an">String: immutable, thread-safe, slow for repeated edits. StringBuilder: mutable, fastest, not thread-safe. StringBuffer: mutable, thread-safe (synchronized), slower than StringBuilder.</p>
 <p class="tr">⚠️ Default to StringBuilder for building strings in a loop; only use StringBuffer if multiple threads genuinely share it.</p>
-<button class="k">✅ Got it</button></section>
+<button class="k"><span aria-hidden="true">✅</span> Got it</button></section>
 
-<section class="c"><h2><em>🚨</em>Checked vs unchecked exceptions?</h2>
+<section class="c"><h2><em aria-hidden="true">🚨</em>Checked vs unchecked exceptions?</h2>
 <p class="an">Checked: verified at compile time, must handle or declare (IOException, SQLException). Unchecked: extend RuntimeException, not compiler-enforced (NullPointerException, ArrayIndexOutOfBoundsException). Errors like OutOfMemoryError are serious JVM problems you don't try to catch.</p>
-<button class="k">✅ Got it</button></section>
+<button class="k"><span aria-hidden="true">✅</span> Got it</button></section>
 
-<section class="c"><h2><em>📋</em>ArrayList vs LinkedList?</h2>
+<section class="c"><h2><em aria-hidden="true">📋</em>ArrayList vs LinkedList?</h2>
 <p class="an">ArrayList: dynamic array — O(1) get, O(1) amortized add at end, O(n) insert/remove in the middle. LinkedList: doubly linked list — O(n) get, O(1) add/remove at ends.</p>
 <p class="tr">⚠️ Default to ArrayList — it usually wins even for middle inserts because of cache-friendly memory layout.</p>
-<button class="k">✅ Got it</button></section>
+<button class="k"><span aria-hidden="true">✅</span> Got it</button></section>
 
-<section class="c"><h2><em>🗺️</em>How does HashMap work internally?</h2>
+<section class="c"><h2><em aria-hidden="true">🗺️</em>How does HashMap work internally?</h2>
 <p class="an">key.hashCode() picks a bucket. A collision compares keys with equals() — match replaces the value, else the entry joins the bucket's chain (tree-ified past 8 entries, since Java 8). Resizes when size exceeds capacity × load factor (default 0.75).</p>
 <p class="tr">⚠️ You must override hashCode() whenever you override equals(), or equal objects can land in different buckets.</p>
-<button class="k">✅ Got it</button></section>
+<button class="k"><span aria-hidden="true">✅</span> Got it</button></section>
 
-<section class="c"><h2><em>🧵</em>Two ways to create a thread — which is better?</h2>
+<section class="c"><h2><em aria-hidden="true">🧵</em>Two ways to create a thread — which is better?</h2>
 <p class="an">Extend Thread and override run(), or implement Runnable and pass it to a Thread. Runnable is generally preferred — Java has single inheritance, and Runnable separates the task from the threading mechanism.</p>
 <p class="tr">⚠️ Common trap: calling start() creates a new thread; calling run() directly just runs it like a normal method on the current thread.</p>
-<button class="k">✅ Got it</button></section>
+<button class="k"><span aria-hidden="true">✅</span> Got it</button></section>
 
-<section class="c"><h2><em>λ</em>Lambdas and functional interfaces?</h2>
+<section class="c"><h2><em aria-hidden="true">λ</em>Lambdas and functional interfaces?</h2>
 <p class="an">A functional interface has exactly one abstract method (Runnable, Comparator). A lambda implements one inline. Common built-ins: Predicate&lt;T&gt;, Function&lt;T,R&gt;, Consumer&lt;T&gt;, Supplier&lt;T&gt;.</p>
 <pre><code>Runnable r = () -> System.out.println("hello");
 Comparator&lt;Integer&gt; c = (a, b) -> b - a;</code></pre>
-<button class="k">✅ Got it</button></section>
+<button class="k"><span aria-hidden="true">✅</span> Got it</button></section>
 
-<section class="c"><h2><em>🌊</em>What is the Stream API?</h2>
+<section class="c"><h2><em aria-hidden="true">🌊</em>What is the Stream API?</h2>
 <p class="an">Streams process collections declaratively in three stages: a source, lazy intermediate operations, and one terminal operation that triggers execution — a pipeline instead of explicit loops.</p>
 <pre><code>List&lt;String&gt; result = names.stream()
     .filter(n -> n.startsWith("A"))
     .map(String::toUpperCase)
     .sorted()
     .collect(Collectors.toList());</code></pre>
-<button class="k">✅ Got it</button></section>
+<button class="k"><span aria-hidden="true">✅</span> Got it</button></section>
 
-<section class="c"><h2><em>🧱</em>Stack vs heap memory?</h2>
+<section class="c"><h2><em aria-hidden="true">🧱</em>Stack vs heap memory?</h2>
 <p class="an">The stack holds method frames, local variables and references — per-thread, fast, auto-cleaned on return. The heap holds the actual objects — shared, managed by the garbage collector.</p>
 <p class="tr">⚠️ StackOverflowError = stack full (deep/infinite recursion). OutOfMemoryError = heap full.</p>
-<button class="k">✅ Got it</button></section>
+<button class="k"><span aria-hidden="true">✅</span> Got it</button></section>
 
 <section class="cta"><h2>Want the full 44-question pack? 🚀</h2>
 <p>Java Black Belt Premium adds 30 more Q&amp;A (collections, multithreading internals, JVM &amp; GC), 4 more DSA mock problems, the output-prediction trap-question drill, a full 4-week mock schedule, and visual notes with a traps quiz.</p>
@@ -149,7 +150,7 @@ Comparator&lt;Integer&gt; c = (a, b) -> b - a;</code></pre>
 (function(){var cs=document.querySelectorAll('.c'),t=cs.length;
 function up(){var d=document.querySelectorAll('.c.done').length;document.getElementById('pt').textContent=d+' / '+t;document.getElementById('pb').style.width=(d/t*100)+'%'}
 document.getElementById('pt').textContent='0 / '+t;
-cs.forEach(function(c){c.querySelector('.k').addEventListener('click',function(){c.classList.toggle('done');this.textContent=c.classList.contains('done')?'🎉 Done':'✅ Got it';up()})})})();
+cs.forEach(function(c){c.querySelector('.k').addEventListener('click',function(){c.classList.toggle('done');this.innerHTML=c.classList.contains('done')?'<span aria-hidden="true">🎉</span> Done':'<span aria-hidden="true">✅</span> Got it';up()})})})();
 </script>
 </body>
 </html>

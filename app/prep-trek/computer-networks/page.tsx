@@ -1,25 +1,18 @@
 import type { Metadata } from "next";
+import { pageMetadata } from "@/lib/seo";
 import Link from "next/link";
 import PrepCards from "@/components/PrepCards";
 import { cnFreeCards } from "@/lib/prep-cards/cn-free";
 import { guides } from "@/lib/guides";
 
-const SITE_URL = "https://job-net-work.vercel.app";
-
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMetadata({
   title: "Computer Networks Interview Questions — Free Interactive Cards",
   description:
     "10 free, tappable Computer Networks interview cards: OSI vs TCP/IP, TCP vs UDP, the handshake, subnetting, DNS, HTTPS, common ports, and routers vs switches. A one-line answer, a picture, a quick try-it and the common trap for each.",
-  alternates: { canonical: `${SITE_URL}/prep-trek/computer-networks` },
-  openGraph: {
-    type: "website",
-    url: `${SITE_URL}/prep-trek/computer-networks`,
-    siteName: "JobNetWork",
-    title: "Computer Networks Interview Questions — Free Interactive Cards | JobNetWork",
-    description:
-      "Learn the 10 most-asked Computer Networks interview questions in minutes, with pictures and quick checks.",
-  },
-};
+  path: "/prep-trek/computer-networks",
+  ogDescription:
+    "Learn the 10 most-asked Computer Networks interview questions in minutes, with pictures and quick checks.",
+});
 
 export default function ComputerNetworksPage() {
   const notes = guides.find((g) => g.title === "Computer Networks Notes");
@@ -36,7 +29,7 @@ export default function ComputerNetworksPage() {
   };
 
   return (
-    <main className="min-h-screen bg-paper">
+    <main id="main-content" tabIndex={-1} className="min-h-screen bg-paper">
       {/* eslint-disable-next-line react/no-danger */}
       <script
         type="application/ld+json"
@@ -47,12 +40,12 @@ export default function ComputerNetworksPage() {
         <div className="mx-auto max-w-3xl">
           <Link
             href="/prep-trek"
-            className="text-sm text-paper/70 hover:text-paper"
+            className="inline-flex min-h-[44px] items-center text-sm text-paper/70 hover:text-paper"
           >
             ← All Prep Trek tracks
           </Link>
           <h1 className="mt-4 font-display text-4xl md:text-5xl">
-            🌐 Computer Networks, in 10 cards
+            <span aria-hidden="true">🌐</span> Computer Networks, in 10 cards
           </h1>
           <p className="mt-4 max-w-xl text-paper/80">
             No chapters to read. Each card gives you the one-line answer, a
@@ -66,10 +59,10 @@ export default function ComputerNetworksPage() {
 
       <section className="mx-auto max-w-3xl px-6 pb-16 md:px-0">
         <div className="pinned-card p-6 pl-8 md:p-8 md:pl-10">
-          <span className="inline-block rounded-full bg-mustard px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wide text-ink">
+          <h2 className="font-display text-2xl">Want the rest?</h2>
+          <span className="mt-3 inline-block rounded-full bg-mustard px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wide text-paper">
             Full Computer Networks Notes
           </span>
-          <h2 className="mt-3 font-display text-2xl">Want the rest?</h2>
           <p className="mt-2 text-sm leading-6 text-ink/70">
             The free cards cover the basics. The full notes go deeper into
             the questions that actually come up in interviews:

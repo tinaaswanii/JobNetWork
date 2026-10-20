@@ -3,7 +3,7 @@ import Link from "next/link";
 const WHATSAPP_URL = "https://chat.whatsapp.com/L9DG89VrT4V2UFjFkpv0Ok";
 const TELEGRAM_URL = "https://t.me/job_net_work";
 
-const linkCls = "text-sm font-semibold text-denim hover:underline";
+const linkCls = "inline-flex min-h-[44px] items-center text-sm font-semibold text-denim hover:underline";
 
 const steps = [
   {
@@ -42,28 +42,28 @@ export default function HowItWorks() {
         <ol className="mt-10 grid gap-px overflow-hidden rounded-2xl border bg-ink/10 sm:grid-cols-2 lg:grid-cols-4">
           {steps.map((s) => (
             <li key={s.n} className="bg-white p-7">
-              <span className="text-sm font-semibold tracking-wider text-board">
+              <span className="text-sm font-semibold tracking-wider text-denim">
                 {s.n}
               </span>
               <h3 className="mt-3 text-xl">{s.title}</h3>
               <p className="mt-2 text-sm leading-6 text-muted-foreground">
                 {s.text}
               </p>
-              <Link href={s.href} className={`mt-5 inline-block ${linkCls}`}>
+              <Link href={s.href} className={`mt-3 ${linkCls}`}>
                 {s.cta} →
               </Link>
             </li>
           ))}
 
           <li className="bg-white p-7">
-            <span className="text-sm font-semibold tracking-wider text-board">
+            <span className="text-sm font-semibold tracking-wider text-denim">
               04
             </span>
             <h3 className="mt-3 text-xl">Jobs on WhatsApp &amp; Telegram</h3>
             <p className="mt-2 text-sm leading-6 text-muted-foreground">
               New openings shared in our community.
             </p>
-            <div className="mt-5 flex flex-wrap gap-x-4 gap-y-2">
+            <div className="mt-3 flex flex-wrap gap-x-4">
               <a
                 href={WHATSAPP_URL}
                 target="_blank"

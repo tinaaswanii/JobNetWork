@@ -1,4 +1,6 @@
 import type { Metadata } from "next";
+import { pageMetadata } from "@/lib/seo";
+import { buildJobPostingJsonLd } from "@/lib/job-posting";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { supabaseAdmin } from "@/lib/supabase";
@@ -12,17 +14,7 @@ import JobActions from "@/components/jobs/JobActions";
 // Raise it only if Artha's signed links are known to outlive it.
 export const revalidate = 600;
 
-const SITE_URL = "https://job-net-work.vercel.app";
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-
-const EMPLOYMENT_TYPE_SCHEMA: Record<string, string> = {
-  "full-time": "FULL_TIME",
-  "part-time": "PART_TIME",
-  contract: "CONTRACTOR",
-  internship: "INTERN",
-  temporary: "TEMPORARY",
-  freelance: "CONTRACTOR",
-};
 
 async function getOwnJobBySlug(slug: string): Promise<PublicJob | null> {
   if (!UUID_RE.test(slug)) return null;
@@ -70,22 +62,12 @@ export async function generateMetadata({ params }: { params: { slug: string } })
 
   const title = `${job.title} at ${job.company}`;
   const plainDescription = htmlToText(job.description, 160);
-  const url = `${SITE_URL}/jobs/${job.slug}`;
 
-  return {
+  return pageMetadata({
     title,
-    description: plainDescription,
-    alternates: { canonical: url },
-    openGraph: {
-      type: "website",
-      url,
-      siteName: "JobNetWork",
-      title,
-      description: plainDescription,
-      images: job.logo ? [{ url: job.logo }] : [{ url: `${SITE_URL}/Logo.png` }],
-    },
-    twitter: { card: "summary", title, description: plainDescription },
-  };
+    description: plainDescription || `${job.title} at ${job.company}, listed on JobNetWork.`,
+    path: `/jobs/${job.slug}`,
+  });
 }
 
 function formatSalary(job: PublicJob) {
@@ -120,61 +102,18 @@ export default async function JobDetailPage({ params }: { params: { slug: string
     })
   )}`;
 
-  // https://schema.org/JobPosting — powers Google for Jobs rich results.
-  const jsonLd: Record<string, unknown> = {
-    "@context": "https://schema.org",
-    "@type": "JobPosting",
-    title: job.title,
-    description: job.description,
-    identifier: { "@type": "PropertyValue", name: job.company, value: job.slug },
-    datePosted: job.posted_date,
-    hiringOrganization: {
-      "@type": "Organization",
-      name: job.company,
-      ...(job.logo ? { logo: job.logo } : {}),
-    },
-    directApply: false,
-  };
-
-  if (job.job_type && EMPLOYMENT_TYPE_SCHEMA[job.job_type]) {
-    jsonLd.employmentType = EMPLOYMENT_TYPE_SCHEMA[job.job_type];
-  }
-
-  if (job.city || job.state || job.country) {
-    jsonLd.jobLocation = {
-      "@type": "Place",
-      address: {
-        "@type": "PostalAddress",
-        ...(job.city ? { addressLocality: job.city } : {}),
-        ...(job.state ? { addressRegion: job.state } : {}),
-        ...(job.country ? { addressCountry: job.country } : {}),
-      },
-    };
-  } else {
-    jsonLd.jobLocationType = "TELECOMMUTE";
-    jsonLd.applicantLocationRequirements = { "@type": "Country", name: job.country ?? "IN" };
-  }
-
-  if (job.salary_min || job.salary_max) {
-    jsonLd.baseSalary = {
-      "@type": "MonetaryAmount",
-      currency: job.salary_curr ?? "USD",
-      value: {
-        "@type": "QuantitativeValue",
-        ...(job.salary_min ? { minValue: job.salary_min } : {}),
-        ...(job.salary_max ? { maxValue: job.salary_max } : {}),
-        unitText: "YEAR",
-      },
-    };
-  }
+  // JobPosting markup only when the data has every required field (see lib/job-posting.ts).
+  const jsonLd = buildJobPostingJsonLd(job);
 
   return (
-    <main className="min-h-screen bg-paper">
+    <main id="main-content" tabIndex={-1} className="min-h-screen bg-paper">
       {/* eslint-disable-next-line react/no-danger */}
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
+      {jsonLd && (
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
+      )}
 
       <div className="max-w-3xl mx-auto px-6 md:px-12 py-10">
-        <Link href="/jobs" className="text-sm text-denim hover:underline">
+        <Link href="/jobs" className="inline-flex min-h-[44px] items-center text-sm text-denim hover:underline">
           ← Back to all jobs
         </Link>
 

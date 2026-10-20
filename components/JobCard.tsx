@@ -44,7 +44,8 @@ function timeAgo(dateStr: string) {
   return `Posted ${days} days ago`;
 }
 
-export default function JobCard({ job }: { job: PublicJob }) {
+export default function JobCard({ job, headingLevel = 3 }: { job: PublicJob; headingLevel?: 2 | 3 }) {
+  const Heading = headingLevel === 2 ? "h2" : "h3";
   const salary = formatSalary(job);
   const experience = formatExperience(job);
   const isOwn = job.id.startsWith("own_");
@@ -91,15 +92,15 @@ export default function JobCard({ job }: { job: PublicJob }) {
               {isOwn ? "JobNetWork" : "External"}
             </span>
             {isNew && (
-              <span className="rounded-md bg-mustard px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-ink">
+              <span className="rounded-md bg-mustard px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-paper">
                 New
               </span>
             )}
           </div>
 
-          <h3 className="mt-1.5 text-base font-semibold leading-snug text-ink group-hover:text-denim md:text-lg">
+          <Heading className="mt-1.5 text-base font-semibold leading-snug text-ink group-hover:text-denim md:text-lg">
             {job.title}
-          </h3>
+          </Heading>
           <p className="text-sm font-medium text-ink/70">{job.company}</p>
 
           <ul className="mt-2.5 flex flex-wrap gap-x-4 gap-y-1 text-sm text-muted-foreground">
@@ -158,7 +159,7 @@ export default function JobCard({ job }: { job: PublicJob }) {
         <a
           href={reportJobHref(job)}
           aria-label={`Report this job: ${job.title} at ${job.company}`}
-          className="inline-flex min-h-[40px] items-center px-2 text-xs font-medium text-ink/60 underline-offset-2 transition hover:text-ink hover:underline"
+          className="inline-flex min-h-[44px] items-center px-2 text-xs font-medium text-ink/60 underline-offset-2 transition hover:text-ink hover:underline"
         >
           Report this job
         </a>

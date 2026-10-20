@@ -1,14 +1,17 @@
 import type { Metadata } from "next";
+import { pageMetadata } from "@/lib/seo";
+import { CONTACT_EMAIL, FEEDBACK_WHATSAPP_URL } from "@/lib/config";
 
-export const metadata: Metadata = {
-  title: "About JobNetWork",
+export const metadata: Metadata = pageMetadata({
+  title: "About Us",
   description:
     "Learn about JobNetWork, a job platform for every stage of your career, from internships and first jobs to experienced and senior roles.",
-};
+  path: "/about",
+});
 
 export default function AboutPage() {
   return (
-    <main className="min-h-screen bg-paper">
+    <main id="main-content" tabIndex={-1} className="min-h-screen bg-paper">
       {/* Hero */}
       <header className="bg-board text-paper px-6 py-12 md:px-12">
         <div className="mx-auto max-w-5xl">
@@ -86,7 +89,7 @@ export default function AboutPage() {
 
           <div className="mt-6 grid gap-6 md:grid-cols-3">
             <div className="rounded-xl border p-6">
-              <div className="text-sm font-semibold tracking-wider text-board">01</div>
+              <div className="text-sm font-semibold tracking-wider text-denim">01</div>
 
               <h3 className="mt-4 font-semibold">Browse</h3>
 
@@ -97,7 +100,7 @@ export default function AboutPage() {
             </div>
 
             <div className="rounded-xl border p-6">
-              <div className="text-sm font-semibold tracking-wider text-board">02</div>
+              <div className="text-sm font-semibold tracking-wider text-denim">02</div>
 
               <h3 className="mt-4 font-semibold">Stay updated</h3>
 
@@ -108,7 +111,7 @@ export default function AboutPage() {
             </div>
 
             <div className="rounded-xl border p-6">
-              <div className="text-sm font-semibold tracking-wider text-board">03</div>
+              <div className="text-sm font-semibold tracking-wider text-denim">03</div>
 
               <h3 className="mt-4 font-semibold">Follow our updates</h3>
 
@@ -163,6 +166,36 @@ export default function AboutPage() {
             career resources. Our interview guides and 1:1 calls are aimed at
             students and freshers.
           </p>
+        </div>
+
+        {/* Contact */}
+        <div>
+          <h2 className="font-display text-2xl">Contact</h2>
+
+          <p className="mt-3 leading-7 text-muted-foreground">
+            Questions, feedback or a listing we should look at? We would like to hear from you.
+          </p>
+
+          <ul className="mt-3 space-y-1 leading-7 text-muted-foreground">
+            <li>
+              Email:{" "}
+              <a href={`mailto:${CONTACT_EMAIL}`} className="inline-flex min-h-[44px] items-center font-medium text-denim hover:underline">
+                {CONTACT_EMAIL}
+              </a>
+            </li>
+            <li>
+              Feedback:{" "}
+              <a
+                href={FEEDBACK_WHATSAPP_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex min-h-[44px] items-center font-medium text-denim hover:underline"
+              >
+                message us on WhatsApp
+                <span className="sr-only"> (opens in a new tab)</span>
+              </a>
+            </li>
+          </ul>
         </div>
 
         {/* Closing */}

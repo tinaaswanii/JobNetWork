@@ -5,7 +5,7 @@ import MatchTool from "@/components/MatchTool";
 // No ads on this page: it handles resume uploads (see components/AdSenseScript.tsx).
 export default function MatchPage() {
   return (
-    <main className="mx-auto max-w-xl px-6 py-12">
+    <main id="main-content" tabIndex={-1} className="mx-auto max-w-xl px-6 py-12">
       <h1 className="font-display text-2xl text-ink">Match my resume</h1>
       <p className="mt-2 text-sm leading-6 text-ink/70">
         Upload a PDF resume and see how your skills line up with a job. It is a guide, not a

@@ -62,7 +62,7 @@ export default function JobActions({ job }: { job: JobActionsJob }) {
   return (
     <>
       <button type="button" onClick={toggleSave} disabled={!ready || busy} className={btn} aria-pressed={saved}>
-        {saved ? "Saved ✓" : "Save job"}
+        {saved ? <>Saved <span aria-hidden="true">✓</span></> : "Save job"}
       </button>
 
       {appId ? (

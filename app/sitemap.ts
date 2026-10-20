@@ -10,74 +10,29 @@ const MAX_JOB_URLS = 300;
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = "https://job-net-work.vercel.app";
 
-  const staticEntries: MetadataRoute.Sitemap = [
-    {
-      url: `${baseUrl}/`,
-      lastModified: new Date(),
-      changeFrequency: "daily",
-      priority: 1,
-    },
-    {
-      url: `${baseUrl}/jobs`,
-      lastModified: new Date(),
-      changeFrequency: "daily",
-      priority: 0.9,
-    },
-    {
-      url: `${baseUrl}/about`,
-      lastModified: new Date(),
-      changeFrequency: "monthly",
-      priority: 0.7,
-    },
-    {
-      url: `${baseUrl}/prep-trek`,
-      lastModified: new Date(),
-      changeFrequency: "monthly",
-      priority: 0.7,
-    },
-    {
-      url: `${baseUrl}/prep-trek/dbms`,
-      lastModified: new Date(),
-      changeFrequency: "monthly",
-      priority: 0.6,
-    },
-    {
-      url: `${baseUrl}/prep-trek/sql`,
-      lastModified: new Date(),
-      changeFrequency: "monthly",
-      priority: 0.6,
-    },
-    {
-      url: `${baseUrl}/prep-trek/computer-networks`,
-      lastModified: new Date(),
-      changeFrequency: "monthly",
-      priority: 0.6,
-    },
-    {
-      url: `${baseUrl}/guides`,
-      lastModified: new Date(),
-      changeFrequency: "weekly",
-      priority: 0.7,
-    },
-    {
-      url: `${baseUrl}/testimonials`,
-      lastModified: new Date(),
-      changeFrequency: "monthly",
-      priority: 0.5,
-    },
-    {
-      url: `${baseUrl}/prep-trek/common-questions`,
-      lastModified: new Date(),
-      changeFrequency: "monthly",
-      priority: 0.6,
-    },
-    ...prepTracks.map((t) => ({
-      url: `${baseUrl}/prep-trek/${t.slug}`,
-      lastModified: new Date(),
-      changeFrequency: "monthly" as const,
-      priority: 0.6,
-    })),
+  // lastModified is left out for static pages on purpose: there is no real
+  // modified date for them, and a made-up "now" teaches crawlers to ignore it.
+  const staticPaths: [string, "daily" | "weekly" | "monthly", number][] = [
+    ["/", "daily", 1],
+    ["/jobs", "daily", 0.9],
+    ["/match", "monthly", 0.7],
+    ["/prep-trek", "monthly", 0.7],
+    ["/prep-trek/common-questions", "monthly", 0.6],
+    ["/prep-trek/dbms", "monthly", 0.6],
+    ["/prep-trek/sql", "monthly", 0.6],
+    ["/prep-trek/computer-networks", "monthly", 0.6],
+    ["/guides", "weekly", 0.7],
+    ["/testimonials", "monthly", 0.5],
+    ["/about", "monthly", 0.7],
+    // Every Prep Trek track, straight from the content list.
+    ...prepTracks.map((t): [string, "monthly", number] => [`/prep-trek/${t.slug}`, "monthly", 0.6]),
   ];
+
+  const staticEntries: MetadataRoute.Sitemap = staticPaths.map(([path, changeFrequency, priority]) => ({
+    url: path === "/" ? `${baseUrl}/` : `${baseUrl}${path}`,
+    changeFrequency,
+    priority,
+  }));
 
   // Only list the newest, recently-seen jobs. Old/expired postings 404 or are
   // thin duplicates, and a big pile of them makes Google slow to index the

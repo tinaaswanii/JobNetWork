@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { pageMetadata } from "@/lib/seo";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import {
@@ -7,8 +8,6 @@ import {
   interviewDayChecklist,
 } from "@/lib/prep-trek-content";
 import PrepChecklist from "@/components/PrepChecklist";
-
-const SITE_URL = "https://job-net-work.vercel.app";
 
 export function generateStaticParams() {
   return prepTracks.map((t) => ({ slug: t.slug }));
@@ -27,23 +26,12 @@ export async function generateMetadata({
     track.overview.length > 150 ? "..." : ""
   }`;
 
-  return {
+  return pageMetadata({
     title,
     description,
-    alternates: { canonical: `${SITE_URL}/prep-trek/${track.slug}` },
-    openGraph: {
-      type: "article",
-      url: `${SITE_URL}/prep-trek/${track.slug}`,
-      siteName: "JobNetWork",
-      title: `${title} | Prep Trek`,
-      description,
-    },
-    twitter: {
-      card: "summary",
-      title: `${title} | Prep Trek`,
-      description,
-    },
-  };
+    path: `/prep-trek/${track.slug}`,
+    type: "article",
+  });
 }
 
 export default function PrepTrackPage({
@@ -68,7 +56,7 @@ export default function PrepTrackPage({
   };
 
   return (
-    <main className="min-h-screen bg-paper">
+    <main id="main-content" tabIndex={-1} className="min-h-screen bg-paper">
       {/* eslint-disable-next-line react/no-danger */}
       <script
         type="application/ld+json"
@@ -78,7 +66,7 @@ export default function PrepTrackPage({
       {/* Hero */}
       <header className="bg-board text-paper px-6 py-12 md:px-12">
         <div className="mx-auto max-w-5xl">
-          <Link href="/prep-trek" className="text-sm text-paper/70 hover:text-paper">
+          <Link href="/prep-trek" className="inline-flex min-h-[44px] items-center text-sm text-paper/70 hover:text-paper">
             ← All Prep Trek tracks
           </Link>
 
@@ -97,12 +85,12 @@ export default function PrepTrackPage({
           <div className="rounded-xl border-2 border-board bg-paper p-6 pl-8 md:p-8 md:pl-10">
             <div className="flex flex-col gap-5 md:flex-row md:items-center md:justify-between">
               <div>
-                <span className="inline-block rounded-full bg-board px-3 py-1 text-xs font-semibold uppercase tracking-wide text-paper">
-                  Free download
-                </span>
-                <h2 className="mt-3 font-display text-xl md:text-2xl">
+                <h2 className="font-display text-xl md:text-2xl">
                   {track.freeDownload.label}
                 </h2>
+                <span className="mt-3 inline-block rounded-full bg-board px-3 py-1 text-xs font-semibold uppercase tracking-wide text-paper">
+                  Free download
+                </span>
                 <p className="mt-2 max-w-xl text-sm leading-6 text-ink/70">
                   {track.freeDownload.note}
                 </p>
@@ -135,7 +123,7 @@ export default function PrepTrackPage({
                   href={track.interactiveUrl}
                   className="inline-flex items-center text-sm font-semibold text-ink underline decoration-mustard decoration-2 underline-offset-4 hover:text-ink/70"
                 >
-                  🎤 Prefer tappable flashcards? Try the interactive version →
+                  <span aria-hidden="true">🎤</span> Prefer tappable flashcards? Try the interactive version →
                 </a>
               </div>
             )}
@@ -177,7 +165,7 @@ export default function PrepTrackPage({
           <ol className="mt-6 space-y-4">
             {track.learningPath.map((step, i) => (
               <li key={i} className="flex gap-4 rounded-xl border p-5">
-                <div className="font-display text-xl text-ink/30">
+                <div className="font-display text-xl text-ink/60">
                   {String(i + 1).padStart(2, "0")}
                 </div>
                 <div>
@@ -203,7 +191,7 @@ export default function PrepTrackPage({
             {track.roadmap.map((week) => (
               <div key={week.week} className="pinned-card p-6 pl-8">
                 <div className="flex items-baseline gap-3">
-                  <span className="font-display text-lg text-ink/40">
+                  <span className="font-display text-lg text-ink/60">
                     Week {week.week}
                   </span>
                   <h3 className="font-semibold">{week.title}</h3>
@@ -273,18 +261,18 @@ export default function PrepTrackPage({
         {/* Premium teaser — sold outside this app via Topmate, never reproduced here */}
         {track.premium && (
           <div className="rounded-xl bg-board p-7 text-paper md:p-9">
-            <span className="inline-block rounded-full bg-mustard px-3 py-1 text-xs font-semibold uppercase tracking-wide text-ink">
-              Premium
-            </span>
-            <h2 className="mt-4 font-display text-2xl md:text-3xl">
+            <h2 className="font-display text-2xl md:text-3xl">
               {track.premium.heading}
             </h2>
+            <span className="mt-3 inline-block rounded-full bg-mustard px-3 py-1 text-xs font-semibold uppercase tracking-wide text-paper">
+              Premium
+            </span>
             <p className="mt-3 max-w-2xl text-paper/80">{track.premium.intro}</p>
 
             <ul className="mt-6 space-y-2.5">
               {track.premium.bullets.map((bullet, i) => (
                 <li key={i} className="flex gap-2.5 text-sm leading-6 text-paper/85">
-                  <span className="shrink-0 text-mustard">✓</span>
+                  <span className="shrink-0 text-mustard" aria-hidden="true">✓</span>
                   <span>{bullet}</span>
                 </li>
               ))}
@@ -295,7 +283,7 @@ export default function PrepTrackPage({
                 href={track.premium.ctaUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center rounded-lg bg-mustard px-5 py-3 text-sm font-semibold text-ink transition hover:brightness-95"
+                className="inline-flex items-center rounded-lg bg-mustard px-5 py-3 text-sm font-semibold text-paper transition hover:brightness-95"
               >
                 {track.premium.ctaLabel} →
               </a>
@@ -319,7 +307,7 @@ export default function PrepTrackPage({
           <ul className="mt-4 space-y-2">
             {track.coldMailTips.map((tip, i) => (
               <li key={i} className="flex gap-2 text-sm leading-6 text-ink/75">
-                <span className="text-ink/30">—</span>
+                <span className="text-ink/60">—</span>
                 <span>{tip}</span>
               </li>
             ))}
