@@ -1,23 +1,18 @@
 import type { Metadata } from "next";
+import { pageMetadata } from "@/lib/seo";
 import { getJobsPage } from "@/lib/jobs";
 import { buildJobsQuery, filtersFromParams, JOBS_PAGE_SIZE as LIMIT, offsetFromParams } from "@/lib/jobs-query";
 import JobsBoard from "@/components/JobsBoard";
 
-export const metadata: Metadata = {
-  // `absolute` so the root title template does not append the brand twice.
-  title: { absolute: "Browse Jobs & Internships in India | JobNetWork" },
+export const metadata: Metadata = pageMetadata({
+  title: "Browse Jobs & Internships in India | JobNetWork",
+  absoluteTitle: true,
   description:
     "Search the latest jobs and internships in India. Filter by role, job type, work mode and experience level, from entry-level to senior positions.",
-  alternates: { canonical: "/jobs" },
-  openGraph: {
-    type: "website",
-    url: "/jobs",
-    siteName: "JobNetWork",
-    title: "Browse Jobs & Internships in India | JobNetWork",
-    description:
-      "Search the latest jobs and internships. Filter by role, job type, work mode and experience level.",
-  },
-};
+  path: "/jobs",
+  ogDescription:
+    "Search the latest jobs and internships. Filter by role, job type, work mode and experience level.",
+});
 
 // Rendered on the server for the URL's own filters and page, so crawlers and
 // slow devices get real job cards in the HTML. (Reading searchParams makes this

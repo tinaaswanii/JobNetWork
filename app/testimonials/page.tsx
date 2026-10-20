@@ -1,15 +1,14 @@
 import type { Metadata } from "next";
+import { pageMetadata } from "@/lib/seo";
 import Link from "next/link";
 import Testimonials from "@/components/Testimonials";
 
-const SITE_URL = "https://job-net-work.vercel.app";
-
-export const metadata: Metadata = {
-  title: "Testimonials — What the JobNetWork Community Says",
+export const metadata: Metadata = pageMetadata({
+  title: "Testimonials — Community Feedback",
   description:
     "Feedback from people who use the JobNetWork community and Prep Trek.",
-  alternates: { canonical: `${SITE_URL}/testimonials` },
-};
+  path: "/testimonials",
+});
 
 export default function TestimonialsPage() {
   return (

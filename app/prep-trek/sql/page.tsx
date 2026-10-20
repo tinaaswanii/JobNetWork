@@ -1,25 +1,18 @@
 import type { Metadata } from "next";
+import { pageMetadata } from "@/lib/seo";
 import Link from "next/link";
 import PrepCards from "@/components/PrepCards";
 import { sqlFreeCards } from "@/lib/prep-cards/sql-free";
 import { guides } from "@/lib/guides";
 
-const SITE_URL = "https://job-net-work.vercel.app";
-
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMetadata({
   title: "SQL Interview Questions — Free Interactive Cards",
   description:
     "10 free, tappable SQL interview cards: query order, GROUP BY, CASE, joins, window functions and CTEs. A one-line answer, a picture, a quick try-it and the common trap for each.",
-  alternates: { canonical: `${SITE_URL}/prep-trek/sql` },
-  openGraph: {
-    type: "website",
-    url: `${SITE_URL}/prep-trek/sql`,
-    siteName: "JobNetWork",
-    title: "SQL Interview Questions — Free Interactive Cards | JobNetWork",
-    description:
-      "Learn the SQL interview questions that come up most, in minutes, with pictures and quick checks.",
-  },
-};
+  path: "/prep-trek/sql",
+  ogDescription:
+    "Learn the SQL interview questions that come up most, in minutes, with pictures and quick checks.",
+});
 
 export default function SqlPage() {
   const notes = guides.find((g) => g.title === "SQL PrepTrek");

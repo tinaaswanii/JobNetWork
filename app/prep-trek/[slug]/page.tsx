@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { pageMetadata } from "@/lib/seo";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import {
@@ -7,8 +8,6 @@ import {
   interviewDayChecklist,
 } from "@/lib/prep-trek-content";
 import PrepChecklist from "@/components/PrepChecklist";
-
-const SITE_URL = "https://job-net-work.vercel.app";
 
 export function generateStaticParams() {
   return prepTracks.map((t) => ({ slug: t.slug }));
@@ -27,23 +26,12 @@ export async function generateMetadata({
     track.overview.length > 150 ? "..." : ""
   }`;
 
-  return {
+  return pageMetadata({
     title,
     description,
-    alternates: { canonical: `${SITE_URL}/prep-trek/${track.slug}` },
-    openGraph: {
-      type: "article",
-      url: `${SITE_URL}/prep-trek/${track.slug}`,
-      siteName: "JobNetWork",
-      title: `${title} | Prep Trek`,
-      description,
-    },
-    twitter: {
-      card: "summary",
-      title: `${title} | Prep Trek`,
-      description,
-    },
-  };
+    path: `/prep-trek/${track.slug}`,
+    type: "article",
+  });
 }
 
 export default function PrepTrackPage({

@@ -1,11 +1,13 @@
 import type { Metadata } from "next";
+import { pageMetadata } from "@/lib/seo";
 import { CONTACT_EMAIL, FEEDBACK_WHATSAPP_URL } from "@/lib/config";
 
-export const metadata: Metadata = {
-  title: "About JobNetWork",
+export const metadata: Metadata = pageMetadata({
+  title: "About Us",
   description:
     "Learn about JobNetWork, a job platform for every stage of your career, from internships and first jobs to experienced and senior roles.",
-};
+  path: "/about",
+});
 
 export default function AboutPage() {
   return (

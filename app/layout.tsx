@@ -21,9 +21,10 @@ export const metadata: Metadata = {
   openGraph: {
     type: "website",
     siteName: "JobNetWork",
+    locale: "en_IN",
   },
   twitter: {
-    card: "summary",
+    card: "summary_large_image",
   },
 };
 

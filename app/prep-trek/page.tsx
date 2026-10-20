@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { pageMetadata } from "@/lib/seo";
 import Link from "next/link";
 import { prepTracks, comingSoonTracks } from "@/lib/prep-trek-content";
 import LevelTag from "@/components/LevelTag";
@@ -6,20 +7,14 @@ import AccessBadge from "@/components/AccessBadge";
 
 const SITE_URL = "https://job-net-work.vercel.app";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMetadata({
   title: "Prep Trek — Interview Prep & Study Paths",
   description:
     "Free interview prep by field: common interview questions with real answers, a short learning path, and cold-mail tips — for software engineering, data, sales, marketing, support/ops and design roles.",
-  alternates: { canonical: `${SITE_URL}/prep-trek` },
-  openGraph: {
-    type: "website",
-    url: `${SITE_URL}/prep-trek`,
-    siteName: "JobNetWork",
-    title: "Prep Trek — Interview Prep & Study Paths | JobNetWork",
-    description:
-      "Common interview questions with real answers, a short learning path, and cold-mail tips — organized by field.",
-  },
-};
+  path: "/prep-trek",
+  ogDescription:
+    "Common interview questions with real answers, a short learning path, and cold-mail tips — organized by field.",
+});
 
 export default function PrepTrekIndexPage() {
   const jsonLd = {

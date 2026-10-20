@@ -1,25 +1,18 @@
 import type { Metadata } from "next";
+import { pageMetadata } from "@/lib/seo";
 import Link from "next/link";
 import PrepCards from "@/components/PrepCards";
 import { dbmsFreeCards } from "@/lib/prep-cards/dbms-free";
 import { guides } from "@/lib/guides";
 
-const SITE_URL = "https://job-net-work.vercel.app";
-
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMetadata({
   title: "DBMS Interview Questions — Free Interactive Cards",
   description:
     "10 free, tappable DBMS interview cards: keys, normalization, ACID, joins, indexing, SQL vs NoSQL. A one-line answer, a picture, a quick try-it and the common trap for each.",
-  alternates: { canonical: `${SITE_URL}/prep-trek/dbms` },
-  openGraph: {
-    type: "website",
-    url: `${SITE_URL}/prep-trek/dbms`,
-    siteName: "JobNetWork",
-    title: "DBMS Interview Questions — Free Interactive Cards | JobNetWork",
-    description:
-      "Learn the 10 most-asked DBMS interview questions in minutes, with pictures and quick checks.",
-  },
-};
+  path: "/prep-trek/dbms",
+  ogDescription:
+    "Learn the 10 most-asked DBMS interview questions in minutes, with pictures and quick checks.",
+});
 
 export default function DbmsPage() {
   const notes = guides.find((g) => g.title === "DBMS Prep Trek");

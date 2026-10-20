@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { pageMetadata, POSITIONING_LINE } from "@/lib/seo";
 import Link from "next/link";
 import { getJobsPage } from "@/lib/jobs";
 import JobCard from "@/components/JobCard";
@@ -19,29 +20,13 @@ const WHATSAPP_URL = "https://chat.whatsapp.com/L9DG89VrT4V2UFjFkpv0Ok";
 // Jobs shown in the home-page entry point. The full, filterable list is /jobs.
 const HOME_JOBS = 6;
 
-export const metadata: Metadata = {
-  // `absolute` so the root title template does not append "| JobNetWork" again.
-  title: { absolute: "JobNetWork — Jobs & Internships in India, All Levels" },
+export const metadata: Metadata = pageMetadata({
+  title: "JobNetWork — Jobs & Internships in India, All Levels",
+  absoluteTitle: true,
   description:
     "Find jobs and internships in India across tech, sales, marketing, finance, healthcare and design, from first jobs to senior roles. Free resume match and interview prep.",
-  alternates: { canonical: "/" },
-  openGraph: {
-    type: "website",
-    url: "/",
-    siteName: "JobNetWork",
-    title: "JobNetWork — Jobs & Internships in India, All Levels",
-    description:
-      "Find jobs and internships in India across tech, sales, marketing, finance, healthcare and design, from first jobs to senior roles. Free resume match and interview prep.",
-    images: [{ url: "/Logo.png", width: 512, height: 512 }],
-  },
-  twitter: {
-    card: "summary",
-    title: "JobNetWork — Jobs & Internships in India, All Levels",
-    description:
-      "Find jobs and internships in India across tech, sales, marketing, finance, healthcare and design, from first jobs to senior roles. Free resume match and interview prep.",
-    images: ["/Logo.png"],
-  },
-};
+  path: "/",
+});
 
 export default async function HomePage() {
   // The home page only previews a few jobs; the full list lives at /jobs.
@@ -56,16 +41,39 @@ export default async function HomePage() {
 
   const jsonLd = {
     "@context": "https://schema.org",
-    "@type": "WebSite",
-    name: "JobNetWork",
-    url: SITE_URL,
-    description:
-      "Jobs, internships and placement resources across every field and experience level, updated in real time.",
-    potentialAction: {
-      "@type": "SearchAction",
-      target: `${SITE_URL}/jobs?q={search_term_string}`,
-      "query-input": "required name=search_term_string",
-    },
+    "@graph": [
+      {
+        "@type": "Organization",
+        "@id": `${SITE_URL}/#organization`,
+        name: "JobNetWork",
+        url: SITE_URL,
+        logo: `${SITE_URL}/Logo.png`,
+        description: POSITIONING_LINE,
+        sameAs: [
+          "https://www.linkedin.com/company/job-net-work/",
+          "https://t.me/job_net_work",
+          "https://github.com/tinaaswanii/JobNetWork",
+          "https://www.producthunt.com/products/jobnetwork",
+        ],
+      },
+      {
+        "@type": "WebSite",
+        "@id": `${SITE_URL}/#website`,
+        name: "JobNetWork",
+        url: SITE_URL,
+        description: POSITIONING_LINE,
+        inLanguage: "en-IN",
+        publisher: { "@id": `${SITE_URL}/#organization` },
+        potentialAction: {
+          "@type": "SearchAction",
+          target: {
+            "@type": "EntryPoint",
+            urlTemplate: `${SITE_URL}/jobs?q={search_term_string}`,
+          },
+          "query-input": "required name=search_term_string",
+        },
+      },
+    ],
   };
 
   return (

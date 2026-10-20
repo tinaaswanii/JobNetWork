@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { pageMetadata } from "@/lib/seo";
 import Link from "next/link";
 import { guides, TOPMATE_PROFILE, type Guide } from "@/lib/guides";
 import LevelTag from "@/components/LevelTag";
@@ -6,14 +7,12 @@ import Price from "@/components/Price";
 
 const WHATSAPP_URL = "https://chat.whatsapp.com/L9DG89VrT4V2UFjFkpv0Ok";
 
-const SITE_URL = "https://job-net-work.vercel.app";
-
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMetadata({
   title: "Guides & Notes — Interview Prep, Notes and Career Calls",
   description:
     "Interview prep guides, subject notes and 1:1 career calls for students and freshers, by the creator of JobNetWork.",
-  alternates: { canonical: `${SITE_URL}/guides` },
-};
+  path: "/guides",
+});
 
 function GuideCard({ g }: { g: Guide }) {
   const live = Boolean(g.url);

@@ -1,25 +1,18 @@
 import type { Metadata } from "next";
+import { pageMetadata } from "@/lib/seo";
 import Link from "next/link";
 import PrepCards from "@/components/PrepCards";
 import { cnFreeCards } from "@/lib/prep-cards/cn-free";
 import { guides } from "@/lib/guides";
 
-const SITE_URL = "https://job-net-work.vercel.app";
-
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMetadata({
   title: "Computer Networks Interview Questions — Free Interactive Cards",
   description:
     "10 free, tappable Computer Networks interview cards: OSI vs TCP/IP, TCP vs UDP, the handshake, subnetting, DNS, HTTPS, common ports, and routers vs switches. A one-line answer, a picture, a quick try-it and the common trap for each.",
-  alternates: { canonical: `${SITE_URL}/prep-trek/computer-networks` },
-  openGraph: {
-    type: "website",
-    url: `${SITE_URL}/prep-trek/computer-networks`,
-    siteName: "JobNetWork",
-    title: "Computer Networks Interview Questions — Free Interactive Cards | JobNetWork",
-    description:
-      "Learn the 10 most-asked Computer Networks interview questions in minutes, with pictures and quick checks.",
-  },
-};
+  path: "/prep-trek/computer-networks",
+  ogDescription:
+    "Learn the 10 most-asked Computer Networks interview questions in minutes, with pictures and quick checks.",
+});
 
 export default function ComputerNetworksPage() {
   const notes = guides.find((g) => g.title === "Computer Networks Notes");
