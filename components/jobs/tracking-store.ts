@@ -28,9 +28,16 @@ function set(next: Partial<State>) {
 
 async function load() {
   set({ status: "loading" });
-  const sb = supabaseBrowser();
-  const { data } = await sb.auth.getUser();
-  if (!data.user) return set({ status: "ready", signedIn: false, saved: new Set(), apps: new Map() });
+  let sb: ReturnType<typeof supabaseBrowser>;
+  let user: { id: string } | null = null;
+  try {
+    sb = supabaseBrowser();
+    user = (await sb.auth.getUser()).data.user;
+  } catch {
+    // Missing env vars or network failure: behave as signed out.
+    return set({ status: "ready", signedIn: false, saved: new Set(), apps: new Map() });
+  }
+  if (!user) return set({ status: "ready", signedIn: false, saved: new Set(), apps: new Map() });
   const [s, a] = await Promise.all([
     sb.from("saved_jobs").select("job_id"),
     sb.from("applications").select("id, job_id").not("job_id", "is", null),
@@ -47,9 +54,13 @@ function ensureLoaded() {
   if (!watching) {
     watching = true;
     // Reload when the user signs in/out in this tab.
-    supabaseBrowser().auth.onAuthStateChange((event) => {
-      if (event === "SIGNED_IN" || event === "SIGNED_OUT") load();
-    });
+    try {
+      supabaseBrowser().auth.onAuthStateChange((event) => {
+        if (event === "SIGNED_IN" || event === "SIGNED_OUT") load();
+      });
+    } catch {
+      /* env vars missing: nothing to watch */
+    }
   }
   if (state.status === "idle") load();
 }

@@ -28,8 +28,19 @@ export default function SiteHeader() {
 
   // Reflect auth state client-side so public pages stay statically cacheable.
   useEffect(() => {
-    const supabase = supabaseBrowser();
-    supabase.auth.getUser().then(({ data }) => setSignedIn(!!data.user));
+    // If the public Supabase env vars are missing (e.g. a preview deploy),
+    // treat the visitor as signed out instead of crashing every page.
+    let supabase: ReturnType<typeof supabaseBrowser>;
+    try {
+      supabase = supabaseBrowser();
+    } catch {
+      setSignedIn(false);
+      return;
+    }
+    supabase.auth
+      .getUser()
+      .then(({ data }) => setSignedIn(!!data.user))
+      .catch(() => setSignedIn(false));
     const { data: sub } = supabase.auth.onAuthStateChange((_e, session) =>
       setSignedIn(!!session?.user)
     );
