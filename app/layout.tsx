@@ -1,5 +1,40 @@
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+import Script from "next/script";
+import type { Metadata } from "next";
+import "./globals.css";
+import Footer from "@/components/Footer";
+import { Analytics } from "@vercel/analytics/next";
+import SiteHeader from "@/components/SiteHeader";
+import AdSenseScript from "@/components/AdSenseScript";
+
+export const metadata: Metadata = {
+  metadataBase: new URL("https://job-net-work.vercel.app"),
+  title: {
+    default: "JobNetWork — Jobs & Internships in India, All Levels",
+    template: "%s | JobNetWork",
+  },
+  description:
+    "Find jobs and internships in India across tech, sales, marketing, finance, healthcare and design, from first jobs to senior roles. Free resume match and interview prep.",
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: { index: true, follow: true },
+  },
+  openGraph: {
+    type: "website",
+    siteName: "JobNetWork",
+    locale: "en_IN",
+  },
+  twitter: {
+    card: "summary_large_image",
+  },
+};
+
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   return (
     <html lang="en">
       <head>
@@ -20,6 +55,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       </head>
 
       <body className="font-body antialiased bg-paper text-ink">
+        {/* Google Analytics 4 */}
         <Script
           src="https://www.googletagmanager.com/gtag/js?id=G-4GNV3NT58H"
           strategy="afterInteractive"
@@ -43,7 +79,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         </a>
 
         <SiteHeader />
+
         {children}
+
         <Footer />
         <AdSenseScript />
         <Analytics />
