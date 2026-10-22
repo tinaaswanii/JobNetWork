@@ -2,12 +2,13 @@
 //
 // State lives in this server instance's memory. On Vercel each warm instance has
 // its own counters and they reset on cold start, so this stops casual abuse and
-// runaway loops but is NOT a hard spending cap. Set a monthly spend limit in the
-// Anthropic console for a real ceiling.
+// runaway loops but is NOT a hard cap. The daily default is low because each chat
+// message can use up to 4 model calls and the free Gemini tier is shared by all
+// visitors. On a paid Anthropic key, also set a spend limit in its console.
 
 const WINDOW_MS = 10 * 60_000;
 const PER_IP_LIMIT = Number(process.env.CHAT_RATE_LIMIT_PER_10_MIN) || 20;
-const DAILY_LIMIT = Number(process.env.CHAT_DAILY_LIMIT) || 1500;
+const DAILY_LIMIT = Number(process.env.CHAT_DAILY_LIMIT) || 400;
 
 const hits = new Map<string, number[]>();
 let day = new Date().toISOString().slice(0, 10);

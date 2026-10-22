@@ -201,8 +201,9 @@ export default function CareerChat({ variant = "page" }: { variant?: "page" | "p
           </button>
         </div>
         <p className="mt-2 text-xs text-ink/60">
-          AI can make mistakes. Check job details on the listing before you apply. Please don&apos;t share phone
-          numbers, addresses or ID numbers. Messages aren&apos;t saved.
+          AI can make mistakes. Check job details on the listing before you apply. JobNetWork doesn&apos;t save
+          messages, but they are sent to a third-party AI service (Google Gemini or Anthropic) that may use them under
+          its own terms, so please don&apos;t share phone numbers, addresses or ID numbers.
         </p>
       </form>
     </div>

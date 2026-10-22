@@ -59,8 +59,8 @@ export async function POST(req: NextRequest) {
   }
 
   try {
-    const { reply, jobs } = await runAssistant(messages);
-    return NextResponse.json({ success: true, data: { reply, jobs } }, { headers: { "Cache-Control": "no-store" } });
+    const { reply, jobs, provider } = await runAssistant(messages);
+    return NextResponse.json({ success: true, data: { reply, jobs, provider } }, { headers: { "Cache-Control": "no-store" } });
   } catch (err) {
     if (err instanceof ChatError) {
       return fail(err.status, err.code.toUpperCase(), err.message);

@@ -1,7 +1,8 @@
 import { searchJobs, getJobDetails, type JobCard, type SearchInput } from "@/lib/chat/jobs-tool";
 
-// Server-side only. Talks to the Anthropic Messages API with plain fetch, the
-// same way lib/llm-match.ts does (no SDK, no new dependency). The model can call
+// Server-side only. Talks to either Google's Gemini API (free tier, preferred
+// when GEMINI_API_KEY is set) or the Anthropic Messages API, with plain fetch
+// (no SDK, no new dependency). The model can call
 // two tools that read JobNetWork's own listings; whatever they return is passed
 // back as data. Job cards shown to the user come from the tool results, never
 // from model text, so links and fields cannot be invented.
@@ -12,6 +13,20 @@ const MAX_TOOL_ROUNDS = 3;
 const TIMEOUT_MS = 25_000;
 
 export type ChatMessage = { role: "user" | "assistant"; content: string };
+export type Provider = "gemini" | "anthropic";
+
+const GEMINI_MODEL = process.env.GEMINI_MODEL || "gemini-flash-latest";
+const GEMINI_URL = "https://generativelanguage.googleapis.com/v1beta/models";
+
+/** Gemini first (it has a free tier), then Anthropic. AI_PROVIDER can force one. */
+export function pickProvider(): Provider | null {
+  const forced = process.env.AI_PROVIDER;
+  if (forced === "gemini" && process.env.GEMINI_API_KEY) return "gemini";
+  if (forced === "anthropic" && process.env.ANTHROPIC_API_KEY) return "anthropic";
+  if (process.env.GEMINI_API_KEY) return "gemini";
+  if (process.env.ANTHROPIC_API_KEY) return "anthropic";
+  return null;
+}
 
 export class ChatError extends Error {
   constructor(
@@ -142,9 +157,91 @@ async function callAnthropic(apiKey: string, messages: ApiMessage[], signal: Abo
   return (await res.json()) as { content: Block[]; stop_reason: string };
 }
 
-export async function runAssistant(history: ChatMessage[]): Promise<{ reply: string; jobs: JobCard[] }> {
-  const apiKey = process.env.ANTHROPIC_API_KEY;
-  if (!apiKey) throw new ChatError("not_configured", 503, "The AI assistant is not set up yet.");
+type GeminiPart = { text?: string; thought?: boolean; functionCall?: { name: string; args?: Record<string, unknown> } } & Record<string, unknown>;
+type GeminiContent = { role: "user" | "model"; parts: GeminiPart[] };
+
+async function callGemini(apiKey: string, contents: GeminiContent[], signal: AbortSignal): Promise<GeminiPart[]> {
+  let res: Response;
+  try {
+    res = await fetch(`${GEMINI_URL}/${encodeURIComponent(GEMINI_MODEL)}:generateContent`, {
+      method: "POST",
+      signal,
+      // Key goes in a header, never in the URL, so it can't end up in logs.
+      headers: { "content-type": "application/json", "x-goog-api-key": apiKey },
+      body: JSON.stringify({
+        systemInstruction: { parts: [{ text: SYSTEM }] },
+        contents,
+        tools: [{ functionDeclarations: TOOLS.map((t) => ({ name: t.name, description: t.description, parameters: t.input_schema })) }],
+        // Generous cap: on thinking models the budget also covers hidden reasoning.
+        generationConfig: { maxOutputTokens: 2000, temperature: 0.4 },
+      }),
+    });
+  } catch (err) {
+    if (err instanceof Error && err.name === "AbortError") throw new ChatError("timeout", 504, "The assistant took too long to respond.");
+    throw new ChatError("provider_error", 502, "Could not reach the AI service.");
+  }
+  if (!res.ok) {
+    // Log the status only: error bodies can echo request content.
+    console.error("[api/chat] Gemini error status", res.status);
+    if (res.status === 401 || res.status === 403) throw new ChatError("auth_error", 503, "The assistant is not configured correctly.");
+    if (res.status === 400) {
+      // Google reports a bad API key as 400. Look for that, but never log the body.
+      const bad = await res.text().then((t) => /API key not valid|API_KEY_INVALID/i.test(t)).catch(() => false);
+      if (bad) throw new ChatError("auth_error", 503, "The assistant is not configured correctly.");
+    }
+    if (res.status === 429 || res.status === 503) {
+      throw new ChatError("rate_limited", 503, "The free assistant is busy right now. Please try again in a minute.");
+    }
+    throw new ChatError("provider_error", 502, "The AI service returned an error.");
+  }
+  const data = (await res.json().catch(() => null)) as { candidates?: { content?: { parts?: GeminiPart[] } }[] } | null;
+  return data?.candidates?.[0]?.content?.parts ?? [];
+}
+
+async function runGemini(apiKey: string, history: ChatMessage[], cards: Map<string, JobCard>, signal: AbortSignal): Promise<string> {
+  const contents: GeminiContent[] = history.map((m) => ({ role: m.role === "assistant" ? "model" : "user", parts: [{ text: m.content }] }));
+  for (let round = 0; round <= MAX_TOOL_ROUNDS; round++) {
+    const parts = await callGemini(apiKey, contents, signal);
+    const calls = parts.filter((p) => p.functionCall);
+    if (calls.length === 0 || round === MAX_TOOL_ROUNDS) {
+      const reply = parts.filter((p) => typeof p.text === "string" && !p.thought).map((p) => p.text).join("\n").trim();
+      if (!reply) throw new ChatError("provider_error", 502, "The assistant returned an empty answer.");
+      return reply;
+    }
+    // Echo the model turn back unchanged (it may carry signatures Gemini needs).
+    contents.push({ role: "model", parts });
+    const responses: GeminiPart[] = [];
+    for (const c of calls) {
+      const name = c.functionCall!.name;
+      let result: unknown;
+      try {
+        result = JSON.parse(await runTool(name, c.functionCall!.args ?? {}, cards));
+      } catch (err) {
+        console.error("[api/chat] tool failed:", name, err instanceof Error ? err.message : "unknown");
+        result = { error: "Job data is temporarily unavailable. Tell the user, and do not guess." };
+      }
+      responses.push({ functionResponse: { name, response: { result } } });
+    }
+    contents.push({ role: "user", parts: responses });
+  }
+  throw new ChatError("provider_error", 502, "The assistant could not finish.");
+}
+
+export async function runAssistant(history: ChatMessage[]): Promise<{ reply: string; jobs: JobCard[]; provider: Provider }> {
+  const provider = pickProvider();
+  if (!provider) throw new ChatError("not_configured", 503, "The AI assistant is not set up yet.");
+  if (provider === "gemini") {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), TIMEOUT_MS);
+    const cards = new Map<string, JobCard>();
+    try {
+      const reply = await runGemini(process.env.GEMINI_API_KEY!, history, cards, controller.signal);
+      return { reply, jobs: [...cards.values()].slice(0, 6), provider };
+    } finally {
+      clearTimeout(timer);
+    }
+  }
+  const apiKey = process.env.ANTHROPIC_API_KEY!;
 
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), TIMEOUT_MS);
@@ -163,7 +260,7 @@ export async function runAssistant(history: ChatMessage[]): Promise<{ reply: str
           .join("\n")
           .trim();
         if (!reply) throw new ChatError("provider_error", 502, "The assistant returned an empty answer.");
-        return { reply, jobs: [...cards.values()].slice(0, 6) };
+        return { reply, jobs: [...cards.values()].slice(0, 6), provider };
       }
 
       messages.push({ role: "assistant", content: data.content });
