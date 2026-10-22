@@ -3,8 +3,7 @@ import { pageMetadata } from "@/lib/seo";
 import { buildJobPostingJsonLd } from "@/lib/job-posting";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { supabaseAdmin } from "@/lib/supabase";
-import { getArthaJobBySlug } from "@/lib/job-cache";
+import { getJobBySlug as getJob } from "@/lib/job-lookup";
 import { isArthaUrlExpired } from "@/lib/artha-url";
 import { htmlToText, sanitizeJobHtml } from "@/lib/html";
 import type { PublicJob } from "@/lib/types";
@@ -13,48 +12,6 @@ import JobActions from "@/components/jobs/JobActions";
 // Short window so a refreshed (non-expired) Apply link replaces a "refreshing" notice quickly.
 // Raise it only if Artha's signed links are known to outlive it.
 export const revalidate = 600;
-
-const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-
-async function getOwnJobBySlug(slug: string): Promise<PublicJob | null> {
-  if (!UUID_RE.test(slug)) return null;
-  const db = supabaseAdmin();
-  const { data, error } = await db
-    .from("own_jobs")
-    .select("*")
-    .eq("id", slug)
-    .eq("is_active", true)
-    .maybeSingle();
-  if (error || !data) return null;
-  return {
-    id: `own_${data.id}`,
-    slug: data.id,
-    title: data.title,
-    company: data.company,
-    logo: data.logo,
-    description: data.description,
-    location: data.location,
-    city: data.city,
-    state: data.state,
-    country: data.country,
-    job_type: data.job_type,
-    salary_min: data.salary_min,
-    salary_max: data.salary_max,
-    salary_curr: data.salary_curr,
-    exp_min: null,
-    exp_max: null,
-    exp_unit: null,
-    skills: data.skills ?? [],
-    posted_date: data.posted_date,
-    url: data.apply_url,
-  };
-}
-
-async function getJob(slug: string): Promise<PublicJob | null> {
-  const own = await getOwnJobBySlug(slug);
-  if (own) return own;
-  return getArthaJobBySlug(slug);
-}
 
 export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
   const job = await getJob(params.slug);
