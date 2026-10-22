@@ -29,7 +29,8 @@ const SUGGESTIONS: { label: string; text: string; mode: "send" | "fill" }[] = [
 const MAX_LEN = 1000;
 let nextId = 1;
 
-export default function CareerChat() {
+export default function CareerChat({ variant = "page" }: { variant?: "page" | "panel" }) {
+  const panel = variant === "panel";
   const [messages, setMessages] = useState<Msg[]>([]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
@@ -89,12 +90,12 @@ export default function CareerChat() {
   }
 
   return (
-    <div className="flex flex-col rounded-xl border bg-white">
+    <div className={panel ? "flex h-full min-h-0 flex-col bg-white" : "flex flex-col rounded-xl border bg-white"}>
       <div
         role="log"
         aria-live="polite"
         aria-label="Conversation with the JobNetWork AI Career Assistant"
-        className="max-h-[60vh] min-h-[320px] space-y-4 overflow-y-auto p-4 md:p-5"
+        className={`space-y-4 overflow-y-auto p-4 md:p-5 ${panel ? "min-h-0 flex-1" : "max-h-[60vh] min-h-[320px]"}`}
       >
         <Bubble role="assistant">
           <p>

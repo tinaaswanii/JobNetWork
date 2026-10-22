@@ -3,6 +3,7 @@ import Script from "next/script";
 import type { Metadata } from "next";
 import "./globals.css";
 import Footer from "@/components/Footer";
+import ChatLauncher from "@/components/chat/ChatLauncher";
 import { Analytics } from "@vercel/analytics/next";
 import SiteHeader from "@/components/SiteHeader";
 import AdSenseScript from "@/components/AdSenseScript";
@@ -83,6 +84,7 @@ export default function RootLayout({
         {children}
 
         <Footer />
+        <ChatLauncher />
         <AdSenseScript />
         <Analytics />
       </body>

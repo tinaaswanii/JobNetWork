@@ -96,15 +96,31 @@ function mentionsSkill(j: PublicJob, skill: string): boolean {
   return re.test(htmlToText(j.description ?? ""));
 }
 
-export async function searchJobs(input: SearchInput): Promise<SearchResult> {
-  const notApplied: string[] = [];
-  let filters: ArthaFilters | null = null;
+// Filter option lists change rarely; cache them per server instance so a chat
+// search is one feed request instead of two. Failures are cached briefly too.
+let filtersCache: { at: number; value: ArthaFilters | null } | null = null;
+async function getFilters(): Promise<ArthaFilters | null> {
+  const now = Date.now();
+  if (filtersCache && now - filtersCache.at < (filtersCache.value ? 10 * 60_000 : 60_000)) return filtersCache.value;
+  let value: ArthaFilters | null = null;
   try {
-    filters = await fetchFilters();
+    value = await fetchFilters();
   } catch {
     /* Artha down or key invalid: structured filters can't be mapped, see below */
   }
+  filtersCache = { at: now, value };
+  return value;
+}
 
+const STOP = new Set(["a", "an", "the", "in", "for", "of", "and", "or", "jobs", "job", "roles", "role", "india", "to", "with"]);
+const SENIOR_TITLE = /\b(senior|sr\.?|lead|principal|head|director|manager|architect|vp)\b/i;
+
+export async function searchJobs(input: SearchInput): Promise<SearchResult> {
+  const notApplied: string[] = [];
+  const notes: string[] = [];
+  const filters = await getFilters();
+
+  let localEntryLevel = false;
   const query: JobsQuery = { sort_by: "newest" };
   const q = input.query?.trim().slice(0, 60);
   if (q) query.q = q;
@@ -128,6 +144,7 @@ export async function searchJobs(input: SearchInput): Promise<SearchResult> {
     const re = { fresher: /fresher|entry|intern|^0\b|^0-/i, junior: /junior|entry|^[01]\b|^[01]-/i, mid: /\bmid|intermediate|^[2-5]\b|^[2-5]-/i, senior: /senior|lead|expert|^([6-9]|\d{2})/i }[input.experience];
     const v = pickOption(filters?.experience_levels, re);
     if (v) query.exp_level = v;
+    else if (input.experience === "fresher" || input.experience === "junior") localEntryLevel = true;
     else notApplied.push(`experience level "${input.experience}"`);
   }
   if (input.posted_days && input.posted_days > 0) {
@@ -139,7 +156,35 @@ export async function searchJobs(input: SearchInput): Promise<SearchResult> {
   const page = await getJobsPage({ ...query, limit: skill ? SKILL_SCAN : Math.min(30, want * 3), offset: 0 });
 
   let items = page.items;
+  let source = page.sources.artha;
+  let total: number | null = skill ? null : page.total;
+
+  // /jobs keyword search matches title/company only, so "python" misses a job
+  // that lists Python as a skill. When it finds nothing, scan recent listings
+  // for the words in the title, skills or description instead.
+  if (!skill && q && items.length < Math.min(want, 4)) {
+    const terms = q.toLowerCase().split(/\s+/).filter((t) => t && !STOP.has(t));
+    if (terms.length) {
+      const { q: _drop, ...rest } = query;
+      const wide = await getJobsPage({ ...rest, limit: SKILL_SCAN, offset: 0 });
+      if (items.length === 0) source = wide.sources.artha;
+      const have = new Set(items.map((j) => j.slug));
+      const extra = wide.items.filter((j) => !have.has(j.slug) && terms.every((t) => mentionsSkill(j, t)));
+      if (extra.length) {
+        items = [...items, ...extra];
+        total = null;
+        notes.push(`${items.length - extra.length ? "Title matches come first, then" : "No title match for \"" + q + "\", so these are"} listings that mention "${q}" in their skills or description (scanned the ${Math.min(wide.total, SKILL_SCAN)} most recent).`);
+      }
+    }
+  }
+
   if (skill) items = items.filter((j) => mentionsSkill(j, skill));
+  if (localEntryLevel) {
+    // The feed has no entry-level filter here: drop senior-looking and 3+ year roles.
+    const before = items.length;
+    items = items.filter((j) => !SENIOR_TITLE.test(j.title) && !(j.exp_min != null && j.exp_min >= 3));
+    if (before !== items.length || before > 0) notes.push("Entry-level filter applied by title and listed experience (roles with no experience listed are kept).");
+  }
 
   const live = items.filter((j) => !isArthaUrlExpired(j.url));
   const skipped = items.length - live.length;
@@ -147,21 +192,20 @@ export async function searchJobs(input: SearchInput): Promise<SearchResult> {
   const unique = live.filter((j) => (seen.has(j.slug) ? false : (seen.add(j.slug), true)));
   const jobs = unique.slice(0, want).map(toCard);
 
-  let note: string | undefined;
-  if (page.sources.artha === "unavailable" && jobs.length === 0) {
-    note = "The live job feed and the saved listings are both unavailable or empty right now.";
-  } else if (page.sources.artha === "cached") {
-    note = "The live feed is unavailable, so these come from recently saved JobNetWork listings.";
+  if (source === "unavailable" && jobs.length === 0) {
+    notes.unshift("The live job feed and the saved listings are both unavailable or empty right now.");
+  } else if (source === "cached") {
+    notes.unshift("The live feed is unavailable, so these come from recently saved JobNetWork listings.");
   }
-  if (skill) note = [note, `Only the ${Math.min(page.total, SKILL_SCAN)} most recent listings were scanned for "${skill}".`].filter(Boolean).join(" ");
+  if (skill) notes.push(`Only the ${Math.min(page.total, SKILL_SCAN)} most recent listings were scanned for "${skill}".`);
 
   return {
     jobs,
-    total_matching: skill ? null : page.total,
-    source: page.sources.artha,
+    total_matching: total,
+    source,
     filters_not_applied: notApplied,
     skipped_expired_links: skipped,
-    note,
+    note: notes.length ? notes.join(" ") : undefined,
   };
 }
 
