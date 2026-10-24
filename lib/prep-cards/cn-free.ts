@@ -4,288 +4,472 @@ import type { PrepCard } from "./types";
 
 export const cnFreeCards: PrepCard[] = [
   {
-    id: "cn-osi",
-    group: "Basics",
-    q: "What are the 7 layers of the OSI model?",
-    say: "A 7-layer reference model, from the physical wire at the bottom to the application at the top. Each layer only talks to the one directly above and below it.",
-    picture: {
-      kind: "table",
-      head: ["#", "Layer", "Does what"],
-      rows: [
-        ["7", "Application", "What the user's app actually uses — HTTP, SMTP, FTP"],
-        ["6", "Presentation", "Formats/encrypts data — SSL/TLS, encoding"],
-        ["5", "Session", "Opens, manages and closes a connection"],
-        ["4", "Transport", "End-to-end delivery — TCP, UDP"],
-        ["3", "Network", "Routing between networks — IP, routers"],
-        ["2", "Data Link", "Node-to-node delivery on one network — MAC, switches"],
-        ["1", "Physical", "Actual bits on the wire/radio — cables, signals"],
+    "id": "cn-osi-tcpip",
+    "group": "Models & layers",
+    "q": "OSI model vs TCP/IP model: what is the difference?",
+    "say": "OSI is a 7-layer reference model for explaining networks. TCP/IP is the 4-layer model the internet actually runs on.",
+    "picture": {
+      "kind": "table",
+      "head": [
+        "OSI layer",
+        "TCP/IP layer",
+        "Example"
       ],
-      caption: "Mnemonic: \"All People Seem To Need Data Processing\" (7→1).",
+      "rows": [
+        [
+          "7 Application",
+          "Application",
+          "HTTP, DNS, SMTP"
+        ],
+        [
+          "6 Presentation",
+          "Application",
+          "Encryption, encoding"
+        ],
+        [
+          "5 Session",
+          "Application",
+          "Sessions, connections"
+        ],
+        [
+          "4 Transport",
+          "Transport",
+          "TCP, UDP"
+        ],
+        [
+          "3 Network",
+          "Internet",
+          "IP, ICMP"
+        ],
+        [
+          "2 Data link",
+          "Link",
+          "Ethernet, Wi-Fi, MAC"
+        ],
+        [
+          "1 Physical",
+          "Link",
+          "Cables, signals"
+        ]
+      ],
+      "caption": "Memory trick, top to bottom: All People Seem To Need Data Processing."
     },
-    tryIt: {
-      prompt: "A router mainly operates at which layer?",
-      options: ["Layer 3 (Network)", "Layer 2 (Data Link)", "Layer 7 (Application)"],
-      correct: 0,
-      why: "Routers decide where a packet goes next based on IP addresses — that's Layer 3. Switches work at Layer 2, using MAC addresses instead.",
+    "tryIt": {
+      "prompt": "Which layer do TCP and UDP work at?",
+      "options": [
+        "Network",
+        "Transport",
+        "Application"
+      ],
+      "correct": 1,
+      "why": "TCP and UDP deliver data between programs using port numbers. That is the transport layer (layer 4)."
     },
-    trap: "Reciting all 7 layers without being able to say what any of them actually do. Interviewers usually only care that you can place TCP/IP and HTTP correctly.",
-    sayIt: "OSI is a 7-layer model from physical wires up to the application; each layer only talks to its direct neighbours.",
+    "trap": "Saying the OSI model is what the internet uses. OSI is for teaching and troubleshooting. The internet runs on TCP/IP.",
+    "sayIt": "OSI has 7 layers for explaining networks, and TCP/IP has 4 layers that the internet really uses. TCP and UDP sit at transport."
   },
   {
-    id: "cn-tcpip-vs-osi",
-    group: "Basics",
-    q: "How does the TCP/IP model map to OSI?",
-    say: "TCP/IP is the 4-layer model actually used on the real internet — it collapses OSI's top three layers into one, and its bottom two into one.",
-    picture: {
-      kind: "compare",
-      a: {
-        title: "OSI (7 layers)",
-        points: ["Application", "Presentation", "Session", "Transport", "Network", "Data Link", "Physical"],
-      },
-      b: {
-        title: "TCP/IP (4 layers)",
-        points: ["Application (= App+Pres+Session)", "Transport", "Internet (= Network)", "Network Access (= Data Link+Physical)"],
-      },
-      caption: "OSI is the teaching model; TCP/IP is what's actually implemented and running the internet.",
+    "id": "cn-encapsulation",
+    "group": "Models & layers",
+    "q": "What is encapsulation?",
+    "say": "Each layer wraps the data from the layer above with its own header, so the data grows a new label at every step down.",
+    "picture": {
+      "kind": "steps",
+      "steps": [
+        {
+          "title": "Application",
+          "text": "Your data, such as an HTTP request."
+        },
+        {
+          "title": "Transport",
+          "text": "TCP adds port numbers. The unit is a segment (UDP: datagram)."
+        },
+        {
+          "title": "Network",
+          "text": "IP adds source and destination IP addresses. The unit is a packet."
+        },
+        {
+          "title": "Data link",
+          "text": "Ethernet adds MAC addresses. The unit is a frame."
+        },
+        {
+          "title": "Physical",
+          "text": "Frames become bits on the wire or in the air."
+        }
+      ],
+      "caption": "The receiver does the reverse, removing one header per layer going up (decapsulation)."
     },
-    tryIt: {
-      prompt: "Which model does the real internet actually run on?",
-      options: ["TCP/IP", "OSI", "Both equally, in parallel"],
-      correct: 0,
-      why: "OSI is a conceptual reference model used for teaching and troubleshooting. The internet's real protocol stack is TCP/IP.",
+    "tryIt": {
+      "prompt": "Which unit carries MAC addresses?",
+      "options": [
+        "Segment",
+        "Packet",
+        "Frame"
+      ],
+      "correct": 2,
+      "why": "MAC addresses are added at the data link layer, and the unit there is a frame."
     },
-    trap: "Saying OSI and TCP/IP are the same thing, or that the internet \"runs on OSI.\" OSI is the map; TCP/IP is the territory.",
-    sayIt: "TCP/IP is the 4-layer model the internet actually runs on — OSI is the 7-layer teaching reference it maps onto.",
+    "trap": "Using segment, packet and frame as if they mean the same thing. Each belongs to a different layer.",
+    "sayIt": "Each layer adds its own header: ports at transport, IP addresses at network, MAC addresses at data link."
   },
   {
-    id: "cn-tcp-vs-udp",
-    group: "Transport",
-    q: "TCP vs UDP — what's the difference?",
-    say: "TCP is connection-oriented and reliable — it guarantees delivery and order, at the cost of overhead. UDP is connectionless and fast, with no delivery guarantee.",
-    picture: {
-      kind: "compare",
-      a: {
-        title: "TCP",
-        points: ["Connection-oriented (handshake first)", "Reliable — guarantees delivery & order", "Slower, more overhead", "Used by: HTTP, HTTPS, email, file transfer"],
+    "id": "cn-tcp-vs-udp",
+    "group": "Transport & TCP",
+    "q": "TCP vs UDP: what is the difference?",
+    "say": "TCP is reliable and ordered but slower to start. UDP is fast and light but gives no guarantees.",
+    "picture": {
+      "kind": "compare",
+      "a": {
+        "title": "TCP",
+        "points": [
+          "Sets up a connection first (3-way handshake)",
+          "Resends lost data and keeps order",
+          "Flow and congestion control",
+          "Bigger header (20 bytes minimum)",
+          "Web, email, file transfer"
+        ]
       },
-      b: {
-        title: "UDP",
-        points: ["Connectionless — no handshake", "No delivery guarantee", "Fast, low overhead", "Used by: video calls, DNS, gaming, streaming"],
+      "b": {
+        "title": "UDP",
+        "points": [
+          "No connection setup",
+          "No resending, no ordering",
+          "No flow or congestion control",
+          "Small header (8 bytes)",
+          "DNS, video calls, gaming, streaming"
+        ]
       },
+      "caption": "UDP isn't 'bad'. If a late packet is useless anyway (live video), resending it only adds delay."
     },
-    tryIt: {
-      prompt: "Why would a video call use UDP instead of TCP?",
-      options: [
-        "A dropped frame is fine — waiting for TCP to retransmit it would lag the whole call more than just skipping it",
-        "UDP is more secure than TCP",
-        "UDP guarantees the video arrives in order",
+    "tryIt": {
+      "prompt": "Which suits a live video call better?",
+      "options": [
+        "TCP, because it never loses data",
+        "UDP, because a late packet is useless anyway"
       ],
-      correct: 0,
-      why: "Real-time traffic prefers a dropped frame over a delay. TCP's retransmission-and-reorder guarantee is exactly what you don't want when the data is only useful if it arrives on time.",
+      "correct": 1,
+      "why": "In a live call, resending an old packet only delays the new ones. UDP simply moves on."
     },
-    trap: "Saying UDP is \"worse\" than TCP. It's a trade-off, not a downgrade — each is the right choice for different traffic.",
-    sayIt: "TCP trades speed for reliability with a handshake and delivery guarantees; UDP trades reliability for speed with none of that overhead.",
+    "trap": "Saying UDP is unreliable so nobody should use it. Applications can add their own checks on top of UDP when they need to.",
+    "sayIt": "TCP is connection-based and reliable, UDP is connectionless and fast. I pick UDP when speed matters more than every packet."
   },
   {
-    id: "cn-handshake",
-    group: "Transport",
-    q: "Walk me through the TCP three-way handshake.",
-    say: "Three steps before any data moves: SYN, SYN-ACK, ACK — both sides confirm they're ready and agree on starting sequence numbers.",
-    picture: {
-      kind: "steps",
-      steps: [
-        { title: "SYN", text: "Client sends a SYN packet: \"I'd like to connect, here's my starting sequence number.\"" },
-        { title: "SYN-ACK", text: "Server replies with SYN-ACK: \"Got it, here's my starting sequence number too.\"" },
-        { title: "ACK", text: "Client sends ACK: \"Confirmed.\" The connection is now open and data can flow." },
+    "id": "cn-handshake",
+    "group": "Transport & TCP",
+    "q": "How does the TCP 3-way handshake work?",
+    "say": "Both sides agree they can hear each other, and agree on starting sequence numbers, before any data moves.",
+    "picture": {
+      "kind": "steps",
+      "steps": [
+        {
+          "title": "SYN",
+          "text": "Client says: I want to connect, my sequence number starts at x."
+        },
+        {
+          "title": "SYN-ACK",
+          "text": "Server says: OK, mine starts at y, and I expect your x + 1."
+        },
+        {
+          "title": "ACK",
+          "text": "Client says: got it, I expect your y + 1. Data can now flow."
+        }
       ],
-      caption: "Closing a connection is a separate 4-step FIN/ACK exchange, not the reverse of this.",
+      "caption": "Two messages wouldn't be enough: the server needs proof the client received its sequence number."
     },
-    tryIt: {
-      prompt: "What does the handshake actually establish before data is sent?",
-      options: [
-        "Both sides are reachable and agree on starting sequence numbers",
-        "The encryption key for the whole session",
-        "The maximum file size that can be transferred",
+    "tryIt": {
+      "prompt": "Which step does the server send?",
+      "options": [
+        "SYN",
+        "SYN-ACK",
+        "ACK"
       ],
-      correct: 0,
-      why: "The handshake confirms both ends are alive and synchronizes sequence numbers for reliable, ordered delivery. Encryption (TLS) is a separate handshake layered on top, for HTTPS.",
+      "correct": 1,
+      "why": "The server replies to the client's SYN with SYN-ACK: it acknowledges the client and sends its own SYN."
     },
-    trap: "Confusing the TCP handshake with the TLS/SSL handshake (which negotiates encryption for HTTPS) — they're two different handshakes, back to back.",
-    sayIt: "TCP opens a connection with a 3-step SYN, SYN-ACK, ACK handshake before any actual data is sent.",
+    "trap": "Mixing up which side sends which message. Client: SYN, then ACK. Server: SYN-ACK.",
+    "sayIt": "SYN, SYN-ACK, ACK. It sets up the connection and agrees the starting sequence numbers."
   },
   {
-    id: "cn-ip-addressing",
-    group: "Addressing",
-    q: "What's a subnet mask actually for?",
-    say: "A subnet mask splits an IP address into a network part and a host part — it tells devices which addresses are \"local\" versus need routing.",
-    picture: {
-      kind: "table",
-      head: ["Notation", "Meaning"],
-      rows: [
-        ["192.168.1.10", "An IP address — identifies one device"],
-        ["255.255.255.0", "Subnet mask — first 3 octets are network, last is host"],
-        ["192.168.1.0/24", "CIDR notation — same mask, written as a prefix length"],
-        ["192.168.1.255", "Broadcast address for this subnet — reaches every host on it"],
+    "id": "cn-ip-mac",
+    "group": "IP, addressing & routing",
+    "q": "IP address vs MAC address: what is the difference?",
+    "say": "A MAC address identifies the network card on the local link. An IP address says where a device sits in the network.",
+    "picture": {
+      "kind": "compare",
+      "a": {
+        "title": "MAC address",
+        "points": [
+          "48 bits, written as 6 hex pairs",
+          "Built into the network card",
+          "Works on the local link (layer 2)",
+          "Changes at every hop"
+        ]
+      },
+      "b": {
+        "title": "IP address",
+        "points": [
+          "32 bits (IPv4) or 128 bits (IPv6)",
+          "Assigned by the network (DHCP or manually)",
+          "Used for routing across networks (layer 3)",
+          "Stays the same end to end (without NAT)"
+        ]
+      },
+      "caption": "Think of the IP address as the postal address and the MAC address as the person at the door."
+    },
+    "tryIt": {
+      "prompt": "A packet crosses three routers. What changes at each hop?",
+      "options": [
+        "The source and destination IP",
+        "The source and destination MAC",
+        "Nothing"
       ],
-      caption: "/24 = 24 bits of network, 8 bits left for hosts = up to 254 usable host addresses.",
+      "correct": 1,
+      "why": "Each hop rewrites the frame's MAC addresses for the next link. The IP addresses stay the same (unless NAT rewrites them)."
     },
-    tryIt: {
-      prompt: "Two devices are on 192.168.1.10/24 and 192.168.1.20/24. Can they talk directly, without a router?",
-      options: ["Yes — same network, same subnet", "No — different networks", "Only if they're both wired, not Wi-Fi"],
-      correct: 0,
-      why: "Both addresses share the same /24 network portion (192.168.1.x), so they're on the same local subnet and can communicate directly without routing.",
-    },
-    trap: "Treating the IP address alone as enough information — without the subnet mask, you can't tell which devices are \"local\" to each other.",
-    sayIt: "The subnet mask splits an IP into network + host parts, which is how a device knows if another address is local or needs a router.",
+    "trap": "Saying the MAC address is permanent and can't be changed. It can be spoofed, so never treat it as security.",
+    "sayIt": "MAC is hardware, local and changes at every hop. IP is logical, used for routing and stays the same end to end."
   },
   {
-    id: "cn-public-private-nat",
-    group: "Addressing",
-    q: "Public vs private IP — and what does NAT do?",
-    say: "Private IPs (like 192.168.x.x) only work inside your local network. NAT translates them to one public IP so your whole home network can share a single internet-facing address.",
-    picture: {
-      kind: "compare",
-      a: {
-        title: "Private IP",
-        points: ["Ranges: 10.x, 172.16-31.x, 192.168.x", "Only routable within a local network", "Free to reuse — every home network uses 192.168.1.x"],
-      },
-      b: {
-        title: "Public IP",
-        points: ["Globally unique, assigned by your ISP", "Routable across the internet", "Usually one per household/router"],
-      },
-      caption: "NAT (Network Address Translation) is what sits at your router, swapping private IPs for the one public IP on the way out.",
-    },
-    tryIt: {
-      prompt: "Why can every home network reuse 192.168.1.1 for its router without conflicts?",
-      options: [
-        "Because private IP ranges are never routed on the public internet, so they can repeat everywhere",
-        "Because 192.168.1.1 is reserved specifically for routers worldwide",
-        "Because ISPs randomly assign it only once per city",
+    "id": "cn-subnet-cidr",
+    "group": "IP, addressing & routing",
+    "q": "What is a subnet and what does /24 mean?",
+    "say": "A subnet is a smaller slice of a network. /24 means the first 24 bits are the network part and the last 8 are for hosts.",
+    "picture": {
+      "kind": "chips",
+      "items": [
+        {
+          "label": "/24",
+          "note": "Mask 255.255.255.0. 8 host bits give 256 addresses."
+        },
+        {
+          "label": "Network address",
+          "note": "All host bits 0. Names the subnet. Not usable by a device."
+        },
+        {
+          "label": "Broadcast address",
+          "note": "All host bits 1. Reaches every host. Not usable by a device."
+        },
+        {
+          "label": "Usable hosts",
+          "note": "2^(32 - prefix) - 2. For /24 that is 254."
+        }
       ],
-      correct: 0,
-      why: "Private address ranges are explicitly excluded from internet routing, so there's no global conflict — they only need to be unique inside their own local network.",
+      "code": "192.168.1.0/24\nnetwork    192.168.1.0\nusable     192.168.1.1 to 192.168.1.254\nbroadcast  192.168.1.255"
     },
-    trap: "Assuming a private IP (192.168.x.x) is directly reachable from the internet. It isn't — NAT at the router is what makes outbound traffic work at all.",
-    sayIt: "Private IPs are only valid inside a local network; NAT at the router translates them to one shared public IP for internet traffic.",
+    "tryIt": {
+      "prompt": "How many usable hosts does a /26 have?",
+      "options": [
+        "64",
+        "62",
+        "26"
+      ],
+      "correct": 1,
+      "why": "A /26 leaves 6 host bits: 2^6 = 64 addresses. Take away the network and broadcast addresses and 62 are usable."
+    },
+    "trap": "Forgetting to subtract the 2 for the network and broadcast addresses.",
+    "sayIt": "Usable hosts are 2 to the power of the host bits, minus 2. A /24 has 254 and a /26 has 62."
   },
   {
-    id: "cn-dns",
-    group: "DNS",
-    q: "Walk me through what happens during a DNS lookup.",
-    say: "Your browser needs an IP address for a domain name, so it asks a chain of DNS servers — usually resolved in milliseconds and cached afterward.",
-    picture: {
-      kind: "steps",
-      steps: [
-        { title: "Browser/OS cache", text: "Check if this domain's IP was already looked up recently." },
-        { title: "Recursive resolver", text: "If not cached, ask your ISP's (or 8.8.8.8-style) DNS resolver." },
-        { title: "Root → TLD → authoritative", text: "The resolver walks the DNS hierarchy: root server → .com's TLD server → the domain's own authoritative server." },
-        { title: "Answer returned & cached", text: "The IP comes back, the browser connects to it, and the result is cached for next time." },
+    "id": "cn-dns",
+    "group": "Application protocols",
+    "q": "How does DNS turn a name into an IP address?",
+    "say": "DNS is the internet's phone book. If nothing is cached, a resolver asks the root, then the TLD, then the authoritative server.",
+    "picture": {
+      "kind": "steps",
+      "steps": [
+        {
+          "title": "Check caches",
+          "text": "Browser, then operating system. If found, stop."
+        },
+        {
+          "title": "Ask the resolver",
+          "text": "Your ISP or a public one such as 8.8.8.8. It checks its own cache too."
+        },
+        {
+          "title": "Root server",
+          "text": "Replies: for .com, ask the .com servers."
+        },
+        {
+          "title": "TLD server",
+          "text": "Replies: for example.com, ask its authoritative server."
+        },
+        {
+          "title": "Authoritative server",
+          "text": "Holds the real record and returns the IP."
+        },
+        {
+          "title": "Cache it",
+          "text": "Everyone keeps the answer until its TTL runs out."
+        }
       ],
-      caption: "This whole chain is why a DNS change can take time to \"propagate\" — caches at every step need to expire.",
+      "caption": "Records you will hear about: A (name to IPv4), AAAA (IPv6), CNAME (alias), MX (mail), NS (name servers)."
     },
-    tryIt: {
-      prompt: "You just changed a domain's DNS record, but visitors still see the old server. Why?",
-      options: [
-        "DNS caching (TTL) — old records are still cached somewhere in the chain until they expire",
-        "DNS changes are instant and this shouldn't be possible",
-        "The domain needs to be re-purchased",
+    "tryIt": {
+      "prompt": "Which DNS record points a name to an IPv4 address?",
+      "options": [
+        "A",
+        "MX",
+        "CNAME"
       ],
-      correct: 0,
-      why: "Every DNS record has a TTL (time to live). Resolvers and browsers cache the old answer until that TTL expires, which is exactly why DNS changes \"propagate\" gradually rather than instantly.",
+      "correct": 0,
+      "why": "An A record maps a name to an IPv4 address. AAAA is the IPv6 version. MX is for mail and CNAME is an alias."
     },
-    trap: "Expecting DNS changes to take effect immediately everywhere. TTL-based caching is a feature, not a bug — it's what keeps the whole system fast.",
-    sayIt: "DNS resolves a domain to an IP by walking root → TLD → authoritative servers, caching the answer at every step based on its TTL.",
+    "trap": "Saying a request always goes to the root server. Caches answer most lookups before that.",
+    "sayIt": "DNS maps names to IPs. The resolver asks root, then TLD, then authoritative, and caches the answer for its TTL."
   },
   {
-    id: "cn-http-vs-https",
-    group: "Web",
-    q: "HTTP vs HTTPS — what does the 'S' actually add?",
-    say: "HTTPS is HTTP wrapped in TLS encryption — the 'S' adds confidentiality, integrity and a verified identity for the server you're talking to.",
-    picture: {
-      kind: "compare",
-      a: {
-        title: "HTTP",
-        points: ["Port 80", "Plain text — readable by anyone intercepting it", "No identity verification"],
+    "id": "cn-http-vs-https",
+    "group": "Application protocols",
+    "q": "HTTP vs HTTPS: what is the difference?",
+    "say": "HTTPS is HTTP carried inside TLS. Same requests, but encrypted, tamper-proof and with the server's identity checked.",
+    "picture": {
+      "kind": "compare",
+      "a": {
+        "title": "HTTP",
+        "points": [
+          "Port 80",
+          "Plain text: anyone on the path can read it",
+          "Can be modified in transit",
+          "No proof of who the server is"
+        ]
       },
-      b: {
-        title: "HTTPS",
-        points: ["Port 443", "Encrypted via TLS", "Server identity verified by a certificate"],
+      "b": {
+        "title": "HTTPS",
+        "points": [
+          "Port 443",
+          "Encrypted with TLS",
+          "Tampering is detected",
+          "Server proves identity with a certificate"
+        ]
       },
-      caption: "The TLS handshake (certificate exchange + key negotiation) happens after the TCP handshake, before any HTTP request is sent.",
+      "caption": "The padlock means the connection is encrypted. It doesn't mean the site is trustworthy."
     },
-    tryIt: {
-      prompt: "An attacker on the same public Wi-Fi intercepts your traffic. What can they read on an HTTP site vs an HTTPS one?",
-      options: [
-        "HTTP: everything in plain text. HTTPS: only that a connection exists, not its contents",
-        "Both are equally readable — Wi-Fi interception bypasses encryption",
-        "HTTPS is only about the padlock icon, not actual encryption",
+    "tryIt": {
+      "prompt": "What does the padlock in the browser prove?",
+      "options": [
+        "The site is safe and honest",
+        "The connection is encrypted and the domain matches its certificate"
       ],
-      correct: 0,
-      why: "TLS encrypts the payload, so an eavesdropper on HTTPS traffic sees only that a connection to a given server exists — not the actual request/response content, which is exactly what HTTP exposes.",
+      "correct": 1,
+      "why": "HTTPS protects the connection and checks the domain. A scam site can have a valid certificate too."
     },
-    trap: "Thinking HTTPS means a site is trustworthy. It only guarantees the connection is encrypted and the certificate is valid — not that the site's content itself is legitimate.",
-    sayIt: "HTTPS is HTTP over TLS — it encrypts the traffic and verifies the server's identity via a certificate; plain HTTP does neither.",
+    "trap": "Saying HTTPS means the website is safe. It only means the connection is protected.",
+    "sayIt": "HTTPS is HTTP over TLS on port 443, giving encryption, integrity and server authentication."
   },
   {
-    id: "cn-common-ports",
-    group: "Basics",
-    q: "What are the common port numbers interviewers expect you to know?",
-    say: "A handful of ports come up constantly — know these cold, you'll use them to reason about firewalls, URLs and traffic.",
-    picture: {
-      kind: "table",
-      head: ["Port", "Protocol"],
-      rows: [
-        ["20/21", "FTP"],
-        ["22", "SSH"],
-        ["25", "SMTP (email sending)"],
-        ["53", "DNS"],
-        ["80", "HTTP"],
-        ["443", "HTTPS"],
-        ["3306", "MySQL"],
-        ["5432", "PostgreSQL"],
+    "id": "cn-status-codes",
+    "group": "Application protocols",
+    "q": "What do the HTTP status codes mean?",
+    "say": "The first digit tells you the story: 2 worked, 3 go elsewhere, 4 your mistake, 5 the server's mistake.",
+    "picture": {
+      "kind": "table",
+      "head": [
+        "Code",
+        "Meaning",
+        "When"
       ],
-      caption: "A port number is just the \"which service on this machine\" part of an address — the IP gets you to the machine, the port gets you to the right service.",
-    },
-    tryIt: {
-      prompt: "A firewall blocks outbound port 443. What breaks?",
-      options: [
-        "Almost all HTTPS browsing — most of the modern web",
-        "Only email",
-        "Only file transfers",
+      "rows": [
+        [
+          "200 OK",
+          "Success",
+          "Page returned"
+        ],
+        [
+          "301 / 302",
+          "Moved permanently / temporarily",
+          "Redirects"
+        ],
+        [
+          "400",
+          "Bad request",
+          "Malformed request"
+        ],
+        [
+          "401",
+          "Unauthorized",
+          "Not logged in"
+        ],
+        [
+          "403",
+          "Forbidden",
+          "Logged in, not allowed"
+        ],
+        [
+          "404",
+          "Not found",
+          "No such page"
+        ],
+        [
+          "500",
+          "Internal server error",
+          "Server crashed"
+        ],
+        [
+          "503",
+          "Service unavailable",
+          "Overloaded or down"
+        ]
       ],
-      correct: 0,
-      why: "443 is HTTPS — blocking it breaks secure web browsing across virtually every modern site, since HTTPS is now the default for the web.",
+      "caption": "GET reads, POST creates, PUT replaces, DELETE removes. GET, PUT and DELETE are idempotent."
     },
-    trap: "Mixing up 80/443 (web) with 25 (email) or 22 (SSH) under interview pressure — these come up fast in rapid-fire rounds, so drill them until they're automatic.",
-    sayIt: "80 is HTTP, 443 is HTTPS, 22 is SSH, 53 is DNS — the handful of ports worth knowing cold.",
+    "tryIt": {
+      "prompt": "A logged-in user opens an admin page they have no rights to. Which code fits?",
+      "options": [
+        "401",
+        "403",
+        "404"
+      ],
+      "correct": 1,
+      "why": "403 means the server knows who you are and still refuses. 401 means you haven't authenticated."
+    },
+    "trap": "Mixing up 401 and 403. 401 is who are you, 403 is you may not.",
+    "sayIt": "2xx success, 3xx redirect, 4xx client error, 5xx server error. 401 means not logged in, 403 means not allowed."
   },
   {
-    id: "cn-router-switch-hub",
-    group: "Routing",
-    q: "Router vs switch vs hub — what's the actual difference?",
-    say: "A hub blindly repeats data to every port. A switch is smarter — it learns MAC addresses and sends data only to the right port. A router connects separate networks and decides the path between them.",
-    picture: {
-      kind: "compare",
-      a: {
-        title: "Switch (Layer 2)",
-        points: ["Connects devices within one local network", "Learns MAC addresses, forwards only to the right port", "Hub does the same job but dumbly — floods every port instead"],
-      },
-      b: {
-        title: "Router (Layer 3)",
-        points: ["Connects separate networks together", "Routes traffic based on IP addresses", "What actually gets your home network onto the internet"],
-      },
-    },
-    tryIt: {
-      prompt: "Your laptop and printer are both plugged into the same switch and can print fine. Why don't you need a router for that?",
-      options: [
-        "They're on the same local network — a switch alone handles communication within one network",
-        "Switches have built-in internet access",
-        "Printers don't need network devices at all",
+    "id": "cn-type-a-url",
+    "group": "Application protocols",
+    "q": "What happens when you type a URL and press Enter?",
+    "say": "The browser finds the IP with DNS, opens a TCP connection, secures it with TLS, sends the request and renders the reply.",
+    "picture": {
+      "kind": "steps",
+      "steps": [
+        {
+          "title": "DNS lookup",
+          "text": "Turn the name into an IP address (caches first)."
+        },
+        {
+          "title": "TCP handshake",
+          "text": "SYN, SYN-ACK, ACK with the server, usually on port 443."
+        },
+        {
+          "title": "TLS handshake",
+          "text": "Agree on encryption and check the server's certificate."
+        },
+        {
+          "title": "HTTP request",
+          "text": "The browser sends GET / with headers and cookies."
+        },
+        {
+          "title": "Response",
+          "text": "The server returns status, headers and HTML."
+        },
+        {
+          "title": "Render",
+          "text": "The browser loads CSS, scripts and images, then draws the page."
+        }
       ],
-      correct: 0,
-      why: "A switch is enough to move traffic between devices on the same local network. A router is only needed once you need to reach a different network — like the internet.",
+      "caption": "Your own machine uses ARP and the default gateway to reach the first router on the way."
     },
-    trap: "Calling a home \"router\" just a router — most consumer boxes are actually a router + switch + Wi-Fi access point combined into one device.",
-    sayIt: "A switch moves traffic within one local network using MAC addresses; a router connects separate networks using IP addresses.",
-  },
+    "tryIt": {
+      "prompt": "Which step needs the IP address, so it must come first?",
+      "options": [
+        "TCP handshake",
+        "DNS lookup",
+        "Render"
+      ],
+      "correct": 1,
+      "why": "To connect, the browser needs an IP address. DNS provides it, so the lookup comes before anything else."
+    },
+    "trap": "Skipping DNS or TLS in the explanation. Interviewers listen for each layer.",
+    "sayIt": "DNS, TCP handshake, TLS, HTTP request, server response, then the browser renders the page."
+  }
 ];
