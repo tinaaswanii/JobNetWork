@@ -8,11 +8,6 @@ export const TOPMATE_PROFILE =
 export const TOPMATE_OFFERS =
   "https://topmate.io/getyourjob/page/WRpfovg9ud#offers";
 
-// TODO(owner): three products below still link to the generic Topmate offers page
-// (TOPMATE_OFFERS) instead of their own product page: "Java Programming Notes",
-// "15-Minute Career Call" and "30-Minute Career Guidance Call". Paste each
-// product's own Topmate URL into its `url`. URLs are deliberately not guessed.
-
 export type Guide = {
   title: string;
   emoji: string;
@@ -20,8 +15,6 @@ export type Guide = {
   originalPrice?: string;
   blurb: string;
   includes: string[];
-  /** One line on how this differs from a similar product. */
-  differentiator?: string;
   url?: string; // omit => "Coming soon"
   group: "available" | "next" | "career";
 };
@@ -50,7 +43,7 @@ export const guides: Guide[] = [
     originalPrice: "₹149",
     blurb: "Java from fundamentals through advanced topics.",
     includes: ["Fundamentals to advanced", "Interview-focused revision"],
-    url: TOPMATE_OFFERS, // TODO(owner): replace with this product's own Topmate link (currently the generic offers page)
+    url: TOPMATE_OFFERS, // TODO: replace with this product's own Topmate link
     group: "available",
   },
   {
@@ -60,7 +53,7 @@ export const guides: Guide[] = [
     originalPrice: "₹199",
     blurb: "A quick consultation on jobs and your resume.",
     includes: ["Resume feedback", "Job search questions"],
-    url: TOPMATE_OFFERS, // TODO(owner): replace with this product's own Topmate link (currently the generic offers page)
+    url: TOPMATE_OFFERS, // TODO: replace with this product's own Topmate link
     group: "available",
   },
   {
@@ -70,9 +63,7 @@ export const guides: Guide[] = [
     originalPrice: "₹199",
     blurb: "An in-depth discussion of your job search strategy.",
     includes: ["Job search strategy", "Resume and interview plan"],
-    differentiator:
-      "Pick this for a full job search strategy plus a resume and interview plan; the 15-minute call is for quick resume feedback and job search questions.",
-    url: TOPMATE_OFFERS, // TODO(owner): replace with this product's own Topmate link (currently the generic offers page)
+    url: TOPMATE_OFFERS, // TODO: replace with this product's own Topmate link
     group: "available",
   },
 
@@ -108,17 +99,19 @@ export const guides: Guide[] = [
     group: "available",
   },
   {
-    title: "Computer Networks Notes",
+    title: "Computer Networks PrepTrek",
     emoji: "🌐",
-    price: "₹79",
-    blurb: "The networking questions that keep coming up.",
+    price: "₹29",
+    originalPrice: "₹199",
+    blurb:
+      "24 interview cards, 13 practice scenarios and 18 rapid-fire Q&As in a 28-page PDF.",
     includes: [
-      "OSI and TCP/IP, IP addressing",
-      "TCP vs UDP, HTTP/HTTPS, DNS",
-      "Routing",
-      "Common interview questions",
+      "24 concept cards, from OSI and TCP/IP to TLS and routing",
+      "13 practice scenarios with worked answers, including subnetting",
+      "18 rapid-fire answers and a night-before checklist",
     ],
-    group: "next",
+    url: "https://topmate.io/getyourjob/2371685?utm_source=public_profile&utm_campaign=getyourjob",
+    group: "available",
   },
   {
     title: "Operating Systems Notes",
