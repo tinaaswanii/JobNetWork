@@ -196,7 +196,7 @@ export default function PrepTrekIndexPage() {
               href={s.href}
               className={`flex h-full flex-col rounded-xl border border-ink/20 bg-white p-6 transition hover:-translate-y-0.5 ${fillLastRow}`}
             >
-              <span className="inline-block self-start rounded-full bg-mustard px-3 py-1 text-xs font-semibold uppercase tracking-wide text-ink">
+              <span className="inline-block self-start rounded-full border border-mustard/40 bg-mustard/15 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-mustard">
                 Free · {s.free} cards
               </span>
               <h3 className="mt-3 font-display text-xl">{s.name}</h3>
@@ -235,7 +235,7 @@ export default function PrepTrekIndexPage() {
               <div className="flex items-start justify-between gap-2">
                 <div className="text-3xl">{track.emoji}</div>
                 {track.premium && (
-                  <span className="rounded-full bg-mustard px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wide text-ink">
+                  <span className="rounded-full border border-mustard/40 bg-mustard/15 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wide text-mustard">
                     Premium available
                   </span>
                 )}

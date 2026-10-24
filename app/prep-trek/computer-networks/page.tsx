@@ -63,7 +63,7 @@ export default function ComputerNetworksPage() {
 
       <section className="mx-auto max-w-3xl px-6 pb-16 md:px-0">
         <div className="pinned-card py-6 md:py-8">
-          <span className="inline-block rounded-full bg-mustard px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wide text-ink">
+          <span className="inline-block rounded-full bg-mustard px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wide text-paper">
             Full Computer Networks notes
           </span>
           <h2 className="mt-3 font-display text-2xl">Want the rest?</h2>
