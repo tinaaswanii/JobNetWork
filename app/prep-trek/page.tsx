@@ -1,20 +1,23 @@
 import type { Metadata } from "next";
-import { pageMetadata } from "@/lib/seo";
 import Link from "next/link";
-import { prepTracks, comingSoonTracks } from "@/lib/prep-trek-content";
-import LevelTag from "@/components/LevelTag";
-import AccessBadge from "@/components/AccessBadge";
+import { prepTracks } from "@/lib/prep-trek-content";
 
 const SITE_URL = "https://job-net-work.vercel.app";
 
-export const metadata: Metadata = pageMetadata({
+export const metadata: Metadata = {
   title: "Prep Trek — Interview Prep & Study Paths",
   description:
     "Free interview prep by field: common interview questions with real answers, a short learning path, and cold-mail tips — for software engineering, data, sales, marketing, support/ops and design roles.",
-  path: "/prep-trek",
-  ogDescription:
-    "Common interview questions with real answers, a short learning path, and cold-mail tips — organized by field.",
-});
+  alternates: { canonical: `${SITE_URL}/prep-trek` },
+  openGraph: {
+    type: "website",
+    url: `${SITE_URL}/prep-trek`,
+    siteName: "JobNetWork",
+    title: "Prep Trek — Interview Prep & Study Paths | JobNetWork",
+    description:
+      "Common interview questions with real answers, a short learning path, and cold-mail tips — organized by field.",
+  },
+};
 
 export default function PrepTrekIndexPage() {
   const jsonLd = {
@@ -32,7 +35,7 @@ export default function PrepTrekIndexPage() {
   };
 
   return (
-    <main id="main-content" tabIndex={-1} className="min-h-screen bg-paper">
+    <main className="min-h-screen bg-paper">
       {/* eslint-disable-next-line react/no-danger */}
       <script
         type="application/ld+json"
@@ -42,9 +45,7 @@ export default function PrepTrekIndexPage() {
       {/* Hero */}
       <header className="bg-board text-paper px-6 py-12 md:px-12">
         <div className="mx-auto max-w-5xl">
-          <h1 className="font-display text-4xl md:text-5xl">
-            <span aria-hidden="true">🧭</span> Prep Trek
-          </h1>
+          <h1 className="font-display text-4xl md:text-5xl">Prep Trek</h1>
 
           <p className="mt-4 max-w-2xl text-paper/80">
             Interviews aren't just about knowing your field — they're about
@@ -58,53 +59,36 @@ export default function PrepTrekIndexPage() {
       {/* Founder note — real credibility, not a generic "about us" blurb */}
       <section className="border-b px-6 py-10 md:px-12">
         <div className="mx-auto max-w-5xl">
-          <div className="pinned-card flex flex-col gap-4 p-6 pl-8 md:flex-row md:items-center md:gap-8 md:p-8 md:pl-10">
-            <div className="text-4xl" aria-hidden="true">👋</div>
+          <div className="pinned-card flex flex-col gap-4 p-6 md:flex-row md:items-center md:gap-8 md:p-8">
             <p className="text-sm leading-7 text-ink/75 md:text-base">
               <span className="font-semibold text-ink">
                 Built by someone who's actually been through it.
               </span>{" "}
-              I'm Tina, a BCA graduate who went through placement season and
-              ended up with 4 offers (Accenture, Deloitte, Innove8, and
-              Cognizant). I built Prep Trek from the same notes and drills I
-              used to prepare.{" "}
-              <Link
-                href="/about"
-                className="font-semibold text-denim hover:underline"
-              >
-                Learn more →
-              </Link>
+              I'm Tina — a BCA graduate who went into placement season with
+              the same last-minute panic Prep Trek exists to fix. I ended up
+              with 4 offers (Accenture, Deloitte, Innove8, and Cognizant) and
+              got my resume shortlisted at Google and Amazon. These are the
+              same notes and drills I actually used to prepare — I'm a job
+              seeker too, not a career coach writing from the outside.
             </p>
           </div>
         </div>
       </section>
 
-      {/* Quick cards: tap-and-try flashcards, not tracks */}
-      <section className="mx-auto max-w-5xl px-6 pt-12 md:px-12">
-        <h2 className="font-display text-2xl md:text-3xl">Quick cards</h2>
-        <p className="mt-2 max-w-2xl text-sm leading-6 text-ink/60">
-          Short tap-and-try cards you can work through in one sitting. Free, no
-          sign-up.
-        </p>
-      </section>
-
       {/* Featured: interactive flashcard page, not a track, so it's called
           out on its own rather than squeezed into the track grid below */}
-      <section className="mx-auto max-w-5xl px-6 pt-6 md:px-12">
+      <section className="mx-auto max-w-5xl px-6 pt-12 md:px-12">
         <a
-          href="/prep-trek/common-questions"
-          className="flex flex-col gap-4 rounded-xl border-2 border-board bg-paper p-6 pl-8 transition hover:-translate-y-0.5 md:flex-row md:items-center md:justify-between md:p-8 md:pl-10"
+          href="/prep-trek/common-questions.html"
+          className="flex flex-col gap-4 rounded-xl border-2 border-board bg-paper p-6 transition hover:-translate-y-0.5 md:flex-row md:items-center md:justify-between md:p-8"
         >
           <div>
-            <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
-              <h2 className="font-display text-xl md:text-2xl">
-                <span aria-hidden="true">🎤</span> Interview Questions, Answered Like a Pro
-              </h2>{" "}
-              <AccessBadge access="free" />
-              <span className="inline-block rounded-full bg-board px-3 py-1 text-xs font-semibold uppercase tracking-wide text-paper">
-                Interactive
-              </span>
-            </div>
+            <span className="inline-block rounded-full bg-board px-3 py-1 text-xs font-semibold uppercase tracking-wide text-paper">
+              Interactive
+            </span>
+            <h2 className="mt-3 font-display text-xl md:text-2xl">
+              Interview Questions, Answered Like a Pro
+            </h2>
             <p className="mt-2 max-w-xl text-sm leading-6 text-ink/70">
               7 tappable flashcards with the exact structure to answer the
               questions every interviewer asks — tell me about yourself,
@@ -117,122 +101,86 @@ export default function PrepTrekIndexPage() {
         </a>
       </section>
 
-      {/* Featured: CS fundamentals as tappable cards, not tracks — same
-          interactive format as the flashcards above, one page per subject */}
-      <section className="mx-auto max-w-5xl px-6 pt-12 md:px-12">
-        <h3 className="font-display text-xl md:text-2xl">
-          CS fundamentals, card by card
-        </h3>
-        <p className="mt-2 max-w-xl text-sm leading-6 text-ink/60">
-          A one-line answer, a picture, a quick try-it and the trap for each
-          question. About 15 minutes per subject, free, no sign-up.
-        </p>
-        <div className="mt-5 grid gap-4 sm:grid-cols-3">
-          <a
-            href="/prep-trek/dbms"
-            className="pinned-card block p-5 pl-7 transition hover:-translate-y-0.5"
+      {/* Subject cards: short, tappable interview cards by subject */}
+      <section className="mx-auto grid max-w-5xl gap-5 px-6 pt-6 md:grid-cols-2 md:px-12">
+        {[
+          { href: "/prep-trek/dbms", name: "DBMS in 10 cards", text: "Keys, normalization, ACID, joins, indexing." },
+          { href: "/prep-trek/sql", name: "SQL in 10 cards", text: "Query order, GROUP BY, joins, window functions, CTEs." },
+          { href: "/prep-trek/computer-networks", name: "Computer Networks in 10 cards", text: "OSI vs TCP/IP, TCP vs UDP, subnetting, DNS, HTTP and HTTPS." },
+        ].map((s) => (
+          <Link
+            key={s.href}
+            href={s.href}
+            className="block rounded-xl border border-ink/20 bg-white p-6 transition hover:-translate-y-0.5"
           >
-            <div className="text-2xl" aria-hidden="true">🗄️</div>
-            <div className="mt-3 flex flex-wrap items-center gap-x-2 gap-y-1.5">
-              <h3 className="font-semibold">DBMS</h3>{" "}
-              <AccessBadge access="free" />
-            </div>
-            <p className="mt-2">
-              <LevelTag level="freshers" />
-            </p>
-            <p className="mt-2 text-sm leading-6 text-ink/70">
-              10 cards — keys, normalization, ACID, joins, indexing
-            </p>
-          </a>
-          <a
-            href="/prep-trek/sql"
-            className="pinned-card block p-5 pl-7 transition hover:-translate-y-0.5"
-          >
-            <div className="text-2xl" aria-hidden="true">🧮</div>
-            <div className="mt-3 flex flex-wrap items-center gap-x-2 gap-y-1.5">
-              <h3 className="font-semibold">SQL</h3>{" "}
-              <AccessBadge access="free" />
-            </div>
-            <p className="mt-2">
-              <LevelTag level="freshers" />
-            </p>
-            <p className="mt-2 text-sm leading-6 text-ink/70">
-              10 cards — query order, joins, window functions
-            </p>
-          </a>
-          <a
-            href="/prep-trek/computer-networks"
-            className="pinned-card block p-5 pl-7 transition hover:-translate-y-0.5"
-          >
-            <div className="text-2xl" aria-hidden="true">🌐</div>
-            <div className="mt-3 flex flex-wrap items-center gap-x-2 gap-y-1.5">
-              <h3 className="font-semibold">Computer Networks</h3>{" "}
-              <AccessBadge access="free" />
-            </div>
-            <p className="mt-2">
-              <LevelTag level="freshers" />
-            </p>
-            <p className="mt-2 text-sm leading-6 text-ink/70">
-              10 cards — OSI/TCP-IP, DNS, HTTPS, subnetting, ports
-            </p>
-          </a>
-        </div>
+            <span className="inline-block rounded-full bg-mustard px-3 py-1 text-xs font-semibold uppercase tracking-wide text-ink">
+              Free · 10 cards
+            </span>
+            <h2 className="mt-3 font-display text-xl">
+              {s.name}
+            </h2>
+            <p className="mt-2 text-sm leading-6 text-ink/70">{s.text}</p>
+            <p className="mt-3 text-sm font-semibold text-denim">Start →</p>
+          </Link>
+        ))}
       </section>
 
       <section className="mx-auto max-w-5xl px-6 py-12 md:px-12">
-        <h2 className="font-display text-2xl md:text-3xl">
-          Tracks with roadmaps
-        </h2>
-        <p className="mt-2 max-w-2xl text-sm leading-6 text-ink/60">
-          Common interview questions with real answers, a short learning path
-          with a week-by-week roadmap, and cold-mail tips, by field. Some
-          tracks have a premium extension.
-        </p>
-        <div className="mt-6 grid gap-5 md:grid-cols-2">
+        <div className="grid gap-5 md:grid-cols-2">
           {prepTracks.map((track) => (
             <Link
               key={track.slug}
               href={`/prep-trek/${track.slug}`}
-              className="pinned-card block p-6 pl-8 transition hover:-translate-y-0.5"
+              className="pinned-card block p-6 transition hover:-translate-y-0.5"
             >
-              <div className="text-3xl" aria-hidden="true">{track.emoji}</div>
-              <div className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-2">
-                <h3 className="font-display text-xl">{track.name}</h3>{" "}
-                <AccessBadge access={track.premium ? "premium" : "free"} />
+              <div className="flex items-start justify-between gap-2">
+                <div className="text-3xl">{track.emoji}</div>
+                {track.premium && (
+                  <span className="rounded-full bg-mustard px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wide text-ink">
+                    Premium available
+                  </span>
+                )}
               </div>
-              <p className="mt-2">
-                <LevelTag level={track.level} />
-              </p>
+              <h2 className="mt-3 font-display text-xl">{track.name}</h2>
               <p className="mt-2 text-sm leading-6 text-ink/70">
                 {track.tagline}
               </p>
-              <p className="mt-3 text-xs font-medium uppercase tracking-wide text-ink/60">
+              <p className="mt-3 text-xs font-medium uppercase tracking-wide text-ink/40">
                 {track.commonQuestions.length} questions · {track.roadmap.length}-week roadmap →
               </p>
             </Link>
           ))}
-
-          {/* Not built yet: deliberately not links */}
-          {comingSoonTracks.map((t) => (
-            <div
-              key={t.name}
-              className="pinned-card block border-dashed p-6 pl-8"
-            >
-              <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
-                <h3 className="font-display text-xl">{t.name}</h3>{" "}
-                <span className="inline-block shrink-0 whitespace-nowrap rounded-full bg-mustard px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wide text-paper">
-                  Coming soon
-                </span>
-              </div>
-              <p className="mt-2">
-                <LevelTag level={t.level} />
-              </p>
-              <p className="mt-2 text-sm leading-6 text-ink/70">
-                {t.description}
-              </p>
-            </div>
-          ))}
         </div>
+      </section>
+
+      {/* Paid full guide on Topmate */}
+      <section className="mx-auto max-w-5xl px-6 pb-16 md:px-12">
+        <div className="pinned-card flex flex-col gap-4 p-6 md:flex-row md:items-center md:justify-between md:p-8">
+          <div>
+            <h2 className="font-display text-xl md:text-2xl">
+              Want the full Interview Prep Trek Guide?
+            </h2>
+            <p className="mt-2 max-w-xl text-sm leading-6 text-ink/70">
+              The complete PDF with all the questions, technical revision
+              points and HR guidance. Not a guarantee of a job, but a
+              structured way to prepare.
+            </p>
+          </div>
+          <a
+            href="https://topmate.io/getyourjob/2334509?utm_source=public_profile&utm_campaign=getyourjob"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex shrink-0 items-center justify-center rounded-lg bg-board px-6 py-3 text-sm font-semibold text-paper"
+          >
+            Get it on Topmate →
+          </a>
+        </div>
+        <Link
+          href="/guides"
+          className="mt-4 inline-block text-sm font-semibold text-ink hover:text-ink/70"
+        >
+          More guides and notes →
+        </Link>
       </section>
     </main>
   );
