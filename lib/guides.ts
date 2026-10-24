@@ -34,7 +34,7 @@ export const guides: Guide[] = [
       "HR and technical interview guidance",
       "Practical tips for interview day",
     ],
-    url: "https://topmate.io/getyourjob/2334509?utm_source=public_profile&utm_campaign=getyourjob",
+    url: "https://topmate.io/getyourjob/2334509",
     group: "available",
   },
   {
@@ -44,7 +44,7 @@ export const guides: Guide[] = [
     originalPrice: "₹149",
     blurb: "Java from fundamentals through advanced topics.",
     includes: ["Fundamentals to advanced", "Interview-focused revision"],
-    url: TOPMATE_OFFERS, // TODO: replace with this product's own Topmate link
+    url: "https://topmate.io/getyourjob/2333816",
     group: "available",
   },
   {
@@ -81,7 +81,7 @@ export const guides: Guide[] = [
       "8 SQL interview queries with answers",
       "20 rapid-fire answers and a night-before checklist",
     ],
-    url: "https://topmate.io/getyourjob/2339522?utm_source=public_profile&utm_campaign=getyourjob",
+    url: "https://topmate.io/getyourjob/2339522",
     group: "available",
   },
   {
@@ -96,7 +96,7 @@ export const guides: Guide[] = [
       "15 solved practice queries",
       "17 rapid-fire answers and a night-before checklist",
     ],
-    url: "https://topmate.io/getyourjob/new/tLzZ0PYs2H",
+    url: "https://topmate.io/getyourjob/2341641",
     group: "available",
   },
   {
@@ -111,7 +111,7 @@ export const guides: Guide[] = [
       "13 practice scenarios with worked answers, including subnetting",
       "18 rapid-fire answers and a night-before checklist",
     ],
-    url: "https://topmate.io/getyourjob/2371685?utm_source=public_profile&utm_campaign=getyourjob",
+    url: "https://topmate.io/getyourjob/2371685",
     group: "available",
   },
   {

@@ -62,7 +62,23 @@ const subjects = [
   },
 ];
 
+// Premium notes that are live on Topmate. Titles must match lib/guides.ts, which
+// holds the exact price and link for each product.
+const AVAILABLE_NOTES = [
+  "Computer Networks PrepTrek",
+  "DBMS PrepTrek",
+  "SQL PrepTrek",
+  "Java Programming Notes",
+  "Interview Prep Trek Guide",
+];
+const availableNotes = AVAILABLE_NOTES.map((t) => guides.find((g) => g.title === t)).filter(
+  (g): g is NonNullable<typeof g> => Boolean(g?.url)
+);
+const guideUrl = (title: string) => guides.find((g) => g.title === title)?.url ?? "/guides";
+
+// Not on sale yet: shown as Coming Soon, never as purchasable.
 const comingNext = guides.filter((g) => g.group === "next");
+const tracksWithoutPremium = prepTracks.filter((t) => !t.premium);
 
 export default function PrepTrekIndexPage() {
   const totalQuestions = prepTracks.reduce((n, t) => n + t.commonQuestions.length, 0);
@@ -136,6 +152,47 @@ export default function PrepTrekIndexPage() {
               seeker too, not a career coach writing from the outside.
             </p>
           </div>
+        </div>
+      </section>
+
+      {/* Premium notes that are genuinely available now */}
+      <section className="mx-auto max-w-5xl px-6 pt-12 md:px-12">
+        <div className="flex flex-wrap items-end justify-between gap-3">
+          <div>
+            <h2 className="font-display text-2xl">Premium notes, available now</h2>
+            <p className="mt-2 max-w-2xl text-sm leading-6 text-ink/70">
+              Full PDFs on Topmate. Every free track below stays free; these go deeper.
+            </p>
+          </div>
+          <Link href="/guides" className="text-sm font-semibold text-denim hover:underline">
+            All guides →
+          </Link>
+        </div>
+        {/* 5 notes: 2 columns with the last card spanning the row, so no box is left alone */}
+        <div className="mt-5 grid gap-5 sm:grid-cols-2">
+          {availableNotes.map((g) => (
+            <a
+              key={g.title}
+              href={g.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="pinned-card flex h-full flex-col p-6 transition hover:-translate-y-0.5 sm:[&:last-child:nth-child(odd)]:col-span-2"
+            >
+              <div className="flex items-start justify-between gap-2">
+                <span className="text-3xl" aria-hidden="true">{g.emoji}</span>
+                <span className="rounded-full border border-mustard/40 bg-mustard/15 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wide text-mustard">
+                  Available
+                </span>
+              </div>
+              <h3 className="mt-3 font-display text-xl">{g.title}</h3>
+              <p className="mt-2 text-sm leading-6 text-ink/70">{g.blurb}</p>
+              <p className="mt-auto pt-4 text-sm">
+                <span className="font-semibold text-ink">{g.price}</span>
+                {g.originalPrice && <span className="ml-2 text-ink/40 line-through">{g.originalPrice}</span>}
+                <span className="ml-3 font-semibold text-denim">Get it on Topmate →</span>
+              </p>
+            </a>
+          ))}
         </div>
       </section>
 
@@ -234,9 +291,13 @@ export default function PrepTrekIndexPage() {
             >
               <div className="flex items-start justify-between gap-2">
                 <div className="text-3xl">{track.emoji}</div>
-                {track.premium && (
+                {track.premium ? (
                   <span className="rounded-full border border-mustard/40 bg-mustard/15 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wide text-mustard">
                     Premium available
+                  </span>
+                ) : (
+                  <span className="rounded-full border border-ink/20 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wide text-ink/60">
+                    Premium coming soon
                   </span>
                 )}
               </div>
@@ -276,19 +337,29 @@ export default function PrepTrekIndexPage() {
         </div>
       </section>
 
-      {/* Honest "coming next" strip, drawn from the guides roadmap */}
-      {comingNext.length > 0 && (
-        <section className="mx-auto max-w-5xl px-6 pt-12 md:px-12">
-          <h2 className="font-display text-2xl">Coming next</h2>
-          <ul className="mt-4 flex flex-wrap gap-3">
-            {comingNext.map((g) => (
-              <li key={g.title} className="rounded-full border border-dashed border-ink/30 px-4 py-2 text-sm text-ink/70">
-                <span aria-hidden="true">{g.emoji}</span> {g.title}
-              </li>
-            ))}
-          </ul>
-        </section>
-      )}
+      {/* Not on sale yet. Free samples above stay free. */}
+      <section className="mx-auto max-w-5xl px-6 pt-12 md:px-12">
+        <h2 className="font-display text-2xl">Coming Soon</h2>
+        <p className="mt-2 max-w-2xl text-sm leading-6 text-ink/70">
+          These premium notes aren&apos;t ready yet, so they&apos;re not for sale. Free samples stay free in the meantime.
+        </p>
+        <ul className="mt-5 grid gap-4 sm:grid-cols-3">
+          {comingNext.map((g) => (
+            <li key={g.title} className="rounded-xl border border-dashed border-ink/30 p-5">
+              <p className="text-2xl" aria-hidden="true">{g.emoji}</p>
+              <h3 className="mt-2 font-display text-lg">{g.title}</h3>
+              <p className="mt-1 text-sm leading-6 text-ink/70">{g.blurb}</p>
+              <p className="mt-3 text-xs font-semibold uppercase tracking-wide text-ink/50">Coming soon</p>
+            </li>
+          ))}
+        </ul>
+        {tracksWithoutPremium.length > 0 && (
+          <p className="mt-5 text-sm leading-6 text-ink/70">
+            <span className="font-semibold text-ink">Premium notes for role tracks, coming soon:</span>{" "}
+            {tracksWithoutPremium.map((t) => t.name).join(", ")}.
+          </p>
+        )}
+      </section>
 
       {/* Paid full guide on Topmate */}
       <section className="mx-auto max-w-5xl px-6 pb-16 pt-12 md:px-12">
@@ -304,7 +375,7 @@ export default function PrepTrekIndexPage() {
             </p>
           </div>
           <a
-            href="https://topmate.io/getyourjob/2334509?utm_source=public_profile&utm_campaign=getyourjob"
+            href={guideUrl("Interview Prep Trek Guide")}
             target="_blank"
             rel="noopener noreferrer"
             className="inline-flex shrink-0 items-center justify-center rounded-lg bg-board px-6 py-3 text-sm font-semibold text-paper"

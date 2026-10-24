@@ -1,10 +1,10 @@
 import { fetchJobs, ArthaApiError, type PublicJob, type JobsQuery, type JobsResponse } from "@/lib/artha";
 import { supabaseAdmin } from "@/lib/supabase";
-import { cacheArthaJobsInBackground, fetchCachedJobs } from "@/lib/job-cache";
+import { cacheArthaJobsInBackground, fetchCachedJobs, cachedUnsupportedFilters } from "@/lib/job-cache";
 import { titleKeywordFilter } from "@/lib/jobs-query";
 
 export type JobsPageResult = JobsResponse & {
-  sources: { artha: "live" | "cached" | "unavailable" };
+  sources: { artha: "live" | "cached" | "unavailable"; ignored?: string[] };
 };
 
 function normalizeOwnJob(row: any): PublicJob {
@@ -39,6 +39,7 @@ function applyOwnJobFilters(q: any, query: JobsQuery) {
 }
 
 async function fetchOwnJobs(query: JobsQuery, limit: number, offset: number): Promise<PublicJob[]> {
+  if (query.exp_level) return []; // own_jobs carry no experience level, so they can't match
   if (limit <= 0 || !process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY) return [];
   try {
     const db = supabaseAdmin();
@@ -56,6 +57,7 @@ async function fetchOwnJobs(query: JobsQuery, limit: number, offset: number): Pr
 }
 
 async function fetchOwnJobsCount(query: JobsQuery): Promise<number> {
+  if (query.exp_level) return 0;
   if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY) return 0;
   try {
     const db = supabaseAdmin();
@@ -75,6 +77,7 @@ async function fetchOwnJobsCount(query: JobsQuery): Promise<number> {
 async function fetchExternalJobs(query: JobsQuery): Promise<{
   result: JobsResponse;
   source: "live" | "cached" | "unavailable";
+  ignored?: string[];
 }> {
   try {
     const result = await fetchJobs(query);
@@ -86,7 +89,7 @@ async function fetchExternalJobs(query: JobsQuery): Promise<{
       : err instanceof Error ? err.message : "unknown upstream error";
     console.warn("[lib/jobs] Artha feed unavailable; trying cached listings:", detail);
     const result = await fetchCachedJobs(query);
-    return { result, source: result.total > 0 ? "cached" : "unavailable" };
+    return { result, source: result.total > 0 ? "cached" : "unavailable", ignored: cachedUnsupportedFilters(query) };
   }
 }
 
@@ -176,7 +179,7 @@ export async function getJobsPage(query: JobsQuery = {}): Promise<JobsPageResult
     const ownItems = await fetchOwnJobs(normalized, plan.ownCount, plan.ownOffset);
     const items = mergePage(offset, limit, strictMatches.length, ownTotal, externalItems, ownItems);
     const total = strictMatches.length + ownTotal;
-    return { items, total, limit, offset, has_more: offset + limit < total, sources: { artha: external.source } };
+    return { items, total, limit, offset, has_more: offset + limit < total, sources: { artha: external.source, ignored: external.ignored } };
   }
 
   // Request enough external rows for this page. When local jobs occupy every
@@ -197,7 +200,7 @@ export async function getJobsPage(query: JobsQuery = {}): Promise<JobsPageResult
   const items = mergePage(offset, limit, externalTotal, ownTotal, externalItems, ownItems);
   const total = externalTotal + ownTotal;
 
-  return { items, total, limit, offset, has_more: offset + limit < total, sources: { artha: external.source } };
+  return { items, total, limit, offset, has_more: offset + limit < total, sources: { artha: external.source, ignored: external.ignored } };
 }
 
 export { ArthaApiError };
