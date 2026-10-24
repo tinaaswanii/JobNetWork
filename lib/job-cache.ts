@@ -141,6 +141,16 @@ export async function getArthaJobBySlug(slug: string): Promise<PublicJob | null>
  * Fallback listing from cached_jobs when Artha is unreachable / rate-limited / key invalid.
  * Rows may carry expired signed links; the UI hides Apply for those (see JobCard).
  */
+// Filters the cached fallback cannot honour (cached_jobs stores no experience
+// level and no work mode). They are reported to the UI instead of being silently
+// dropped, which made the filters look broken whenever the live feed was down.
+export function cachedUnsupportedFilters(query: JobsQuery): string[] {
+  const out: string[] = [];
+  if (query.exp_level) out.push("experience level");
+  if (query.work_mode && !/remote|hybrid/i.test(query.work_mode)) out.push("work mode");
+  return out;
+}
+
 export async function fetchCachedJobs(query: JobsQuery = {}): Promise<JobsResponse> {
   const limit = Math.max(1, query.limit ?? 10);
   const offset = Math.max(0, query.offset ?? 0);
@@ -163,7 +173,11 @@ export async function fetchCachedJobs(query: JobsQuery = {}): Promise<JobsRespon
     }
     const loc = query.location ? strip(query.location) : "";
     if (loc) q = q.or(`country.ilike.%${loc}%,location.ilike.%${loc}%`);
-    if (query.job_type) q = q.eq("job_type", query.job_type);
+    // Artha's wording varies ("Full-time" / "Full Time"), so match loosely instead of exactly.
+    const jt = query.job_type ? strip(query.job_type).replace(/[-\s]+/g, "%") : "";
+    if (jt) q = q.ilike("job_type", `%${jt}%`);
+    const mode = /remote/i.test(query.work_mode ?? "") ? "remote" : /hybrid/i.test(query.work_mode ?? "") ? "hybrid" : "";
+    if (mode) q = q.or(`title.ilike.%${mode}%,location.ilike.%${mode}%,description.ilike.%${mode}%`);
     if (query.company) q = q.ilike("company", `%${strip(query.company)}%`);
     if (query.posted_after) q = q.gte("posted_date", query.posted_after);
     const keywordFilter = titleKeywordFilter(query.niche_keywords);

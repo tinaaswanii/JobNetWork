@@ -11,7 +11,7 @@ import EmailSignup from "@/components/EmailSignup";
 
 const LIMIT = JOBS_PAGE_SIZE;
 
-type Sources = { artha: "live" | "cached" | "unavailable" };
+type Sources = { artha: "live" | "cached" | "unavailable"; ignored?: string[] };
 
 const keyOf = (f: Filters, o: number) => JSON.stringify([FILTER_KEYS.map((k) => f[k] || ""), o]);
 
@@ -88,7 +88,12 @@ export default function JobsBoard({
 
   useEffect(() => {
     const key = keyOf(filters, offset);
-    if (key === loadedKey.current) return;
+    if (key === loadedKey.current) {
+      // Back on the dataset already on screen (e.g. a filter was set and cleared
+      // before its request finished): stop showing the loading skeleton.
+      setFetchState((s) => (s === "loading" ? "ready" : s));
+      return;
+    }
 
     const controller = new AbortController();
     const requestId = ++latestRequest.current;
@@ -156,6 +161,9 @@ export default function JobsBoard({
         {fetchState === "ready" && sources?.artha === "cached" && (
           <p role="status" className="mb-4 rounded-lg border border-amber-500/40 bg-amber-500/10 px-4 py-3 text-sm">
             Live external listings are temporarily unavailable. You&apos;re seeing saved listings plus JobNetWork jobs.
+            {sources.ignored && sources.ignored.length > 0 && (
+              <> The {sources.ignored.join(" and ")} filter can&apos;t be applied to saved listings.</>
+            )}
           </p>
         )}
         {fetchState === "ready" && sources?.artha === "unavailable" && (

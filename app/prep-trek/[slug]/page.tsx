@@ -301,6 +301,18 @@ export default function PrepTrackPage({
           </div>
         )}
 
+        {/* No premium product for this track yet: say so, keep the free content free */}
+        {!track.premium && (
+          <div className="rounded-xl border border-dashed border-ink/30 p-6 pl-8">
+            <span className="inline-block rounded-full border border-ink/20 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-ink/60">
+              Premium notes: coming soon
+            </span>
+            <p className="mt-3 max-w-2xl text-sm leading-6 text-ink/70">
+              Deeper notes for this track aren&apos;t available yet. The questions, roadmap and resources on this page stay free.
+            </p>
+          </div>
+        )}
+
         {/* Cold mail tips */}
         <div className="pinned-card p-6 pl-8">
           <h2 className="font-display text-2xl">Cold mail tips for this field</h2>
