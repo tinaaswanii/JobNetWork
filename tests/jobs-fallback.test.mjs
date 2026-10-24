@@ -173,4 +173,27 @@ describe("Job Listing Fallback and Artha API resilience", () => {
     assert.equal(typeof result.total, "number");
     assert.ok(Array.isArray(result.items));
   });
+
+  it("posted window keeps only jobs inside it and lists the newest first", async () => {
+    const hoursAgo = (h) => new Date(Date.now() - h * 3_600_000).toISOString();
+    const mk = (id, h) => ({
+      id, slug: id, title: `Role ${id}`, company: "Acme", logo: null, description: "", location: null,
+      city: null, state: null, country: null, job_type: null, salary_min: null, salary_max: null,
+      salary_curr: null, exp_min: null, exp_max: null, exp_unit: null, skills: [],
+      posted_date: hoursAgo(h), url: `https://example.com/${id}`,
+    });
+    const items = [mk("old", 50), mk("a", 20), mk("fresh", 11), mk("b", 5)];
+    globalThis.fetch = async (url) => {
+      if (String(url).includes("supabase")) {
+        return { ok: true, status: 200, headers: new Headers(), json: async () => [], text: async () => "[]" };
+      }
+      return {
+        ok: true, status: 200, headers: new Headers(),
+        json: async () => ({ success: true, data: { items, total: items.length, limit: 100, offset: 0, has_more: false } }),
+      };
+    };
+    const result = await getJobsPage({ limit: 12, offset: 0, sort_by: "newest", posted_after: hoursAgo(24) });
+    const ids = result.items.filter((j) => !j.id.startsWith("own_")).map((j) => j.id);
+    assert.deepEqual(ids, ["b", "fresh", "a"]);
+  });
 });

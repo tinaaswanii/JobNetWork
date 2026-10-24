@@ -165,15 +165,46 @@ export async function getJobsPage(query: JobsQuery = {}): Promise<JobsPageResult
   const isSearching = Boolean(normalized.q?.trim());
   const ownTotal = await fetchOwnJobsCount(normalized);
 
-  if (isSearching) {
+  // A "Posted: last N hours/days" window must match the date printed on each
+  // card. The upstream feed's own date filter can disagree with the posted date
+  // we display (older reposted listings slipping in, fresh ones ranked below),
+  // so enforce the window ourselves on a larger candidate pool.
+  const postedCutoff = normalized.posted_after ? Date.parse(normalized.posted_after) : NaN;
+  const hasPostedCutoff = Number.isFinite(postedCutoff);
+
+  if (isSearching || hasPostedCutoff) {
     // Artha search is fuzzy, so use a larger candidate set and keep only
     // exact title/company matches. The returned total reflects the strict set.
-    const external = await fetchExternalJobs({ ...normalized, limit: 100, offset: 0 });
-    const terms = normalized.q!.trim().toLowerCase().split(/\s+/).filter(Boolean);
-    const strictMatches = external.result.items.filter((job) => {
-      const haystack = `${job.title} ${job.company}`.toLowerCase();
-      return terms.every((term) => haystack.includes(term));
+    const POOL_PAGE = 100;
+    const MAX_POOL_PAGES = hasPostedCutoff ? 3 : 1;
+    const external = await fetchExternalJobs({ ...normalized, limit: POOL_PAGE, offset: 0 });
+    const candidates = [...external.result.items];
+    if (external.source === "live") {
+      for (let page = 1; page < MAX_POOL_PAGES && candidates.length < external.result.total; page++) {
+        try {
+          const next = await fetchExternalJobs({ ...normalized, limit: POOL_PAGE, offset: page * POOL_PAGE });
+          if (next.source !== "live" || next.result.items.length === 0) break;
+          candidates.push(...next.result.items);
+        } catch {
+          break;
+        }
+      }
+    }
+    const seen = new Set<string>();
+    const terms = isSearching ? normalized.q!.trim().toLowerCase().split(/\s+/).filter(Boolean) : [];
+    const strictMatches = candidates.filter((job) => {
+      if (seen.has(job.id)) return false;
+      seen.add(job.id);
+      if (terms.length) {
+        const haystack = `${job.title} ${job.company}`.toLowerCase();
+        if (!terms.every((term) => haystack.includes(term))) return false;
+      }
+      if (hasPostedCutoff && !(Date.parse(job.posted_date) >= postedCutoff)) return false;
+      return true;
     });
+    if (hasPostedCutoff && normalized.sort_by !== "most_relevant" && normalized.sort_by !== "high_cpa") {
+      strictMatches.sort((x, y) => Date.parse(y.posted_date) - Date.parse(x.posted_date));
+    }
     const plan = planPage(offset, limit, strictMatches.length, ownTotal);
     const externalItems = strictMatches.slice(plan.externalOffset, plan.externalOffset + plan.externalCount);
     const ownItems = await fetchOwnJobs(normalized, plan.ownCount, plan.ownOffset);
