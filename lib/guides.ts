@@ -14,6 +14,7 @@ export type Guide = {
   price: string;
   originalPrice?: string;
   blurb: string;
+  differentiator?: string; // optional extra line shown under the blurb
   includes: string[];
   url?: string; // omit => "Coming soon"
   group: "available" | "next" | "career";
