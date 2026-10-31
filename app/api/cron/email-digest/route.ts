@@ -1,76 +1,68 @@
 import { NextRequest, NextResponse } from "next/server";
-import { fetchJobs } from "@/lib/artha";
-import { supabaseAdmin } from "@/lib/supabase";
-import { digestEmail, emailConfigured, sendEmail, welcomeEmail } from "@/lib/email";
+import { getJobsPage } from "@/lib/jobs";
+import { emailConfigured, sendEmail, welcomeEmail } from "@/lib/email";
+import { runEmailJob, type EmailJobDeps } from "@/lib/email-job";
+import { supabaseSubscriberStore } from "@/lib/email-job-store";
 
+// Sequential sends with a delay need room; Vercel Hobby allows up to 60s.
+export const maxDuration = 60;
+export const dynamic = "force-dynamic";
+
+/**
+ * Daily alert-email job (Vercel cron: see vercel.json, 08:00 UTC).
+ *
+ * Manual run:
+ *   curl -H "Authorization: Bearer $CRON_SECRET" "https://<site>/api/cron/email-digest?dry=1"      # dry run, sends nothing
+ *   curl -H "Authorization: Bearer $CRON_SECRET" "https://<site>/api/cron/email-digest?test_to=you@example.com"  # one real test email
+ *   curl -H "Authorization: Bearer $CRON_SECRET" "https://<site>/api/cron/email-digest"            # full run
+ */
 export async function GET(req: NextRequest) {
   const auth = req.headers.get("authorization");
   if (!process.env.CRON_SECRET || auth !== `Bearer ${process.env.CRON_SECRET}`) {
     return NextResponse.json({ success: false, error: "unauthorized" }, { status: 401 });
   }
 
-  if (!emailConfigured()) {
-    console.error("[email-digest] BREVO_API_KEY / EMAIL_FROM not set — skipping run");
-    return NextResponse.json(
-      { success: false, error: { code: "MISSING_CONFIG", message: "BREVO_API_KEY and EMAIL_FROM must be set." } },
-      { status: 500 }
-    );
-  }
+  const params = req.nextUrl.searchParams;
+  const dryRun = params.get("dry") === "1" || params.get("dry") === "true";
+  const testTo = params.get("test_to")?.trim();
 
-  const db = supabaseAdmin();
-
-  // 1) Retry welcome emails that never went out (recent signups only, capped per run).
-  let welcomed = 0;
-  const since = new Date(Date.now() - 30 * 24 * 3600 * 1000).toISOString();
-  const { data: pending } = await db
-    .from("subscribers")
-    .select("id, email, filters, unsubscribe_token")
-    .eq("confirmed", true)
-    .is("welcome_sent_at", null)
-    .gte("created_at", since)
-    .limit(50);
-  for (const s of pending ?? []) {
-    const mail = welcomeEmail({ keywords: s.filters?.niche_keywords, token: s.unsubscribe_token });
-    const r = await sendEmail({ to: s.email, ...mail, unsubscribeToken: s.unsubscribe_token });
-    if (r.ok) {
-      await db.from("subscribers").update({ welcome_sent_at: new Date().toISOString(), welcome_error: null }).eq("id", s.id);
-      welcomed++;
-    } else {
-      await db.from("subscribers").update({ welcome_error: `${r.status ?? ""} ${r.error}`.trim().slice(0, 500) }).eq("id", s.id);
+  // Single test email: proves Brevo works end to end without touching any subscriber row.
+  if (testTo) {
+    if (!emailConfigured()) {
+      return NextResponse.json({ success: false, error: "BREVO_API_KEY and EMAIL_FROM must be set." }, { status: 500 });
     }
-  }
-
-  // 2) Job-match digests.
-  const { data: subscribers, error } = await db.from("subscribers").select("*").eq("confirmed", true);
-  if (error) {
-    console.error("[email-digest] failed to load subscribers", error);
-    return NextResponse.json({ success: false }, { status: 500 });
-  }
-
-  let sent = 0;
-  let failed = 0;
-  for (const sub of subscribers ?? []) {
-    const postedAfter = sub.last_sent_at ?? new Date(Date.now() - 24 * 3600 * 1000).toISOString();
-    try {
-      const { items } = await fetchJobs({ ...sub.filters, posted_after: postedAfter, sort_by: "newest", limit: 10 });
-      if (items.length === 0) continue; // never email an empty digest
-
-      const mail = digestEmail({
-        jobs: items,
-        keywords: sub.filters?.niche_keywords,
-        token: sub.unsubscribe_token,
-      });
-      const r = await sendEmail({ to: sub.email, ...mail, unsubscribeToken: sub.unsubscribe_token });
-      if (!r.ok) throw new Error(`Brevo send failed (${r.status ?? "network"}): ${r.error}`);
-
-      await db.from("subscribers").update({ last_sent_at: new Date().toISOString() }).eq("id", sub.id);
-      sent++;
-    } catch (err) {
-      failed++;
-      console.error(`[email-digest] failed for ${sub.email}`, err);
-      // one subscriber's failure shouldn't block the rest
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(testTo)) {
+      return NextResponse.json({ success: false, error: "test_to is not a valid email" }, { status: 400 });
     }
+    if (dryRun) return NextResponse.json({ success: true, dryRun: true, wouldSendTestTo: testTo });
+    const mail = welcomeEmail({ keywords: "test", token: "00000000-0000-0000-0000-000000000000" });
+    const r = await sendEmail({ to: testTo, subject: `[TEST] ${mail.subject}`, html: mail.html });
+    console.log(`[email-job] test email ${r.ok ? "sent" : `failed (${r.status ?? "network"})`}`);
+    return NextResponse.json(r.ok ? { success: true, testSent: true } : { success: false, status: r.status, error: r.error }, {
+      status: r.ok ? 200 : 502,
+    });
   }
 
-  return NextResponse.json({ success: true, welcomed, sent, failed });
+  if (!dryRun && !emailConfigured()) {
+    console.error("[email-job] BREVO_API_KEY / EMAIL_FROM not set, skipping run");
+    return NextResponse.json({ success: false, error: "BREVO_API_KEY and EMAIL_FROM must be set." }, { status: 500 });
+  }
+
+  const deps: EmailJobDeps = {
+    store: supabaseSubscriberStore(),
+    send: sendEmail,
+    // getJobsPage adds the cached-jobs fallback and enforces the posted-after window.
+    findJobs: async (q) => (await getJobsPage(q)).items,
+    sleep: (ms) => new Promise((r) => setTimeout(r, ms)),
+    now: () => new Date(),
+    log: (l) => console.log(l),
+  };
+
+  try {
+    const summary = await runEmailJob(deps, { dryRun });
+    return NextResponse.json({ success: summary.stopped !== "unauthorized", ...summary });
+  } catch (err) {
+    console.error("[email-job] run crashed:", err instanceof Error ? err.message : "unknown");
+    return NextResponse.json({ success: false, error: "run failed" }, { status: 500 });
+  }
 }
