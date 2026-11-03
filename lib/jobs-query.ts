@@ -14,6 +14,13 @@ export interface Filters {
   sort_by: string;
 }
 
+// The audience is India-first, and Artha returns jobs from every country when
+// no location is sent (UK driver roles were filling the list). Set
+// NEXT_PUBLIC_DEFAULT_JOBS_LOCATION to another place, or to "none" for worldwide.
+// A visitor can also open /jobs?location=all for worldwide results.
+const envDefault = process.env.NEXT_PUBLIC_DEFAULT_JOBS_LOCATION?.trim();
+export const DEFAULT_LOCATION = envDefault === undefined || envDefault === "" ? "India" : /^(none|all)$/i.test(envDefault) ? "" : envDefault;
+
 export const emptyFilters: Filters = {
   q: "",
   location: "",
@@ -54,6 +61,8 @@ export function filtersFromParams(sp: Params): Filters {
     const v = sp.get(key);
     if (v) out[key] = v;
   }
+  if (sp.get("location") === null) out.location = DEFAULT_LOCATION;
+  else if (/^(all|any|worldwide)$/i.test(out.location)) out.location = "";
   if (!POSTED_OPTIONS.some((o) => o.value === out.posted)) out.posted = "";
   // "Most relevant" only means something when there is search text.
   if (out.sort_by === "most_relevant" && !out.q.trim()) out.sort_by = emptyFilters.sort_by;
@@ -87,6 +96,16 @@ export function buildJobsQuery(f: Filters, offset: number, limit: number): JobsQ
     niche_keywords: terms.length ? terms.join(",") : undefined,
     sort_by: (f.sort_by as JobsQuery["sort_by"]) || undefined,
   };
+}
+
+// Supabase `or()` filter for a location. Artha rows store the country as a code
+// ("Gurgaon, Haryana, IN"), so "India" must also match the code, exactly.
+export function locationFilter(location: string): string | null {
+  const loc = location.replace(/[,()%*\\"]/g, " ").replace(/\s+/g, " ").trim();
+  if (!loc) return null;
+  const parts = [`country.ilike.%${loc}%`, `location.ilike.%${loc}%`];
+  if (/^india$/i.test(loc)) parts.push("country.eq.IN", "location.ilike.%, IN");
+  return parts.join(",");
 }
 
 // Supabase `or()` filter matching ANY of the comma-separated words in the job

@@ -1,7 +1,7 @@
 import { fetchJobs, ArthaApiError, type PublicJob, type JobsQuery, type JobsResponse } from "@/lib/artha";
 import { supabaseAdmin } from "@/lib/supabase";
 import { cacheArthaJobsInBackground, fetchCachedJobs, cachedUnsupportedFilters } from "@/lib/job-cache";
-import { titleKeywordFilter } from "@/lib/jobs-query";
+import { titleKeywordFilter, locationFilter } from "@/lib/jobs-query";
 
 export type JobsPageResult = JobsResponse & {
   sources: { artha: "live" | "cached" | "unavailable"; ignored?: string[] };
@@ -20,6 +20,8 @@ function normalizeOwnJob(row: any): PublicJob {
   };
 }
 
+const OWN_JOB_MAX_AGE_DAYS = Number(process.env.OWN_JOB_MAX_AGE_DAYS) > 0 ? Number(process.env.OWN_JOB_MAX_AGE_DAYS) : 30;
+
 function applyOwnJobFilters(q: any, query: JobsQuery) {
   let scoped = q;
   if (query.q?.trim()) {
@@ -28,11 +30,16 @@ function applyOwnJobFilters(q: any, query: JobsQuery) {
       `title.ilike.%${search}%,company.ilike.%${search}%,description.ilike.%${search}%,location.ilike.%${search}%,city.ilike.%${search}%,state.ilike.%${search}%,country.ilike.%${search}%`
     );
   }
-  if (query.location) scoped = scoped.or(`country.ilike.%${query.location}%,location.ilike.%${query.location}%`);
+  const locOr = query.location ? locationFilter(query.location) : null;
+  if (locOr) scoped = scoped.or(locOr);
   if (query.job_type) scoped = scoped.eq("job_type", query.job_type);
   if (query.work_mode) scoped = scoped.eq("work_mode", query.work_mode);
   if (query.company) scoped = scoped.ilike("company", `%${query.company}%`);
   if (query.posted_after) scoped = scoped.gte("posted_date", query.posted_after);
+  // Manually posted jobs have no expiry of their own; stop showing ones older than
+  // OWN_JOB_MAX_AGE_DAYS (undated rows are kept).
+  const ownCutoff = new Date(Date.now() - OWN_JOB_MAX_AGE_DAYS * 86_400_000).toISOString();
+  scoped = scoped.or(`posted_date.is.null,posted_date.gte.${ownCutoff}`);
   const keywordFilter = titleKeywordFilter(query.niche_keywords);
   if (keywordFilter) scoped = scoped.or(keywordFilter);
   return scoped;

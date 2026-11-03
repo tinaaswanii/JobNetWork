@@ -2,7 +2,7 @@ import { supabaseAdmin } from "@/lib/supabase";
 import { fetchJobs, type JobsQuery, type JobsResponse } from "@/lib/artha";
 import { isArthaUrlExpired } from "@/lib/artha-url";
 import type { PublicJob } from "@/lib/types";
-import { titleKeywordFilter } from "@/lib/jobs-query";
+import { titleKeywordFilter, locationFilter } from "@/lib/jobs-query";
 
 // Opportunistically upserts every Artha-sourced job (never own_jobs) into
 // cached_jobs, keyed by slug. Fire-and-forget: never let a caching failure
@@ -151,6 +151,8 @@ export function cachedUnsupportedFilters(query: JobsQuery): string[] {
   return out;
 }
 
+const CACHE_MAX_STALE_DAYS = 7;
+
 export async function fetchCachedJobs(query: JobsQuery = {}): Promise<JobsResponse> {
   const limit = Math.max(1, query.limit ?? 10);
   const offset = Math.max(0, query.offset ?? 0);
@@ -171,8 +173,8 @@ export async function fetchCachedJobs(query: JobsQuery = {}): Promise<JobsRespon
           .join(",")
       );
     }
-    const loc = query.location ? strip(query.location) : "";
-    if (loc) q = q.or(`country.ilike.%${loc}%,location.ilike.%${loc}%`);
+    const locOr = query.location ? locationFilter(query.location) : null;
+    if (locOr) q = q.or(locOr);
     // Artha's wording varies ("Full-time" / "Full Time"), so match loosely instead of exactly.
     const jt = query.job_type ? strip(query.job_type).replace(/[-\s]+/g, "%") : "";
     if (jt) q = q.ilike("job_type", `%${jt}%`);
@@ -180,6 +182,8 @@ export async function fetchCachedJobs(query: JobsQuery = {}): Promise<JobsRespon
     if (mode) q = q.or(`title.ilike.%${mode}%,location.ilike.%${mode}%,description.ilike.%${mode}%`);
     if (query.company) q = q.ilike("company", `%${strip(query.company)}%`);
     if (query.posted_after) q = q.gte("posted_date", query.posted_after);
+    // Fallback only: skip rows the live feed has not listed for a week (likely closed).
+    q = q.gte("last_seen_at", new Date(Date.now() - CACHE_MAX_STALE_DAYS * 86_400_000).toISOString());
     const keywordFilter = titleKeywordFilter(query.niche_keywords);
     if (keywordFilter) q = q.or(keywordFilter);
 
