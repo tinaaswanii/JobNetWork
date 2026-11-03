@@ -121,17 +121,29 @@ export async function getArthaJobBySlug(slug: string): Promise<PublicJob | null>
 
   if (cached && !isArthaUrlExpired(cached.url)) return cached;
 
-  // Artha slugs are built from the title, so the slug words make a usable search query.
-  const guessedQuery = slug.replace(/-[a-f0-9]{6,}$/i, "").replace(/-/g, " ");
-  try {
-    const result = await fetchJobs({ q: guessedQuery, limit: 25 });
-    const match = result.items.find((j) => j.slug === slug);
-    if (match) {
-      cacheArthaJobsInBackground([match]);
-      return match;
+  // Artha has no lookup-by-slug, so find the job with a search and match the slug.
+  // The slug words (title + company + city) make a poor query: Artha's search is
+  // fuzzy and often misses. Prefer the cached title and company, then widen.
+  const guessed = slug.replace(/-[a-f0-9]{6,}$/i, "").replace(/-/g, " ");
+  const attempts: JobsQuery[] = cached
+    ? [
+        { q: cached.title, company: cached.company, limit: 50 },
+        { q: cached.title, limit: 100 },
+        { q: guessed, limit: 50 },
+      ]
+    : [{ q: guessed, limit: 50 }];
+  for (const query of attempts) {
+    try {
+      const result = await fetchJobs(query);
+      const match = result.items.find((j) => j.slug === slug);
+      if (match) {
+        cacheArthaJobsInBackground([match]);
+        return match;
+      }
+    } catch (err) {
+      console.error("[job-cache] live refresh failed", err instanceof Error ? err.message : "unknown");
+      break; // upstream is down or rate limited; more attempts would only add load
     }
-  } catch (err) {
-    console.error("[job-cache] live refresh failed", err instanceof Error ? err.message : "unknown");
   }
 
   return cached;
