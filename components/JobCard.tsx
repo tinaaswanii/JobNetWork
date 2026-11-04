@@ -75,7 +75,7 @@ export default function JobCard({ job, headingLevel = 3 }: { job: PublicJob; hea
       >
         {job.logo ? (
           // eslint-disable-next-line @next/next/no-img-element
-          <img src={job.logo} alt="" loading="lazy" className="h-12 w-12 shrink-0 rounded-xl border bg-white object-contain p-1" />
+          <img src={job.logo} alt="" loading="lazy" decoding="async" width={48} height={48} className="h-12 w-12 shrink-0 rounded-xl border bg-white object-contain p-1" />
         ) : (
           <div aria-hidden="true" className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-board text-lg font-semibold text-white">
             {job.company.charAt(0)}

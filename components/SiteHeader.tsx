@@ -3,7 +3,6 @@
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { supabaseBrowser } from "@/lib/auth/client";
 
 const WHATSAPP_URL = "https://chat.whatsapp.com/L9DG89VrT4V2UFjFkpv0Ok";
 
@@ -28,23 +27,30 @@ export default function SiteHeader() {
 
   // Reflect auth state client-side so public pages stay statically cacheable.
   useEffect(() => {
-    // If the public Supabase env vars are missing (e.g. a preview deploy),
-    // treat the visitor as signed out instead of crashing every page.
-    let supabase: ReturnType<typeof supabaseBrowser>;
-    try {
-      supabase = supabaseBrowser();
-    } catch {
-      setSignedIn(false);
-      return;
-    }
-    supabase.auth
-      .getUser()
-      .then(({ data }) => setSignedIn(!!data.user))
-      .catch(() => setSignedIn(false));
-    const { data: sub } = supabase.auth.onAuthStateChange((_e, session) =>
-      setSignedIn(!!session?.user)
-    );
-    return () => sub.subscription.unsubscribe();
+    // The Supabase client is ~80 KB, so load it after the page is interactive
+    // instead of shipping it in every page's first bundle. If the public
+    // Supabase env vars are missing (e.g. a preview deploy), treat the visitor
+    // as signed out instead of crashing every page.
+    let cancelled = false;
+    let unsubscribe: (() => void) | undefined;
+    import("@/lib/auth/client")
+      .then(({ supabaseBrowser }) => {
+        if (cancelled) return;
+        const supabase = supabaseBrowser();
+        supabase.auth
+          .getUser()
+          .then(({ data }) => !cancelled && setSignedIn(!!data.user))
+          .catch(() => !cancelled && setSignedIn(false));
+        const { data: sub } = supabase.auth.onAuthStateChange((_e, session) =>
+          setSignedIn(!!session?.user)
+        );
+        unsubscribe = () => sub.subscription.unsubscribe();
+      })
+      .catch(() => !cancelled && setSignedIn(false));
+    return () => {
+      cancelled = true;
+      unsubscribe?.();
+    };
   }, []);
 
   // Close the mobile menu after navigating.
@@ -69,8 +75,11 @@ export default function SiteHeader() {
         <Link href="/" className="flex min-h-[44px] items-center gap-2">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
-            src="/Logo.png"
+            src="/logo-96.webp"
             alt=""
+            width={32}
+            height={32}
+            decoding="async"
             className="h-8 w-8 rounded-full bg-white object-contain"
           />
           <span className="text-base font-semibold tracking-tight">JobNetWork</span>
