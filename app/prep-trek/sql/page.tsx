@@ -36,15 +36,15 @@ export default function SqlPage() {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
 
-      <header className="bg-board px-6 py-12 text-paper md:px-12">
+      <header className="border-b border-ink/10 bg-boardDark px-6 py-8 md:px-12 md:py-10">
         <div className="mx-auto max-w-3xl">
-          <Link href="/prep-trek" className="inline-flex min-h-[44px] items-center text-sm text-paper/70 hover:text-paper">
+          <Link href="/prep-trek" className="inline-flex min-h-[44px] items-center text-sm text-ink/70 hover:text-ink">
             ← All Prep Trek tracks
           </Link>
-          <h1 className="mt-4 font-display text-4xl md:text-5xl">
+          <h1 className="mt-3 font-display text-3xl md:text-4xl">
             <span aria-hidden="true">🧮</span> SQL, in 10 cards
           </h1>
-          <p className="mt-4 max-w-xl text-paper/80">
+          <p className="mt-3 max-w-xl text-base leading-7 text-ink/80">
             No chapters to read. Each card gives you the one-line answer, a
             picture, a quick try-it and the trap interviewers hope you fall
             into. About 15 minutes for all ten.

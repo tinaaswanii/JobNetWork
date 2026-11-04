@@ -113,11 +113,11 @@ export default function PrepTrekIndexPage() {
       />
 
       {/* Hero */}
-      <header className="bg-board text-paper px-6 py-12 md:px-12">
-        <div className="mx-auto max-w-5xl">
-          <h1 className="font-display text-4xl md:text-5xl">Prep Trek</h1>
+      <header className="border-b border-ink/10 bg-boardDark py-8 md:py-10">
+        <div className="mx-auto max-w-5xl px-6 md:px-12">
+          <h1 className="font-display text-3xl md:text-4xl">Prep Trek</h1>
 
-          <p className="mt-4 max-w-2xl text-paper/80">
+          <p className="mt-3 max-w-2xl text-base leading-7 text-ink/80">
             Interviews aren't just about knowing your field — they're about
             knowing what you'll be asked. Pick your track for common
             questions with real answers, a short learning path, and what
@@ -126,10 +126,10 @@ export default function PrepTrekIndexPage() {
 
           <dl className="mt-8 grid grid-cols-2 gap-3 md:max-w-2xl md:grid-cols-4">
             {stats.map((st) => (
-              <div key={st.label} className="rounded-xl border border-paper/15 bg-paper/5 px-4 py-3">
+              <div key={st.label} className="rounded-xl border border-ink/15 bg-white px-4 py-3">
                 <dt className="sr-only">{st.label}</dt>
                 <dd className="font-display text-2xl">{st.value}</dd>
-                <p className="text-xs text-paper/70">{st.label}</p>
+                <p className="text-xs text-ink/70">{st.label}</p>
               </div>
             ))}
           </dl>
@@ -137,8 +137,8 @@ export default function PrepTrekIndexPage() {
       </header>
 
       {/* Founder note — real credibility, not a generic "about us" blurb */}
-      <section className="border-b px-6 py-10 md:px-12">
-        <div className="mx-auto max-w-5xl">
+      <section className="border-b py-10">
+        <div className="mx-auto max-w-5xl px-6 md:px-12">
           <div className="pinned-card flex flex-col gap-4 p-6 md:flex-row md:items-center md:gap-8 md:p-8">
             <p className="text-sm leading-7 text-ink/75 md:text-base">
               <span className="font-semibold text-ink">
