@@ -1,7 +1,11 @@
 "use client";
 
 import { useEffect, useSyncExternalStore } from "react";
-import { supabaseBrowser } from "@/lib/auth/client";
+
+// The Supabase client is large; load it on demand so job lists render and
+// become interactive without waiting on it (it is only needed for save state).
+type Browser = ReturnType<typeof import("@/lib/auth/client").supabaseBrowser>;
+const browserClient = async (): Promise<Browser> => (await import("@/lib/auth/client")).supabaseBrowser();
 
 /**
  * Per-browser cache of "which public jobs has this user saved / tracked", loaded
@@ -28,10 +32,10 @@ function set(next: Partial<State>) {
 
 async function load() {
   set({ status: "loading" });
-  let sb: ReturnType<typeof supabaseBrowser>;
+  let sb: Browser;
   let user: { id: string } | null = null;
   try {
-    sb = supabaseBrowser();
+    sb = await browserClient();
     user = (await sb.auth.getUser()).data.user;
   } catch {
     // Missing env vars or network failure: behave as signed out.
@@ -54,13 +58,15 @@ function ensureLoaded() {
   if (!watching) {
     watching = true;
     // Reload when the user signs in/out in this tab.
-    try {
-      supabaseBrowser().auth.onAuthStateChange((event) => {
-        if (event === "SIGNED_IN" || event === "SIGNED_OUT") load();
+    browserClient()
+      .then((sb) =>
+        sb.auth.onAuthStateChange((event) => {
+          if (event === "SIGNED_IN" || event === "SIGNED_OUT") load();
+        })
+      )
+      .catch(() => {
+        /* env vars missing: nothing to watch */
       });
-    } catch {
-      /* env vars missing: nothing to watch */
-    }
   }
   if (state.status === "idle") load();
 }

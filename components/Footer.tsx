@@ -156,6 +156,9 @@ export default function Footer() {
             <img
               src="https://shipthing.com/shipthing/images/badges/featured-on-light.svg"
               alt="Featured on ShipThing"
+              loading="lazy"
+              decoding="async"
+              height={40}
               style={{ height: "40px", width: "auto" }}
             />
           </a>
@@ -169,6 +172,9 @@ export default function Footer() {
             <img
               src="https://lookingfortools.com/lookingfortools/images/badges/featured-on-light.svg"
               alt="Featured on Looking For Tools"
+              loading="lazy"
+              decoding="async"
+              height={40}
               style={{ height: "40px", width: "auto" }}
             />
           </a>
