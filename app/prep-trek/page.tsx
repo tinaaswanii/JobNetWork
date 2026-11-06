@@ -77,6 +77,7 @@ const AVAILABLE_NOTES = [
   "Computer Networks PrepTrek",
   "DBMS PrepTrek",
   "SQL PrepTrek",
+  "Aptitude PrepTrek",
   "Java Programming Notes",
   "Interview Prep Trek Guide",
 ];

@@ -143,14 +143,15 @@ export const guides: Guide[] = [
   {
     title: "Aptitude PrepTrek",
     emoji: "🧠",
-    price: "₹99",
+    price: "₹29",
     blurb: "24 aptitude cards, quant and reasoning, with a one-page formula cheat sheet for placement tests.",
     includes: [
       "24 cards: percentages to reasoning",
       "A picture, a try-it and the common trap on each",
       "One-page formula cheat sheet",
     ],
-    group: "next", // TODO: set url + group "available" once the Topmate product is live
+    url: "https://topmate.io/getyourjob/new/KAkcEZzlyx",
+    group: "available",
   },
 
   // ---- Then: career guides ----

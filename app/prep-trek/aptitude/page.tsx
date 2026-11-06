@@ -65,9 +65,9 @@ export default function AptitudePage() {
             the same style, plus a one-page formula cheat sheet:
           </p>
           <ul className="mt-3 space-y-1.5 text-sm text-ink/75">
-            <li>• Divisibility rules, last digits of powers, number series</li>
-            <li>• Mixtures, simple and compound interest, ages and ratios</li>
-            <li>• Pipes and cisterns, trains, boats and streams</li>
+            <li>• Last digits of powers, number series, percentage points vs percent change</li>
+            <li>• Successive discounts, mixtures, simple vs compound interest, ages</li>
+            <li>• Pipes and leaks, trains, boats and streams</li>
             <li>• Circular arrangements, direction sense, syllogisms, mirror letters</li>
             <li>• A one-page formula cheat sheet for the night before</li>
           </ul>
