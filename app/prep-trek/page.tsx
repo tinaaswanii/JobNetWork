@@ -9,6 +9,7 @@ import { guides } from "@/lib/guides";
 import { dbmsFreeCards } from "@/lib/prep-cards/dbms-free";
 import { sqlFreeCards } from "@/lib/prep-cards/sql-free";
 import { cnFreeCards } from "@/lib/prep-cards/cn-free";
+import { aptitudeFreeCards } from "@/lib/prep-cards/aptitude-free";
 
 const SITE_URL = "https://job-net-work.vercel.app";
 
@@ -33,7 +34,7 @@ export const metadata: Metadata = {
 const fillLastRow =
   "sm:[&:last-child:nth-child(odd)]:col-span-2 lg:[&:last-child:nth-child(odd)]:col-span-1";
 
-// The three card-based subject pages. Counts and paid-notes info come from the
+// The card-based subject pages. Counts and paid-notes info come from the
 // data files so this page can't drift out of sync with them.
 const subjects = [
   {
@@ -59,6 +60,14 @@ const subjects = [
     topics: ["OSI vs TCP/IP", "TCP vs UDP", "Subnetting & DNS", "HTTP vs HTTPS"],
     free: cnFreeCards.length,
     guide: guides.find((g) => g.title === "Computer Networks PrepTrek"),
+  },
+  {
+    href: "/prep-trek/aptitude",
+    name: "Aptitude in 10 cards",
+    text: "Percentages, profit and loss, time and work, speed, counting, reasoning.",
+    topics: ["Percentages & ratios", "Time, work & speed", "Counting & probability", "Reasoning"],
+    free: aptitudeFreeCards.length,
+    guide: guides.find((g) => g.title === "Aptitude PrepTrek"),
   },
 ];
 
@@ -242,11 +251,11 @@ export default function PrepTrekIndexPage() {
 
       {/* Subject cards: short, tappable interview cards by subject */}
       <section className="mx-auto max-w-5xl px-6 pt-12 md:px-12">
-        <h2 className="font-display text-2xl">Core CS subjects, as tappable cards</h2>
+        <h2 className="font-display text-2xl">Subjects as tappable cards</h2>
         <p className="mt-2 max-w-2xl text-sm leading-6 text-ink/70">
-          The questions that keep coming up in technical rounds, one card at a time.
+          The questions that keep coming up in tests and technical rounds, one card at a time.
         </p>
-        <div className="mt-5 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="mt-5 grid gap-5 sm:grid-cols-2">
           {subjects.map((s) => (
             <Link
               key={s.href}
