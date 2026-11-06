@@ -584,6 +584,16 @@ export const prepTracks: PrepTrack[] = [
         answer:
           "This is sometimes used to see if it throws you off your answer. It may also just mean they're tired or busy — either way, reacting by rushing or under-explaining usually works against you. Keep your normal pace and depth.",
       },
+      {
+        question: "They say 'I don't think that's right' when your answer was actually correct.",
+        answer:
+          "This is often a test of whether you will cave under pressure, or dig in without listening. Stay calm and walk through your reasoning step by step: 'Here is how I got there, is there an assumption you'd change?' If you do find an error, say so plainly and fix it. Both responses show good judgment; changing a right answer just to please them does not.",
+      },
+      {
+        question: "A panel where one interviewer is warm and another is tough.",
+        answer:
+          "Treat them the same. Direct your answers to the whole panel instead of only the friendly one, and don't get rattled by the tough one. The tough interviewer is often checking how you handle pushback, and the warm one may just be setting a tone. Be consistent with both, and keep your answers the same whoever asked.",
+      },
     ],
     learningPath: [
       {
@@ -891,6 +901,26 @@ export const prepTracks: PrepTrack[] = [
         answer:
           "Skim their recent posts for 30 seconds before this comes up if you can. Give 3 genuinely different angles (not 3 variations of the same idea), and briefly say who each one targets.",
       },
+      {
+        question: "What's the difference between reach, impressions and engagement?",
+        answer:
+          "Reach is how many different people saw it; impressions is how many times it was shown, so one person can count several times; engagement is what people did (likes, comments, shares, saves, clicks). If impressions are far higher than reach, the same people are seeing it repeatedly. When you quote an engagement rate, say what you divided by (reach or followers), because the two give different numbers.",
+      },
+      {
+        question: "How would you grow our Instagram or LinkedIn page from 1,000 to 10,000 followers?",
+        answer:
+          "Don't promise a number or a trick. Start with who the audience is and what they would save or share, pick two or three content formats you can keep up every week, and name one or two ways to get in front of new people (collaborations, relevant communities, repurposing). Then say how you would review it monthly. Followers are a result, so also track saves, shares and profile visits.",
+      },
+      {
+        question: "How do you write a good headline or hook?",
+        answer:
+          "Say who it is for and what they get, in the first line, and be specific rather than clever. 'Cut your resume from three pages to one' beats 'Resume tips'. Write three versions and pick the clearest, not the cutest. If you can test two versions, even informally, say so.",
+      },
+      {
+        question: "You have a ₹10,000 monthly budget. How would you use it?",
+        answer:
+          "Start with the goal, because awareness and leads are spent differently. Split a small test across two or three audiences or creatives, look at the results after a week, then move money to what worked and keep a little for people who already visited. This question tests your thinking, so explain the method and which metric you would check (cost per click or per lead, depending on the goal) rather than guessing a result.",
+      },
     ],
     learningPath: [
       {
@@ -993,6 +1023,26 @@ export const prepTracks: PrepTrack[] = [
         answer:
           "The expected answer is about process, not bluffing: say you'd be honest that you need to check, tell them a realistic timeline, and actually follow up — not disappear or guess.",
       },
+      {
+        question: "How do you stay calm and polite when a customer is rude?",
+        answer:
+          "Separate the person from the problem. Don't match their tone: one short line of empathy ('I can see why that's frustrating'), then move to what you can do next. Know your policy for abusive behaviour, which is usually to warn once and then escalate or end the contact. Mention how you reset afterwards, such as a short break, so it doesn't carry into the next call. A real example makes this much stronger.",
+      },
+      {
+        question: "What metrics matter in customer support?",
+        answer:
+          "The common ones are first response time, resolution time, customer satisfaction (CSAT), first-contact resolution and the size of the backlog. Show that you know they pull against each other: replying fast with a wrong answer hurts satisfaction, so you aim for quick and correct. Don't quote benchmark numbers unless you know where they came from.",
+      },
+      {
+        question: "A customer asks for something against company policy. What do you do?",
+        answer:
+          "Explain in plain words what you can't do and why, then offer the closest thing you can do. If an exception might be reasonable, pass it to the right person instead of promising it yourself. Never promise something you can't deliver just to end the conversation, because that creates a bigger complaint later.",
+      },
+      {
+        question: "Tell me about a mistake you made and how you handled it.",
+        answer:
+          "Pick a real, small-to-medium mistake. Say you owned it early, fixed it, told the people affected (the customer or your lead), and changed something so it wouldn't repeat, such as a checklist or a double-check. Avoid blaming others or a mistake with no lesson. Honesty and a fix matter more here than a perfect record.",
+      },
     ],
     learningPath: [
       {
@@ -1088,6 +1138,26 @@ export const prepTracks: PrepTrack[] = [
         question: "Critique this screen (shown live or sent beforehand).",
         answer:
           "Don't just list flaws. Structure it: what's the screen's goal, what works toward that goal, what works against it, and one concrete fix you'd try — critique with a point of view, not a list of nitpicks.",
+      },
+      {
+        question: "How do you choose between two design options?",
+        answer:
+          "Go back to the user's goal and say what success would look like. Then use whatever evidence you can get: a quick test with five users, an A/B test if the product is live, or a heuristic review. If there is no data, state your assumption and your reasoning, and suggest the smaller option you can ship and learn from. Opinions from stakeholders are input, not the tie-breaker.",
+      },
+      {
+        question: "What makes a design accessible?",
+        answer:
+          "Enough colour contrast (WCAG AA asks for at least 4.5:1 for normal text and 3:1 for large text), tap targets of around 44 to 48 pixels, not using colour alone to carry meaning, readable text sizes, labels on inputs, alt text on images and a visible keyboard focus. Mention one place you applied this in your own work, even a personal project.",
+      },
+      {
+        question: "How do you work with developers?",
+        answer:
+          "Involve them early so you hear what is costly before you design it. Hand over every state, not just the happy path: hover, error, empty and loading. Use shared components or design tokens so you and they agree on spacing and colour. Stay available while it is built and check the finished screen against your design, and be willing to trade off details that cost too much.",
+      },
+      {
+        question: "What's the difference between UX and UI design?",
+        answer:
+          "UX is how the product works and feels: the problem being solved, the flow, the structure and how easy it is to finish a task. UI is how it looks: type, colour, spacing and the components. They depend on each other, since a beautiful screen with a confusing flow fails. Say which you lean towards, and show in your portfolio that you can do both.",
       },
     ],
     learningPath: [
