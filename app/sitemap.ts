@@ -49,6 +49,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     },
 
     {
+      url: `${baseUrl}/prep-trek/aptitude`,
+      lastModified: new Date(),
+      changeFrequency: "monthly",
+      priority: 0.6,
+    },
+    {
       url: `${baseUrl}/prep-trek/computer-networks`,
       lastModified: new Date(),
       changeFrequency: "monthly",
